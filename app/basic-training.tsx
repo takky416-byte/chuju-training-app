@@ -25,6 +25,7 @@ export type BasicAttempt = {
   clientAttemptId: string;
   questionId: string;
   questionTitle?: string;
+  correctAnswer?: string;
   subject: BasicSubject;
   setId: string;
   isCorrect: boolean;
@@ -225,6 +226,15 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
     };
   }), [attempts, questionPool]);
 
+  const neglectedSubjects = useMemo(() => {
+    const available = subjectStats.filter((row) => row.total > 0);
+    const max = Math.max(...available.map((row) => row.attempted), 0);
+    if (max === 0) return new Set<BasicSubject>();
+    const average = available.reduce((sum, row) => sum + row.attempted, 0) / available.length;
+    const threshold = Math.max(1, Math.round(average * 0.5));
+    return new Set(available.filter((row) => row.attempted < threshold).map((row) => row.subject));
+  }, [subjectStats]);
+
   function prioritizeQuestions(pool: ActiveQuestion[]) {
     const latest = new Map<string, BasicAttempt>();
     attempts.forEach((attempt) => {
@@ -332,10 +342,12 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
   async function saveAttempt(isCorrect: boolean, wasTimedOut: boolean) {
     if (!active) return;
     const durationSeconds = wasTimedOut ? activeLimit : Math.min(activeLimit, Math.max(1, Math.round((Date.now() - startedAtRef.current) / 1000)));
+    const correctAnswer = active.subject === "kanji" ? active.question.answer : active.question.options[active.question.correctIndex] ?? "";
     const attempt: BasicAttempt = {
       clientAttemptId: crypto.randomUUID(),
       questionId: active.question.id,
       questionTitle: active.question.title,
+      correctAnswer,
       subject: active.subject,
       setId: active.setId,
       isCorrect,
@@ -428,7 +440,7 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
           <div id="basic-subject-picker" className="domain-picker basic-subject-picker">
             <div><strong>科目を選んで5問</strong><small>直近の誤答と未挑戦を優先します</small></div>
             <div className="domain-picker-grid">
-              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{row.subject === "kanji" ? <PencilLine size={16} /> : row.subject === "geography" ? <MapIcon size={16} /> : <BookOpenCheck size={16} />} {BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? `${row.attempted}/${row.total}問挑戦・正答率${row.accuracy}%` : "問題準備中"}</small></button>)}
+              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{row.subject === "kanji" ? <PencilLine size={16} /> : row.subject === "geography" ? <MapIcon size={16} /> : <BookOpenCheck size={16} />} {BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? `${row.attempted}/${row.total}問挑戦・正答率${row.accuracy}%` : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
             </div>
           </div>
         </div>
@@ -442,7 +454,7 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
           <div className="domain-picker result-domain-picker basic-subject-picker">
             <div><strong>次は科目を選んで5問</strong><small>直近の誤答と未挑戦を優先します</small></div>
             <div className="domain-picker-grid">
-              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? `${row.total}問登録` : "問題準備中"}</small></button>)}
+              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? `${row.total}問登録` : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
             </div>
           </div>
         </div>

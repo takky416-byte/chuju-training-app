@@ -69,6 +69,15 @@ function bestCorrectStreak(rows) {
   return best;
 }
 
+function pickNeglected(rows) {
+  const counts = rows.map((row) => row.count);
+  const max = Math.max(...counts, 0);
+  if (max === 0) return [];
+  const average = counts.reduce((sum, value) => sum + value, 0) / counts.length;
+  const threshold = Math.max(1, Math.round(average * 0.5));
+  return rows.filter((row) => row.count < threshold);
+}
+
 function formatJst(value) {
   return new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
@@ -101,7 +110,7 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, correct, streak, newlyDone, newlyMastered, domainRows, subjectRows, wrongTitles }) {
+function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, correct, streak, newlyDone, newlyMastered, domainRows, subjectRows, wrongTitles, neglectedDomains, neglectedSubjects }) {
   const hasActivity = rows.length > 0;
   const period = `${formatJst(periodStart)}〜${formatJst(periodEnd)}`;
   const subject = hasActivity
@@ -114,6 +123,11 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
     ? subjectRows.map((row) => `・${row.subject}：${row.attempts}問／${row.correct}問正解`).join("\n")
     : "・演習なし";
   const wrongText = wrongTitles.length ? wrongTitles.map((title) => `・${title}`).join("\n") : "・なし";
+  const balanceLines = [
+    neglectedDomains.length ? `適性検査でまだ少ない分野：${neglectedDomains.map((row) => row.label).join("、")}` : null,
+    neglectedSubjects.length ? `基礎トレでまだ少ない科目：${neglectedSubjects.map((row) => row.label).join("、")}` : null,
+  ].filter(Boolean);
+  const balanceText = balanceLines.length ? balanceLines.map((line) => `・${line}`).join("\n") : "・分野・科目ともバランスよく取り組めています";
   const text = [
     "中学受験トレーニング 1日の学習レポート",
     period,
@@ -127,6 +141,9 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
     "",
     "基礎トレ・科目別",
     subjectText,
+    "",
+    "分野・科目のバランス",
+    balanceText,
     "",
     "間違えた問題",
     wrongText,
@@ -143,6 +160,9 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
   const wrongHtml = wrongTitles.length
     ? wrongTitles.map((title) => `<li>${escapeHtml(title)}</li>`).join("")
     : "<li>なし</li>";
+  const balanceHtml = balanceLines.length
+    ? balanceLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")
+    : "<li>分野・科目ともバランスよく取り組めています</li>";
   const html = `
     <div style="max-width:640px;margin:auto;padding:24px;color:#17233b;font-family:-apple-system,BlinkMacSystemFont,'Yu Gothic',sans-serif;line-height:1.7">
       <h1 style="margin:0 0 4px;font-size:22px;color:#102847">1日の学習レポート</h1>
@@ -159,6 +179,7 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
       </p>
       <h2 style="margin:24px 0 8px;font-size:16px">適性検査・分野別</h2><ul style="margin:0;padding-left:22px">${domainHtml}</ul>
       <h2 style="margin:24px 0 8px;font-size:16px">基礎トレ・科目別</h2><ul style="margin:0;padding-left:22px">${subjectHtml}</ul>
+      <h2 style="margin:24px 0 8px;font-size:16px">分野・科目のバランス</h2><ul style="margin:0;padding-left:22px">${balanceHtml}</ul>
       <h2 style="margin:24px 0 8px;font-size:16px">間違えた問題</h2><ul style="margin:0;padding-left:22px">${wrongHtml}</ul>
       <a href="${SITE_URL}" style="display:inline-block;margin-top:26px;padding:12px 18px;color:white;background:#17345f;border-radius:7px;text-decoration:none;font-weight:700">学習サイトを開く</a>
     </div>`;
@@ -256,11 +277,34 @@ exports.sendDailyLearningReport = onSchedule({
     }).filter((row) => row.attempts > 0);
     const wrongAptitudeTitles = aptitudeRows
       .filter((attempt) => !attempt.isCorrect)
-      .map((attempt) => `【適性検査】${questions.get(attempt.questionId)?.title || attempt.questionId}`);
+      .map((attempt) => {
+        const question = questions.get(attempt.questionId);
+        const title = attempt.questionTitle || question?.title || attempt.questionId;
+        const correctAnswer = attempt.correctAnswer || (question?.options?.[question.correctIndex] ?? "");
+        return `【適性検査_${attempt.domain}】${title}${correctAnswer ? `（正答：${correctAnswer}）` : ""}`;
+      });
     const wrongBasicTitles = basicRows
       .filter((attempt) => !attempt.isCorrect)
-      .map((attempt) => `【基礎・${BASIC_SUBJECT_LABELS[attempt.subject] || attempt.subject}】${basicQuestions.get(attempt.questionId)?.title || attempt.questionTitle || attempt.questionId}`);
+      .map((attempt) => {
+        const question = basicQuestions.get(attempt.questionId);
+        const subjectLabel = BASIC_SUBJECT_LABELS[attempt.subject] || attempt.subject;
+        const title = attempt.questionTitle || question?.title || attempt.questionId;
+        const correctAnswer = attempt.correctAnswer || question?.answer || (question?.options?.[question.correctIndex] ?? "");
+        return `【基礎トレ_${subjectLabel}】${title}${correctAnswer ? `（正答：${correctAnswer}）` : ""}`;
+      });
     const wrongTitles = [...new Set([...wrongAptitudeTitles, ...wrongBasicTitles])];
+
+    const aptitudeDomainTotals = DOMAINS.map((domain) => ({
+      label: domain,
+      count: allAptitudeAttempts.filter((attempt) => attempt.domain === domain).length,
+    }));
+    const basicSubjectTotals = Object.entries(BASIC_SUBJECT_LABELS).map(([subject, label]) => ({
+      label,
+      count: allBasicAttempts.filter((attempt) => attempt.subject === subject).length,
+    }));
+    const neglectedDomains = pickNeglected(aptitudeDomainTotals);
+    const neglectedSubjects = pickNeglected(basicSubjectTotals);
+
     const message = renderReport({
       periodStart,
       periodEnd,
@@ -274,6 +318,8 @@ exports.sendDailyLearningReport = onSchedule({
       domainRows,
       subjectRows,
       wrongTitles,
+      neglectedDomains,
+      neglectedSubjects,
     });
 
     const transporter = nodemailer.createTransport({

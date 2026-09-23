@@ -64,6 +64,8 @@ type Attempt = {
   durationSeconds: number;
   timedOut?: boolean;
   createdAt: string;
+  questionTitle?: string;
+  correctAnswer?: string;
 };
 
 type SyncState = "loading" | "synced" | "local";
@@ -1001,6 +1003,15 @@ export default function TrainingApp() {
     return { totalQuestions, totalDuplicates, totalErrors, totalNew: totalQuestions - totalDuplicates };
   }, [importFiles]);
   const domainQuestionCounts = useMemo(() => new Map(DOMAINS.map((domain) => [domain, questions.filter((question) => question.domain === domain).length])), [questions]);
+  const neglectedDomains = useMemo(() => {
+    const available = DOMAINS.filter((domain) => (domainQuestionCounts.get(domain) ?? 0) > 0);
+    const domainAttemptCounts = new Map(available.map((domain) => [domain, attempts.filter((attempt) => attempt.domain === domain).length]));
+    const max = Math.max(...available.map((domain) => domainAttemptCounts.get(domain) ?? 0), 0);
+    if (max === 0) return new Set<Domain>();
+    const average = available.reduce((sum, domain) => sum + (domainAttemptCounts.get(domain) ?? 0), 0) / available.length;
+    const threshold = Math.max(1, Math.round(average * 0.5));
+    return new Set(available.filter((domain) => (domainAttemptCounts.get(domain) ?? 0) < threshold));
+  }, [attempts, domainQuestionCounts]);
 
   function beginSession(picked: Question[]) {
     if (!picked.length) return;
@@ -1098,6 +1109,8 @@ export default function TrainingApp() {
       durationSeconds,
       timedOut,
       createdAt: new Date().toISOString(),
+      questionTitle: activeQuestion.title,
+      correctAnswer: activeQuestion.options[activeQuestion.correctIndex] ?? "",
     };
     const nextAttempts = mergeAttempts([attempt], attempts);
     const previousQuestionProgress = questionProgress[activeQuestion.id];
@@ -1881,7 +1894,7 @@ export default function TrainingApp() {
                   <div className="domain-picker-grid">
                     {DOMAINS.map((domain) => {
                       const count = domainQuestionCounts.get(domain) ?? 0;
-                      return <button key={domain} type="button" disabled={!count} onClick={() => startDomainSession(domain)}><span>{domain}</span><small>{count}問登録</small></button>;
+                      return <button key={domain} type="button" disabled={!count} onClick={() => startDomainSession(domain)}><span>{domain}</span><small>{count}問登録{neglectedDomains.has(domain) && <em className="domain-recommend">・おすすめ</em>}</small></button>;
                     })}
                   </div>
                 </div>
@@ -1918,7 +1931,7 @@ export default function TrainingApp() {
               <div className="domain-picker-grid">
                 {DOMAINS.map((domain) => {
                   const count = domainQuestionCounts.get(domain) ?? 0;
-                  return <button key={domain} type="button" disabled={!count} onClick={() => startDomainSession(domain)}><span>{domain}</span><small>{count}問登録</small></button>;
+                  return <button key={domain} type="button" disabled={!count} onClick={() => startDomainSession(domain)}><span>{domain}</span><small>{count}問登録{neglectedDomains.has(domain) && <em className="domain-recommend">・おすすめ</em>}</small></button>;
                 })}
               </div>
             </div>
