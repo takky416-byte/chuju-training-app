@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { BookOpenCheck, Check, ChevronRight, Eraser, Map as MapIcon, PencilLine, RotateCcw, Sparkles, Timer, Trophy, X } from "lucide-react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import {
   BASIC_QUESTION_POOL,
   BASIC_SUBJECT_CONFIG,
@@ -14,7 +15,7 @@ import {
   type GeographyQuestion,
   type KanjiQuestion,
 } from "./basic-questions";
-import { db, LEARNER_RECORD_ID } from "./firebase";
+import { db, functions, LEARNER_RECORD_ID } from "./firebase";
 import type { SoundEffect } from "./audio-engine";
 
 export type BasicAward = { xp: number; coins: number; label: string };
@@ -103,6 +104,8 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
   const [finished, setFinished] = useState(false);
   const [award, setAward] = useState<BasicAward | null>(null);
   const [completionCoins, setCompletionCoins] = useState(0);
+  const [aiState, setAiState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [aiResult, setAiResult] = useState<{ text: string; matches: boolean } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -245,6 +248,8 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
     setAward(null);
     setFinished(false);
     setCompletionCoins(0);
+    setAiState("idle");
+    setAiResult(null);
     setSeconds(clampTime(nextSession[0].question.timeLimitSeconds));
     startedAtRef.current = Date.now();
     setTimeout(() => document.getElementById("basic-training")?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
@@ -266,6 +271,31 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (canvas && context) context.clearRect(0, 0, canvas.width, canvas.height);
+    setAiState("idle");
+    setAiResult(null);
+  }
+
+  async function runAiCheck() {
+    if (!active || active.subject !== "kanji" || !functions) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setAiState("loading");
+    setAiResult(null);
+    try {
+      const dataUrl = canvas.toDataURL("image/png");
+      const imageBase64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+      const recognize = httpsCallable<{ imageBase64: string }, { text: string }>(functions, "recognizeKanjiWriting");
+      const response = await recognize({ imageBase64 });
+      const recognizedText = response.data.text || "";
+      const normalize = (value: string) => value.normalize("NFKC").replace(/\s+/g, "");
+      const normalizedRecognized = normalize(recognizedText);
+      const candidates = [active.question.answer, ...active.question.acceptedAnswers].map(normalize).filter(Boolean);
+      const matches = candidates.some((candidate) => candidate === normalizedRecognized);
+      setAiResult({ text: recognizedText, matches });
+      setAiState("done");
+    } catch {
+      setAiState("error");
+    }
   }
 
   function canvasPoint(event: ReactPointerEvent<HTMLCanvasElement>) {
@@ -356,6 +386,8 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
     setSelectedIndex(null);
     setTimedOut(false);
     setAward(null);
+    setAiState("idle");
+    setAiResult(null);
     const next = session[index + 1];
     setSeconds(clampTime(next.question.timeLimitSeconds));
     startedAtRef.current = Date.now();
@@ -431,7 +463,20 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
                 <div className="kanji-sentence">{renderKanjiSentence(active.question.sentence)}</div>
                 {!revealed ? (
                   <div className="kanji-writing-row">
-                    <div className="writing-board"><canvas ref={canvasRef} onPointerDown={startDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} /><button type="button" onClick={clearCanvas}><Eraser size={17} />消す</button></div>
+                    <div className="writing-board">
+                      <canvas ref={canvasRef} onPointerDown={startDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} />
+                      {aiState !== "idle" && (
+                        <div className={`writing-board-ai-banner${aiResult ? (aiResult.matches ? " ai-match" : " ai-mismatch") : ""}`}>
+                          {aiState === "loading" && "AIが読み取り中…"}
+                          {aiState === "error" && "AI判定に失敗しました（プロトタイプ）"}
+                          {aiState === "done" && (aiResult?.text ? `AIの読み取り：${aiResult.text}（プロトタイプ・参考用）` : "文字を読み取れませんでした（プロトタイプ）")}
+                        </div>
+                      )}
+                      <div className="writing-board-toolbar">
+                        <button type="button" onClick={clearCanvas}><Eraser size={17} />消す</button>
+                        <button type="button" onClick={() => void runAiCheck()} disabled={aiState === "loading"}><Sparkles size={17} />{aiState === "loading" ? "判定中" : "AI判定"}</button>
+                      </div>
+                    </div>
                     <button className="primary-button reveal-answer-button" type="button" onClick={() => setRevealed(true)}>答えを見る</button>
                   </div>
                 ) : (

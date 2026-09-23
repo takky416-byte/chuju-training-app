@@ -2,16 +2,20 @@ const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { defineSecret } = require("firebase-functions/params");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { ImageAnnotatorClient } = require("@google-cloud/vision");
 const nodemailer = require("nodemailer");
 
 initializeApp();
 
 const db = getFirestore();
 const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
+const visionClient = new ImageAnnotatorClient();
 
 const LEARNER_RECORD_ID = "69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960";
 const SENDER = "takky416@gmail.com";
 const RECIPIENTS = ["takky416@gmail.com", "analog3006@gmail.com"];
+const FAMILY_EMAILS = ["takky416@gmail.com", "analog3006@gmail.com", "aratasan0204@gmail.com"];
 const SITE_URL = "https://aichi-jh-training-507310.web.app";
 const DOMAINS = ["数量・図形", "文章・ことば", "表・グラフ", "理科・観察", "社会・生活", "論理・ルール"];
 const BASIC_SUBJECT_LABELS = {
@@ -299,5 +303,35 @@ exports.sendDailyLearningReport = onSchedule({
       error: error instanceof Error ? error.message.slice(0, 500) : "Unknown error",
     }, { merge: true });
     throw error;
+  }
+});
+
+const MAX_HANDWRITING_IMAGE_BASE64_LENGTH = 2_000_000;
+
+exports.recognizeKanjiWriting = onCall({
+  region: "asia-northeast1",
+}, async (request) => {
+  const email = request.auth?.token?.email;
+  if (!email || !FAMILY_EMAILS.includes(email)) {
+    throw new HttpsError("permission-denied", "許可されていないアカウントです。");
+  }
+
+  const imageBase64 = request.data?.imageBase64;
+  if (typeof imageBase64 !== "string" || !imageBase64) {
+    throw new HttpsError("invalid-argument", "画像データがありません。");
+  }
+  if (imageBase64.length > MAX_HANDWRITING_IMAGE_BASE64_LENGTH) {
+    throw new HttpsError("invalid-argument", "画像データが大きすぎます。");
+  }
+
+  try {
+    const [result] = await visionClient.documentTextDetection({
+      image: { content: Buffer.from(imageBase64, "base64") },
+      imageContext: { languageHints: ["ja"] },
+    });
+    const text = (result.fullTextAnnotation?.text || "").replace(/\s+/g, "");
+    return { text };
+  } catch (error) {
+    throw new HttpsError("internal", "文字認識に失敗しました。");
   }
 });

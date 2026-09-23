@@ -8,6 +8,7 @@
   },
   "type": "commonjs",
   "dependencies": {
+    "@google-cloud/vision": "^6.1.0",
     "firebase-admin": "^14.3.0",
     "firebase-functions": "^7.3.2",
     "nodemailer": "^9.1.1"

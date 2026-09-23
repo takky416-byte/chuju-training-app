@@ -1,6 +1,7 @@
 import { getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 export const PARENT_ACCOUNT_HASHES = [
   "4344c27a54708b8f93f4ee6188e6cc1f6c34acae8c591663a999fd879f579076",
@@ -23,6 +24,7 @@ const app: FirebaseApp | null = firebaseConfigured ? (getApps()[0] ?? initialize
 
 export const auth = app ? getAuth(app) : null;
 export const db = app ? getFirestore(app) : null;
+export const functions = app ? getFunctions(app, "asia-northeast1") : null;
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
