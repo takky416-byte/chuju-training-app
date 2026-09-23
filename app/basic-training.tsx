@@ -473,11 +473,14 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
                   <div className="kanji-answer-panel">
                     {timedOut && <small className="timeup-label">TIME UP</small>}
                     <span>答え</span><strong>{active.question.answer}</strong>
-                    <p className={`kanji-ai-readout${aiResult ? (aiResult.matches ? " ai-match" : " ai-mismatch") : ""}`}>
-                      {aiState === "loading" && "AI判定中…"}
-                      {aiState === "error" && "AI判定に失敗しました（プロトタイプ）"}
-                      {aiState === "done" && (aiResult?.text ? `AIの読み取り：「${aiResult.text}」・${aiResult.matches ? "答えと一致" : "答えと不一致"}（プロトタイプ・参考用）` : "AIは文字を読み取れませんでした（プロトタイプ）")}
-                    </p>
+                    <div className="kanji-ai-readout">
+                      {aiState === "loading" && <span className="kanji-ai-badge loading">AI判定中…</span>}
+                      {aiState === "error" && <span className="kanji-ai-badge neutral">AI判定に失敗しました</span>}
+                      {aiState === "done" && aiResult && (aiResult.text
+                        ? <span className={`kanji-ai-badge ${aiResult.matches ? "match" : "mismatch"}`}>{aiResult.matches ? <Check size={16} /> : <X size={16} />}AIの判定：{aiResult.matches ? "○正解" : "×不正解"}</span>
+                        : <span className="kanji-ai-badge neutral">文字を読み取れませんでした</span>)}
+                      {aiState === "done" && aiResult?.text && <small className="kanji-ai-text">読み取った文字：{aiResult.text}</small>}
+                    </div>
                     <p>{active.question.explanation}</p>
                     {!answered ? <div><button type="button" className="self-score correct" onClick={() => void scoreKanji(true)}><Check size={20} />できた</button><button type="button" className="self-score wrong" onClick={() => void scoreKanji(false)}><X size={20} />まちがえた</button></div> : <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>}
                   </div>
