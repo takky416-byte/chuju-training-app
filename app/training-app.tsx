@@ -90,7 +90,13 @@ type BasicImportPreview = {
   errors: string[];
   duplicates: string[];
 };
-type ImportPreview = AptitudeImportPreview | BasicImportPreview;
+type InvalidImportPreview = {
+  kind: "invalid";
+  fileName: string;
+  setTitle: string;
+  errors: string[];
+};
+type ImportPreview = AptitudeImportPreview | BasicImportPreview | InvalidImportPreview;
 type GameProgress = {
   totalXp: number;
   bestScore: number;
@@ -549,6 +555,42 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
   return { question: { subject: subject as ChoiceBasicSubject, setId, question: { ...value, id, title, explanation, options, source: "custom" } as GeographyQuestion } satisfies BasicQuestionEntry, errors };
 }
 
+function fileDomainCounts(file: ImportPreview) {
+  if (file.kind === "aptitude") {
+    return DOMAINS.map((domain) => ({ label: domain, count: file.questions.filter((question) => question.domain === domain).length })).filter((row) => row.count > 0);
+  }
+  if (file.kind === "basic") {
+    return file.questions.length ? [{ label: BASIC_SUBJECT_LABELS[file.subject], count: file.questions.length }] : [];
+  }
+  return [];
+}
+
+function fileNewCount(file: ImportPreview) {
+  return file.kind === "invalid" ? 0 : file.questions.length - file.duplicates.length;
+}
+
+function annotateCrossFileDuplicates(files: ImportPreview[]): ImportPreview[] {
+  const idFiles = { aptitude: new Map<string, number[]>(), basic: new Map<string, number[]>() };
+  files.forEach((file, index) => {
+    if (file.kind === "invalid") return;
+    const map = idFiles[file.kind];
+    const ids = file.kind === "aptitude" ? file.questions.map((question) => question.id) : file.questions.map((entry) => entry.question.id);
+    ids.forEach((id) => map.set(id, [...(map.get(id) ?? []), index]));
+  });
+  const conflictsByFile = new Map<number, Set<string>>();
+  [idFiles.aptitude, idFiles.basic].forEach((map) => {
+    map.forEach((indices, id) => {
+      if (indices.length < 2) return;
+      indices.forEach((index) => conflictsByFile.set(index, (conflictsByFile.get(index) ?? new Set()).add(id)));
+    });
+  });
+  return files.map((file, index) => {
+    const conflicts = conflictsByFile.get(index);
+    if (!conflicts?.size) return file;
+    return { ...file, errors: [...file.errors, ...[...conflicts].map((id) => `他の選択ファイルとID「${id}」が重複しています`)] };
+  });
+}
+
 export default function TrainingApp() {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -585,7 +627,7 @@ export default function TrainingApp() {
   const [basicQuestionRefreshToken, setBasicQuestionRefreshToken] = useState(0);
   const [basicStartRequest, setBasicStartRequest] = useState<BasicStartRequest | null>(null);
   const [heroTrack, setHeroTrack] = useState<TrainingTrack>("aptitude");
-  const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
+  const [importFiles, setImportFiles] = useState<ImportPreview[]>([]);
   const [importMode, setImportMode] = useState<ImportMode>("skip");
   const [importStatus, setImportStatus] = useState("");
   const [isImporting, setIsImporting] = useState(false);
@@ -951,12 +993,13 @@ export default function TrainingApp() {
       + basicAttempts.filter((attempt) => attempt.createdAt >= resetRange.start && attempt.createdAt < resetRange.end).length
     : 0, [attempts, basicAttempts, resetRange]);
 
-  const importDomainCounts = useMemo(() => importPreview?.kind === "aptitude"
-    ? DOMAINS.map((domain) => ({ label: domain, count: importPreview.questions.filter((question) => question.domain === domain).length })).filter((row) => row.count > 0)
-    : importPreview?.kind === "basic"
-      ? [{ label: BASIC_SUBJECT_LABELS[importPreview.subject], count: importPreview.questions.length }]
-    : [], [importPreview]);
-  const importNewCount = importPreview ? importPreview.questions.length - importPreview.duplicates.length : 0;
+  const importTotals = useMemo(() => {
+    const validFiles = importFiles.filter((file): file is AptitudeImportPreview | BasicImportPreview => file.kind !== "invalid");
+    const totalQuestions = validFiles.reduce((sum, file) => sum + file.questions.length, 0);
+    const totalDuplicates = validFiles.reduce((sum, file) => sum + file.duplicates.length, 0);
+    const totalErrors = importFiles.reduce((sum, file) => sum + file.errors.length, 0);
+    return { totalQuestions, totalDuplicates, totalErrors, totalNew: totalQuestions - totalDuplicates };
+  }, [importFiles]);
   const domainQuestionCounts = useMemo(() => new Map(DOMAINS.map((domain) => [domain, questions.filter((question) => question.domain === domain).length])), [questions]);
 
   function beginSession(picked: Question[]) {
@@ -1153,13 +1196,9 @@ export default function TrainingApp() {
     setTimeout(() => document.getElementById("top")?.scrollIntoView({ behavior: "smooth" }), 20);
   }
 
-  async function readImportFile(file?: File) {
-    if (!file) return;
-    setImportStatus("");
-    setImportPreview(null);
+  async function parseImportFile(file: File): Promise<ImportPreview> {
     if (file.size > 5 * 1024 * 1024) {
-      setImportStatus("ファイルが大きすぎます。5MB以下にしてください");
-      return;
+      return { kind: "invalid", fileName: file.name, setTitle: file.name, errors: ["ファイルが大きすぎます。5MB以下にしてください"] };
     }
 
     try {
@@ -1201,9 +1240,7 @@ export default function TrainingApp() {
         });
         const existingIds = new Set(basicQuestionCatalog.map((entry) => entry.question.id));
         const duplicates = importedQuestions.filter((entry) => existingIds.has(entry.question.id)).map((entry) => entry.question.id);
-        setImportPreview({ kind: "basic", fileName: file.name, setTitle, subject, questions: importedQuestions, errors, duplicates });
-        setImportMode("skip");
-        return;
+        return { kind: "basic", fileName: file.name, setTitle, subject, questions: importedQuestions, errors, duplicates };
       }
 
       let rawQuestions: unknown[] = [];
@@ -1230,21 +1267,37 @@ export default function TrainingApp() {
       });
       const existingIds = new Set(customQuestions.map((question) => question.id));
       const duplicates = importedQuestions.filter((question) => existingIds.has(question.id)).map((question) => question.id);
-      setImportPreview({ kind: "aptitude", fileName: file.name, setTitle, questions: importedQuestions, errors, duplicates });
-      setImportMode("skip");
+      return { kind: "aptitude", fileName: file.name, setTitle, questions: importedQuestions, errors, duplicates };
     } catch {
-      setImportStatus("JSONを読み込めませんでした。ファイル形式を確認してください");
+      return { kind: "invalid", fileName: file.name, setTitle: file.name, errors: ["JSONを読み込めませんでした。ファイル形式を確認してください"] };
     }
   }
 
+  async function readImportFiles(files: File[]) {
+    if (!files.length) return;
+    setImportStatus("");
+    setImportFiles([]);
+    const results = await Promise.all(files.map(parseImportFile));
+    setImportFiles(annotateCrossFileDuplicates(results));
+    setImportMode("skip");
+  }
+
+  function removeImportFile(index: number) {
+    setImportFiles((files) => files.filter((_, fileIndex) => fileIndex !== index));
+  }
+
   async function importQuestions() {
-    if (!isAdmin || !db || !importPreview || importPreview.errors.length) return;
+    const validFiles = importFiles.filter((file): file is AptitudeImportPreview | BasicImportPreview => file.kind !== "invalid");
+    if (!isAdmin || !db || !validFiles.length || importFiles.some((file) => file.errors.length)) return;
     const firestore = db;
-    const duplicateIds = new Set(importPreview.duplicates);
-    const targets: Question[] | BasicQuestionEntry[] = importPreview.kind === "aptitude"
-      ? (importMode === "skip" ? importPreview.questions.filter((item) => !duplicateIds.has(item.id)) : importPreview.questions)
-      : (importMode === "skip" ? importPreview.questions.filter((item) => !duplicateIds.has(item.question.id)) : importPreview.questions);
-    if (!targets.length) {
+    const duplicateIds = new Set(validFiles.flatMap((file) => file.duplicates));
+    const aptitudeTargets = validFiles
+      .filter((file): file is AptitudeImportPreview => file.kind === "aptitude")
+      .flatMap((file) => importMode === "skip" ? file.questions.filter((item) => !duplicateIds.has(item.id)) : file.questions);
+    const basicTargets = validFiles
+      .filter((file): file is BasicImportPreview => file.kind === "basic")
+      .flatMap((file) => importMode === "skip" ? file.questions.filter((item) => !duplicateIds.has(item.question.id)) : file.questions);
+    if (!aptitudeTargets.length && !basicTargets.length) {
       setImportStatus("追加対象の新しい問題がありません");
       return;
     }
@@ -1252,8 +1305,7 @@ export default function TrainingApp() {
     setIsImporting(true);
     setImportStatus("");
     try {
-      if (importPreview.kind === "aptitude") {
-        const aptitudeTargets = targets as Question[];
+      if (aptitudeTargets.length) {
         for (let offset = 0; offset < aptitudeTargets.length; offset += 450) {
           const batch = writeBatch(firestore);
           aptitudeTargets.slice(offset, offset + 450).forEach((question) => batch.set(doc(firestore, "questionBank", question.id), question));
@@ -1264,8 +1316,8 @@ export default function TrainingApp() {
         const nextQuestions = [...nextMap.values()];
         setCustomQuestions(nextQuestions);
         localStorage.setItem(QUESTIONS_KEY, JSON.stringify(nextQuestions));
-      } else {
-        const basicTargets = targets as BasicQuestionEntry[];
+      }
+      if (basicTargets.length) {
         for (let offset = 0; offset < basicTargets.length; offset += 450) {
           const batch = writeBatch(firestore);
           basicTargets.slice(offset, offset + 450).forEach((entry) => batch.set(doc(firestore, "basicQuestionBank", entry.question.id), {
@@ -1280,8 +1332,11 @@ export default function TrainingApp() {
         setBasicQuestionCatalog([...nextMap.values()]);
         setBasicQuestionRefreshToken((value) => value + 1);
       }
-      setImportPreview(null);
-      setImportStatus(`${importPreview.kind === "basic" ? "基礎トレ" : "適性検査"}に${targets.length}問を追加しました`);
+      setImportFiles([]);
+      const total = aptitudeTargets.length + basicTargets.length;
+      setImportStatus(aptitudeTargets.length && basicTargets.length
+        ? `${total}問を追加しました（適性検査${aptitudeTargets.length}問・基礎トレ${basicTargets.length}問）`
+        : `${basicTargets.length ? "基礎トレ" : "適性検査"}に${total}問を追加しました`);
       setSyncState("synced");
     } catch {
       setImportStatus("一括追加に失敗しました。通信状態を確認して、もう一度お試しください");
@@ -2161,47 +2216,64 @@ export default function TrainingApp() {
             <div className="question-import-panel">
               <label className="json-file-picker">
                 <FileJson size={30} />
-                <strong>JSONファイルを選択</strong>
+                <strong>JSONファイルを選択（複数可）</strong>
                 <span>1ファイル5MBまで・20～50問程度を推奨</span>
                 <input
                   type="file"
                   accept="application/json,.json"
+                  multiple
                   onChange={(event) => {
-                    const file = event.currentTarget.files?.[0];
-                    void readImportFile(file);
+                    const files = Array.from(event.currentTarget.files ?? []);
+                    void readImportFiles(files);
                     event.currentTarget.value = "";
                   }}
                 />
               </label>
 
-              {importPreview && (
-                <div className="import-preview">
-                  <div className="import-file-title"><FileJson size={20} /><div><strong>{importPreview.setTitle}</strong><small>{importPreview.fileName}</small></div></div>
-                  <div className="import-metrics">
-                    <div><strong>{importPreview.questions.length}</strong><span>読込</span></div>
-                    <div><strong>{importNewCount}</strong><span>新規</span></div>
-                    <div><strong>{importPreview.duplicates.length}</strong><span>既存ID</span></div>
-                    <div className={importPreview.errors.length ? "has-error" : "is-valid"}><strong>{importPreview.errors.length}</strong><span>エラー</span></div>
-                  </div>
-                  <div className="import-domains">{importDomainCounts.map((row) => <span key={row.label}>{row.label} {row.count}問</span>)}</div>
-
-                  {importPreview.errors.length > 0 ? (
-                    <div className="import-errors" role="alert">
-                      <strong><CircleAlert size={17} /> 修正が必要です</strong>
-                      <ul>{importPreview.errors.slice(0, 12).map((error, index) => <li key={`${error}-${index}`}>{error}</li>)}</ul>
-                      {importPreview.errors.length > 12 && <p>ほか{importPreview.errors.length - 12}件のエラーがあります。</p>}
+              {importFiles.length > 0 && (
+                <div className="import-preview-list">
+                  {importFiles.map((file, fileIndex) => (
+                    <div className="import-preview" key={`${file.fileName}-${fileIndex}`}>
+                      <div className="import-file-title">
+                        <FileJson size={20} />
+                        <div><strong>{file.setTitle}</strong><small>{file.fileName}</small></div>
+                        <button type="button" className="import-file-remove" aria-label={`${file.fileName}を取り消す`} onClick={() => removeImportFile(fileIndex)}><X size={16} /></button>
+                      </div>
+                      {file.kind !== "invalid" && (
+                        <>
+                          <div className="import-metrics">
+                            <div><strong>{file.questions.length}</strong><span>読込</span></div>
+                            <div><strong>{fileNewCount(file)}</strong><span>新規</span></div>
+                            <div><strong>{file.duplicates.length}</strong><span>既存ID</span></div>
+                            <div className={file.errors.length ? "has-error" : "is-valid"}><strong>{file.errors.length}</strong><span>エラー</span></div>
+                          </div>
+                          <div className="import-domains">{fileDomainCounts(file).map((row) => <span key={row.label}>{row.label} {row.count}問</span>)}</div>
+                        </>
+                      )}
+                      {file.errors.length > 0 && (
+                        <div className="import-errors" role="alert">
+                          <strong><CircleAlert size={17} /> 修正が必要です</strong>
+                          <ul>{file.errors.slice(0, 12).map((error, index) => <li key={`${error}-${index}`}>{error}</li>)}</ul>
+                          {file.errors.length > 12 && <p>ほか{file.errors.length - 12}件のエラーがあります。</p>}
+                        </div>
+                      )}
                     </div>
-                  ) : (
+                  ))}
+
+                  {importTotals.totalErrors === 0 && (
                     <>
-                      {importPreview.duplicates.length > 0 && (
+                      {importTotals.totalDuplicates > 0 && (
                         <fieldset className="duplicate-choice">
-                          <legend>既存IDの扱い</legend>
+                          <legend>既存IDの扱い（選択中のすべてのファイルに適用）</legend>
                           <label><input type="radio" name="importMode" value="skip" checked={importMode === "skip"} onChange={() => setImportMode("skip")} /><span><strong>スキップ</strong><small>既存問題を残し、新規問題だけ追加</small></span></label>
                           <label><input type="radio" name="importMode" value="overwrite" checked={importMode === "overwrite"} onChange={() => setImportMode("overwrite")} /><span><strong>上書き</strong><small>同じIDの問題をJSONの内容に更新</small></span></label>
                         </fieldset>
                       )}
-                      <button className="primary-button import-button" type="button" disabled={isImporting || (importMode === "skip" && importNewCount === 0)} onClick={importQuestions}>
-                        <Upload size={18} /> {isImporting ? "登録中…" : `${importMode === "skip" ? importNewCount : importPreview.questions.length}問を一括追加`}
+                      <div className="import-batch-summary">
+                        <span>選択中 {importFiles.length}ファイル・合計{importTotals.totalQuestions}問読込・{importTotals.totalDuplicates}件既存ID</span>
+                      </div>
+                      <button className="primary-button import-button" type="button" disabled={isImporting || (importMode === "skip" ? importTotals.totalNew === 0 : importTotals.totalQuestions === 0)} onClick={importQuestions}>
+                        <Upload size={18} /> {isImporting ? "登録中…" : `${importMode === "skip" ? importTotals.totalNew : importTotals.totalQuestions}問を一括追加`}
                       </button>
                     </>
                   )}

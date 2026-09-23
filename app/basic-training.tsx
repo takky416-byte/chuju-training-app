@@ -271,8 +271,11 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (canvas && context) context.clearRect(0, 0, canvas.width, canvas.height);
-    setAiState("idle");
-    setAiResult(null);
+  }
+
+  function revealAnswer() {
+    setRevealed(true);
+    void runAiCheck();
   }
 
   async function runAiCheck() {
@@ -463,26 +466,19 @@ export function BasicTraining({ enabled, startRequest, questionRefreshToken = 0,
                 <div className="kanji-sentence">{renderKanjiSentence(active.question.sentence)}</div>
                 {!revealed ? (
                   <div className="kanji-writing-row">
-                    <div className="writing-board">
-                      <canvas ref={canvasRef} onPointerDown={startDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} />
-                      {aiState !== "idle" && (
-                        <div className={`writing-board-ai-banner${aiResult ? (aiResult.matches ? " ai-match" : " ai-mismatch") : ""}`}>
-                          {aiState === "loading" && "AIが読み取り中…"}
-                          {aiState === "error" && "AI判定に失敗しました（プロトタイプ）"}
-                          {aiState === "done" && (aiResult?.text ? `AIの読み取り：${aiResult.text}（プロトタイプ・参考用）` : "文字を読み取れませんでした（プロトタイプ）")}
-                        </div>
-                      )}
-                      <div className="writing-board-toolbar">
-                        <button type="button" onClick={clearCanvas}><Eraser size={17} />消す</button>
-                        <button type="button" onClick={() => void runAiCheck()} disabled={aiState === "loading"}><Sparkles size={17} />{aiState === "loading" ? "判定中" : "AI判定"}</button>
-                      </div>
-                    </div>
-                    <button className="primary-button reveal-answer-button" type="button" onClick={() => setRevealed(true)}>答えを見る</button>
+                    <div className="writing-board"><canvas ref={canvasRef} onPointerDown={startDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} /><button type="button" onClick={clearCanvas}><Eraser size={17} />消す</button></div>
+                    <button className="primary-button reveal-answer-button" type="button" onClick={revealAnswer}>答えを<br />見る</button>
                   </div>
                 ) : (
                   <div className="kanji-answer-panel">
                     {timedOut && <small className="timeup-label">TIME UP</small>}
-                    <span>答え</span><strong>{active.question.answer}</strong><p>{active.question.explanation}</p>
+                    <span>答え</span><strong>{active.question.answer}</strong>
+                    <p className={`kanji-ai-readout${aiResult ? (aiResult.matches ? " ai-match" : " ai-mismatch") : ""}`}>
+                      {aiState === "loading" && "AI判定中…"}
+                      {aiState === "error" && "AI判定に失敗しました（プロトタイプ）"}
+                      {aiState === "done" && (aiResult?.text ? `AIの読み取り：「${aiResult.text}」・${aiResult.matches ? "答えと一致" : "答えと不一致"}（プロトタイプ・参考用）` : "AIは文字を読み取れませんでした（プロトタイプ）")}
+                    </p>
+                    <p>{active.question.explanation}</p>
                     {!answered ? <div><button type="button" className="self-score correct" onClick={() => void scoreKanji(true)}><Check size={20} />できた</button><button type="button" className="self-score wrong" onClick={() => void scoreKanji(false)}><X size={20} />まちがえた</button></div> : <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>}
                   </div>
                 )}
