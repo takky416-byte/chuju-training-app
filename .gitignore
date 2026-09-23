@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
+.env.local
+.firebase/
+firebase-debug.log
+.wrangler/
+dist/
+*.tar.gz

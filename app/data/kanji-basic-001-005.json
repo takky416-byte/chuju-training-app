@@ -1,0 +1,1332 @@
+{
+  "schemaVersion": 1,
+  "collectionId": "kanji-basic-001-005",
+  "collectionTitle": "漢字の書き 基礎トレ 1〜5",
+  "type": "kanji-writing-collection",
+  "sets": [
+    {
+      "schemaVersion": 1,
+      "setId": "kanji-basic-001",
+      "setTitle": "漢字の書き 基礎トレ1",
+      "type": "kanji-writing",
+      "questions": [
+        {
+          "id": "kanji-basic-001-q001",
+          "title": "送り仮名",
+          "sentence": "話し合いの結果、計画を【あらためる】ことになった。",
+          "reading": "あらためる",
+          "answer": "改める",
+          "acceptedAnswers": [],
+          "explanation": "「改める」は、今までのものを見直して変えるという意味です。送り仮名は「める」です。",
+          "targetKanji": [
+            "改"
+          ],
+          "targetWord": "改める",
+          "grade": 6,
+          "category": "送り仮名",
+          "tags": [
+            "送り仮名"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "あらためる-改める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q002",
+          "title": "同音異義語",
+          "sentence": "私は、その意見に【さんせい】です。",
+          "reading": "さんせい",
+          "answer": "賛成",
+          "acceptedAnswers": [],
+          "explanation": "意見や考えに同意するときは「賛成」と書きます。",
+          "targetKanji": [
+            "賛",
+            "成"
+          ],
+          "targetWord": "賛成",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "さんせい-賛成",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q003",
+          "title": "熟語",
+          "sentence": "事故を防ぐために、安全【たいさく】を考える。",
+          "reading": "たいさく",
+          "answer": "対策",
+          "acceptedAnswers": [],
+          "explanation": "「対策」は、問題や出来事に対応するための方法という意味です。",
+          "targetKanji": [
+            "対",
+            "策"
+          ],
+          "targetWord": "対策",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "たいさく-対策",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q004",
+          "title": "同音異義語",
+          "sentence": "地図を使って、二つの地点の距離を【はかる】。",
+          "reading": "はかる",
+          "answer": "測る",
+          "acceptedAnswers": [],
+          "explanation": "長さや距離などを調べるときは「測る」を使います。「時間を計る」「重さを量る」と区別しましょう。",
+          "targetKanji": [
+            "測"
+          ],
+          "targetWord": "測る",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "はかる-測る",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q005",
+          "title": "同音異義語",
+          "sentence": "目標を達成するために、毎日練習に【つとめる】。",
+          "reading": "つとめる",
+          "answer": "努める",
+          "acceptedAnswers": [],
+          "explanation": "力を尽くして努力するときは「努める」です。「会社に勤める」「役目を務める」と区別します。",
+          "targetKanji": [
+            "努"
+          ],
+          "targetWord": "努める",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "つとめる-努める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q006",
+          "title": "同音異義語",
+          "sentence": "決められた日までに、料金を【おさめる】。",
+          "reading": "おさめる",
+          "answer": "納める",
+          "acceptedAnswers": [],
+          "explanation": "お金や品物を決められた所に入れるときは「納める」を使います。",
+          "targetKanji": [
+            "納"
+          ],
+          "targetWord": "納める",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "おさめる-納める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q007",
+          "title": "教科学習語彙",
+          "sentence": "二つの資料を【ひかく】して、ちがいを見つける。",
+          "reading": "ひかく",
+          "answer": "比較",
+          "acceptedAnswers": [],
+          "explanation": "「比較」は、二つ以上のものをくらべることです。資料問題でもよく使います。",
+          "targetKanji": [
+            "比",
+            "較"
+          ],
+          "targetWord": "比較",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "ひかく-比較",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q008",
+          "title": "抽象語",
+          "sentence": "実験の結果から、その原因を【すいそく】する。",
+          "reading": "すいそく",
+          "answer": "推測",
+          "acceptedAnswers": [],
+          "explanation": "「推測」は、分かっていることを手がかりにして、まだ分からないことを考えることです。",
+          "targetKanji": [
+            "推",
+            "測"
+          ],
+          "targetWord": "推測",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "すいそく-推測",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q009",
+          "title": "慣用表現",
+          "sentence": "自分の行動には、最後まで【せきにん】を持つ。",
+          "reading": "せきにん",
+          "answer": "責任",
+          "acceptedAnswers": [],
+          "explanation": "「責任を持つ」はよく使われる表現です。「責」の字形にも注意しましょう。",
+          "targetKanji": [
+            "責",
+            "任"
+          ],
+          "targetWord": "責任",
+          "grade": 6,
+          "category": "慣用表現",
+          "tags": [
+            "慣用表現"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "せきにん-責任",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-001-q010",
+          "title": "同音異義語",
+          "sentence": "毎日の練習を続け、大会でよい成績を【おさめた】。",
+          "reading": "おさめた",
+          "answer": "収めた",
+          "acceptedAnswers": [],
+          "explanation": "よい成果や成績を得るときは「収める」を使います。「納める」「治める」と区別しましょう。",
+          "targetKanji": [
+            "収"
+          ],
+          "targetWord": "収めた",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "おさめた-収めた",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "kanji-basic-002",
+      "setTitle": "漢字の書き 基礎トレ2",
+      "type": "kanji-writing",
+      "questions": [
+        {
+          "id": "kanji-basic-002-q001",
+          "title": "同音異義語",
+          "sentence": "駅で友達に会う【きかい】があった。",
+          "reading": "きかい",
+          "answer": "機会",
+          "acceptedAnswers": [],
+          "explanation": "何かをするのにちょうどよい時や場合は「機会」です。「機械」と区別しましょう。",
+          "targetKanji": [
+            "機",
+            "会"
+          ],
+          "targetWord": "機会",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "きかい-機会",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q002",
+          "title": "同音異義語",
+          "sentence": "工場では大きな【きかい】が動いている。",
+          "reading": "きかい",
+          "answer": "機械",
+          "acceptedAnswers": [],
+          "explanation": "道具や装置を表すときは「機械」です。「機会」と区別しましょう。",
+          "targetKanji": [
+            "機",
+            "械"
+          ],
+          "targetWord": "機械",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "きかい-機械",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q003",
+          "title": "熟語",
+          "sentence": "旅行の日程を家族で【けんとう】する。",
+          "reading": "けんとう",
+          "answer": "検討",
+          "acceptedAnswers": [],
+          "explanation": "「検討」は、よく調べて考えることです。",
+          "targetKanji": [
+            "検",
+            "討"
+          ],
+          "targetWord": "検討",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "けんとう-検討",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q004",
+          "title": "送り仮名",
+          "sentence": "古い校舎を新しく【たてなおす】。",
+          "reading": "たてなおす",
+          "answer": "建て直す",
+          "acceptedAnswers": [],
+          "explanation": "建物をもう一度建てる意味なので「建て直す」と書きます。",
+          "targetKanji": [
+            "建",
+            "直"
+          ],
+          "targetWord": "建て直す",
+          "grade": 6,
+          "category": "送り仮名",
+          "tags": [
+            "送り仮名"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "たてなおす-建て直す",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q005",
+          "title": "抽象語",
+          "sentence": "相手の立場を【りかい】して話し合う。",
+          "reading": "りかい",
+          "answer": "理解",
+          "acceptedAnswers": [],
+          "explanation": "「理解」は、意味や事情をよく分かることです。",
+          "targetKanji": [
+            "理",
+            "解"
+          ],
+          "targetWord": "理解",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "りかい-理解",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q006",
+          "title": "教科学習語彙",
+          "sentence": "実験では、条件を同じにして結果を【かんさつ】する。",
+          "reading": "かんさつ",
+          "answer": "観察",
+          "acceptedAnswers": [],
+          "explanation": "「観察」は、物事のようすを注意して見ることです。",
+          "targetKanji": [
+            "観",
+            "察"
+          ],
+          "targetWord": "観察",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "かんさつ-観察",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q007",
+          "title": "同音異義語",
+          "sentence": "商品の品質を会社が【ほしょう】する。",
+          "reading": "ほしょう",
+          "answer": "保証",
+          "acceptedAnswers": [],
+          "explanation": "品質などについて、確かだと責任を持つときは「保証」です。「保障」と区別しましょう。",
+          "targetKanji": [
+            "保",
+            "証"
+          ],
+          "targetWord": "保証",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "ほしょう-保証",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q008",
+          "title": "熟語",
+          "sentence": "多くの人の意見を聞いて、結論を【はんだん】する。",
+          "reading": "はんだん",
+          "answer": "判断",
+          "acceptedAnswers": [],
+          "explanation": "「判断」は、考えたうえで決めることです。",
+          "targetKanji": [
+            "判",
+            "断"
+          ],
+          "targetWord": "判断",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "はんだん-判断",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q009",
+          "title": "送り仮名",
+          "sentence": "図書館で本を【かりる】。",
+          "reading": "かりる",
+          "answer": "借りる",
+          "acceptedAnswers": [],
+          "explanation": "人や施設から一時的に使わせてもらうときは「借りる」です。",
+          "targetKanji": [
+            "借"
+          ],
+          "targetWord": "借りる",
+          "grade": 6,
+          "category": "送り仮名",
+          "tags": [
+            "送り仮名"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "かりる-借りる",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-002-q010",
+          "title": "熟語",
+          "sentence": "学校の決まりを【まもる】ことは大切だ。",
+          "reading": "まもる",
+          "answer": "守る",
+          "acceptedAnswers": [],
+          "explanation": "決まりや約束に従うときは「守る」と書きます。",
+          "targetKanji": [
+            "守"
+          ],
+          "targetWord": "守る",
+          "grade": 6,
+          "category": "基本漢字",
+          "tags": [
+            "基本漢字"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "まもる-守る",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "kanji-basic-003",
+      "setTitle": "漢字の書き 基礎トレ3",
+      "type": "kanji-writing",
+      "questions": [
+        {
+          "id": "kanji-basic-003-q001",
+          "title": "同音異義語",
+          "sentence": "調査の結果を表に【あらわす】。",
+          "reading": "あらわす",
+          "answer": "表す",
+          "acceptedAnswers": [],
+          "explanation": "考えや内容を表面に示すときは「表す」です。「現す」「著す」と区別します。",
+          "targetKanji": [
+            "表"
+          ],
+          "targetWord": "表す",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "あらわす-表す",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q002",
+          "title": "同音異義語",
+          "sentence": "雲の間から月が姿を【あらわした】。",
+          "reading": "あらわした",
+          "answer": "現した",
+          "acceptedAnswers": [],
+          "explanation": "見えなかったものが姿を見せるときは「現す」を使います。",
+          "targetKanji": [
+            "現"
+          ],
+          "targetWord": "現した",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "あらわした-現した",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q003",
+          "title": "教科学習語彙",
+          "sentence": "グラフの変化から、全体の【けいこう】を読み取る。",
+          "reading": "けいこう",
+          "answer": "傾向",
+          "acceptedAnswers": [],
+          "explanation": "「傾向」は、物事がある方向にかたよるようすを表します。",
+          "targetKanji": [
+            "傾",
+            "向"
+          ],
+          "targetWord": "傾向",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "けいこう-傾向",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q004",
+          "title": "抽象語",
+          "sentence": "資料から必要な情報を【せんたく】する。",
+          "reading": "せんたく",
+          "answer": "選択",
+          "acceptedAnswers": [],
+          "explanation": "「選択」は、いくつかの中から選ぶことです。",
+          "targetKanji": [
+            "選",
+            "択"
+          ],
+          "targetWord": "選択",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "せんたく-選択",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q005",
+          "title": "熟語",
+          "sentence": "地域の人々が協力して祭りを【うんえい】する。",
+          "reading": "うんえい",
+          "answer": "運営",
+          "acceptedAnswers": [],
+          "explanation": "「運営」は、組織や行事などをうまく進めることです。",
+          "targetKanji": [
+            "運",
+            "営"
+          ],
+          "targetWord": "運営",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "うんえい-運営",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q006",
+          "title": "慣用表現",
+          "sentence": "失敗した原因を【ふりかえる】。",
+          "reading": "ふりかえる",
+          "answer": "振り返る",
+          "acceptedAnswers": [],
+          "explanation": "過去のことを思い出して考え直すときは「振り返る」と書きます。",
+          "targetKanji": [
+            "振",
+            "返"
+          ],
+          "targetWord": "振り返る",
+          "grade": 6,
+          "category": "慣用表現",
+          "tags": [
+            "慣用表現"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "ふりかえる-振り返る",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q007",
+          "title": "同音異義語",
+          "sentence": "学校の代表を【えらぶ】。",
+          "reading": "えらぶ",
+          "answer": "選ぶ",
+          "acceptedAnswers": [],
+          "explanation": "いくつかの中から決めるときは「選ぶ」です。",
+          "targetKanji": [
+            "選"
+          ],
+          "targetWord": "選ぶ",
+          "grade": 6,
+          "category": "基本漢字",
+          "tags": [
+            "基本漢字"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "えらぶ-選ぶ",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q008",
+          "title": "熟語",
+          "sentence": "自然を守るための活動に【さんか】する。",
+          "reading": "さんか",
+          "answer": "参加",
+          "acceptedAnswers": [],
+          "explanation": "「参加」は、集まりや活動に加わることです。",
+          "targetKanji": [
+            "参",
+            "加"
+          ],
+          "targetWord": "参加",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "さんか-参加",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q009",
+          "title": "教科学習語彙",
+          "sentence": "算数の問題で、答えにいたる【かてい】も確かめる。",
+          "reading": "かてい",
+          "answer": "過程",
+          "acceptedAnswers": [],
+          "explanation": "物事が進んでいく途中の段階を「過程」といいます。「家庭」と区別しましょう。",
+          "targetKanji": [
+            "過",
+            "程"
+          ],
+          "targetWord": "過程",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "かてい-過程",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-003-q010",
+          "title": "熟語",
+          "sentence": "考えをまとめて、自分の【いけん】を発表する。",
+          "reading": "いけん",
+          "answer": "意見",
+          "acceptedAnswers": [],
+          "explanation": "「意見」は、あることについての自分の考えです。",
+          "targetKanji": [
+            "意",
+            "見"
+          ],
+          "targetWord": "意見",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "いけん-意見",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "kanji-basic-004",
+      "setTitle": "漢字の書き 基礎トレ4",
+      "type": "kanji-writing",
+      "questions": [
+        {
+          "id": "kanji-basic-004-q001",
+          "title": "同音異義語",
+          "sentence": "会議で新しい案を【ていあん】する。",
+          "reading": "ていあん",
+          "answer": "提案",
+          "acceptedAnswers": [],
+          "explanation": "「提案」は、考えや案を示すことです。",
+          "targetKanji": [
+            "提",
+            "案"
+          ],
+          "targetWord": "提案",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "ていあん-提案",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q002",
+          "title": "教科学習語彙",
+          "sentence": "植物の成長に日光がどう【えいきょう】するか調べる。",
+          "reading": "えいきょう",
+          "answer": "影響",
+          "acceptedAnswers": [],
+          "explanation": "「影響」は、あるものの働きがほかのものに及ぶことです。",
+          "targetKanji": [
+            "影",
+            "響"
+          ],
+          "targetWord": "影響",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "えいきょう-影響",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q003",
+          "title": "抽象語",
+          "sentence": "話し合いでは、全員が【なっとく】できる方法を考える。",
+          "reading": "なっとく",
+          "answer": "納得",
+          "acceptedAnswers": [],
+          "explanation": "「納得」は、理由を理解してもっともだと思うことです。",
+          "targetKanji": [
+            "納",
+            "得"
+          ],
+          "targetWord": "納得",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "なっとく-納得",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q004",
+          "title": "送り仮名",
+          "sentence": "問題の条件をもう一度【たしかめる】。",
+          "reading": "たしかめる",
+          "answer": "確かめる",
+          "acceptedAnswers": [],
+          "explanation": "間違いがないか確認するときは「確かめる」です。送り仮名にも注意します。",
+          "targetKanji": [
+            "確"
+          ],
+          "targetWord": "確かめる",
+          "grade": 6,
+          "category": "送り仮名",
+          "tags": [
+            "送り仮名"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "たしかめる-確かめる",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q005",
+          "title": "同音異義語",
+          "sentence": "運動会の係として、放送を【つとめる】。",
+          "reading": "つとめる",
+          "answer": "務める",
+          "acceptedAnswers": [],
+          "explanation": "役割や任務を受け持つときは「務める」です。",
+          "targetKanji": [
+            "務"
+          ],
+          "targetWord": "務める",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "つとめる-務める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q006",
+          "title": "熟語",
+          "sentence": "地域の歴史について【ちょうさ】する。",
+          "reading": "ちょうさ",
+          "answer": "調査",
+          "acceptedAnswers": [],
+          "explanation": "「調査」は、分からないことを調べて明らかにすることです。",
+          "targetKanji": [
+            "調",
+            "査"
+          ],
+          "targetWord": "調査",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "ちょうさ-調査",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q007",
+          "title": "同音異義語",
+          "sentence": "川の水量を毎日【きろく】する。",
+          "reading": "きろく",
+          "answer": "記録",
+          "acceptedAnswers": [],
+          "explanation": "後から確かめられるように書き残すことを「記録」といいます。",
+          "targetKanji": [
+            "記",
+            "録"
+          ],
+          "targetWord": "記録",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "きろく-記録",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q008",
+          "title": "抽象語",
+          "sentence": "複数の資料をもとに、理由を【せつめい】する。",
+          "reading": "せつめい",
+          "answer": "説明",
+          "acceptedAnswers": [],
+          "explanation": "「説明」は、理由や内容が分かるように伝えることです。",
+          "targetKanji": [
+            "説",
+            "明"
+          ],
+          "targetWord": "説明",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "せつめい-説明",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q009",
+          "title": "慣用表現",
+          "sentence": "みんなで役割を分けて仕事を【すすめる】。",
+          "reading": "すすめる",
+          "answer": "進める",
+          "acceptedAnswers": [],
+          "explanation": "物事を前へ進行させるときは「進める」です。「勧める」と区別しましょう。",
+          "targetKanji": [
+            "進"
+          ],
+          "targetWord": "進める",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "すすめる-進める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-004-q010",
+          "title": "同音異義語",
+          "sentence": "先生がこの本を読むように【すすめる】。",
+          "reading": "すすめる",
+          "answer": "勧める",
+          "acceptedAnswers": [],
+          "explanation": "人に何かをするよう働きかけるときは「勧める」です。「進める」と区別しましょう。",
+          "targetKanji": [
+            "勧"
+          ],
+          "targetWord": "勧める",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "すすめる-勧める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "kanji-basic-005",
+      "setTitle": "漢字の書き 基礎トレ5",
+      "type": "kanji-writing",
+      "questions": [
+        {
+          "id": "kanji-basic-005-q001",
+          "title": "熟語",
+          "sentence": "資料の数字が正しいか【かくにん】する。",
+          "reading": "かくにん",
+          "answer": "確認",
+          "acceptedAnswers": [],
+          "explanation": "「確認」は、間違いがないか確かめることです。",
+          "targetKanji": [
+            "確",
+            "認"
+          ],
+          "targetWord": "確認",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "かくにん-確認",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q002",
+          "title": "同音異義語",
+          "sentence": "実験の結果から仮説が正しいことを【しょうめい】する。",
+          "reading": "しょうめい",
+          "answer": "証明",
+          "acceptedAnswers": [],
+          "explanation": "根拠を示して正しいと明らかにするときは「証明」です。「照明」と区別しましょう。",
+          "targetKanji": [
+            "証",
+            "明"
+          ],
+          "targetWord": "証明",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "しょうめい-証明",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q003",
+          "title": "同音異義語",
+          "sentence": "暗い教室の【しょうめい】をつける。",
+          "reading": "しょうめい",
+          "answer": "照明",
+          "acceptedAnswers": [],
+          "explanation": "部屋などを明るくする灯りは「照明」です。",
+          "targetKanji": [
+            "照",
+            "明"
+          ],
+          "targetWord": "照明",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "しょうめい-照明",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q004",
+          "title": "抽象語",
+          "sentence": "二つの意見の共通点と【そういてん】を整理する。",
+          "reading": "そういてん",
+          "answer": "相違点",
+          "acceptedAnswers": [],
+          "explanation": "「相違点」は、互いに異なっているところです。共通点と対にして使います。",
+          "targetKanji": [
+            "相",
+            "違",
+            "点"
+          ],
+          "targetWord": "相違点",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "そういてん-相違点",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q005",
+          "title": "教科学習語彙",
+          "sentence": "人口の変化をグラフで【ぶんせき】する。",
+          "reading": "ぶんせき",
+          "answer": "分析",
+          "acceptedAnswers": [],
+          "explanation": "資料を分けて詳しく調べ、特徴や関係を明らかにすることを「分析」といいます。",
+          "targetKanji": [
+            "分",
+            "析"
+          ],
+          "targetWord": "分析",
+          "grade": 6,
+          "category": "教科学習語彙",
+          "tags": [
+            "教科学習語彙"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "ぶんせき-分析",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q006",
+          "title": "熟語",
+          "sentence": "班の意見を整理し、最後に【けつろん】を出す。",
+          "reading": "けつろん",
+          "answer": "結論",
+          "acceptedAnswers": [],
+          "explanation": "「結論」は、考えたり話し合ったりした末に出した最終的な考えです。",
+          "targetKanji": [
+            "結",
+            "論"
+          ],
+          "targetWord": "結論",
+          "grade": 6,
+          "category": "抽象語",
+          "tags": [
+            "抽象語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "けつろん-結論",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q007",
+          "title": "送り仮名",
+          "sentence": "新しい方法を実際に【こころみる】。",
+          "reading": "こころみる",
+          "answer": "試みる",
+          "acceptedAnswers": [],
+          "explanation": "やってみる、試してみるという意味では「試みる」と書きます。",
+          "targetKanji": [
+            "試"
+          ],
+          "targetWord": "試みる",
+          "grade": 6,
+          "category": "送り仮名",
+          "tags": [
+            "送り仮名"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "こころみる-試みる",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q008",
+          "title": "同音異義語",
+          "sentence": "国を平和に【おさめる】。",
+          "reading": "おさめる",
+          "answer": "治める",
+          "acceptedAnswers": [],
+          "explanation": "国や地域を統治するときは「治める」を使います。",
+          "targetKanji": [
+            "治"
+          ],
+          "targetWord": "治める",
+          "grade": 6,
+          "category": "同音異義語",
+          "tags": [
+            "同音異義語"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "おさめる-治める",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q009",
+          "title": "熟語",
+          "sentence": "多くの人が使いやすいように施設を【せいび】する。",
+          "reading": "せいび",
+          "answer": "整備",
+          "acceptedAnswers": [],
+          "explanation": "必要なものを整え、使える状態にすることを「整備」といいます。",
+          "targetKanji": [
+            "整",
+            "備"
+          ],
+          "targetWord": "整備",
+          "grade": 6,
+          "category": "熟語",
+          "tags": [
+            "熟語"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "せいび-整備",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        },
+        {
+          "id": "kanji-basic-005-q010",
+          "title": "慣用表現",
+          "sentence": "最後まであきらめず、力を【つくす】。",
+          "reading": "つくす",
+          "answer": "尽くす",
+          "acceptedAnswers": [],
+          "explanation": "持っている力を十分に使うことを「力を尽くす」といいます。",
+          "targetKanji": [
+            "尽"
+          ],
+          "targetWord": "尽くす",
+          "grade": 6,
+          "category": "慣用表現",
+          "tags": [
+            "慣用表現"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "knowledgeKey": "つくす-尽くす",
+          "source": "custom",
+          "references": [
+            "https://www.mext.go.jp/a_menu/shotou/new-cs/youryou/syo/koku.htm"
+          ]
+        }
+      ]
+    }
+  ]
+}

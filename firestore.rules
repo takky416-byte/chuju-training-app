@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        'takky416@gmail.com',
+        'analog3006@gmail.com'
+      ];
+    }
+
+    function isLearner() {
+      return request.auth != null && request.auth.token.email == 'aratasan0204@gmail.com';
+    }
+
+    function isFamily() {
+      return isAdmin() || isLearner();
+    }
+
+    match /learners/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960/attempts/{attemptId} {
+      allow read, create, update: if isFamily();
+      allow delete: if isAdmin();
+    }
+
+    match /learners/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960/basicAttempts/{attemptId} {
+      allow read, create, update: if isFamily();
+      allow delete: if isAdmin();
+    }
+
+    match /learners/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960/gameProgress/{documentId} {
+      allow read, create, update: if isFamily();
+      allow delete: if isAdmin();
+    }
+
+    match /learners/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960/questionProgress/{documentId} {
+      allow read, create, update: if isFamily();
+      allow delete: if isAdmin();
+    }
+
+    match /questionBank/{questionId} {
+      allow read: if isFamily();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /basicQuestionBank/{questionId} {
+      allow read: if isFamily();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /historyControls/{learnerId} {
+      allow read: if isFamily() && learnerId == '69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960';
+      allow create, update: if isAdmin() && learnerId == '69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960';
+      allow delete: if false;
+    }
+
+    match /gameSettings/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960 {
+      allow read: if isFamily();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

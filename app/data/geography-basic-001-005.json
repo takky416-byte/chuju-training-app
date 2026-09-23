@@ -1,0 +1,1472 @@
+{
+  "schemaVersion": 1,
+  "collectionId": "geography-basic-001-005",
+  "collectionTitle": "地理 基礎トレ 1〜5",
+  "type": "geography-collection",
+  "sets": [
+    {
+      "schemaVersion": 1,
+      "setId": "geography-basic-001",
+      "setTitle": "地理 基礎トレ1",
+      "type": "geography",
+      "questions": [
+        {
+          "id": "geography-basic-001-q001",
+          "title": "冬の日本の天気",
+          "context": "冬の日本では、日本海側と太平洋側で天気の特徴が異なります。",
+          "prompt": "最も適切なものを選びましょう。",
+          "options": [
+            "日本海側では雪や雨の日が多く、太平洋側では晴れの日が多い。",
+            "日本海側では晴れの日が多く、太平洋側では雪の日が多い。",
+            "日本全国でほぼ同じ天気になる。",
+            "太平洋側では一年中雪が降る。"
+          ],
+          "correctIndex": 0,
+          "explanation": "冬は大陸からの季節風などの影響で、日本海側では雪や雨の日が多く、山地を越えた太平洋側では晴れの日が多くなります。",
+          "topic": "climate",
+          "subtopic": "日本の冬",
+          "questionType": "knowledge",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "冬-日本海側-太平洋側"
+        },
+        {
+          "id": "geography-basic-001-q002",
+          "title": "県庁所在地",
+          "context": "栃木県について考えます。",
+          "prompt": "栃木県の県庁所在地を選びましょう。",
+          "options": [
+            "前橋市",
+            "宇都宮市",
+            "水戸市",
+            "さいたま市"
+          ],
+          "correctIndex": 1,
+          "explanation": "栃木県の県庁所在地は宇都宮市です。前橋市は群馬県、水戸市は茨城県、さいたま市は埼玉県です。",
+          "topic": "prefecture",
+          "subtopic": "県庁所在地",
+          "questionType": "knowledge",
+          "region": [
+            "栃木県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.stat.go.jp/data/nihon/"
+          ],
+          "knowledgeKey": "栃木県-宇都宮市"
+        },
+        {
+          "id": "geography-basic-001-q003",
+          "title": "日本最大の平野",
+          "context": "",
+          "prompt": "日本で最も面積が大きい平野を選びましょう。",
+          "options": [
+            "石狩平野",
+            "濃尾平野",
+            "関東平野",
+            "筑紫平野"
+          ],
+          "correctIndex": 2,
+          "explanation": "関東平野は日本最大の平野で、東京を中心とする大都市圏も広がっています。",
+          "topic": "landform",
+          "subtopic": "平野",
+          "questionType": "knowledge",
+          "region": [
+            "関東地方"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "関東平野"
+        },
+        {
+          "id": "geography-basic-001-q004",
+          "title": "木曽三川",
+          "context": "",
+          "prompt": "木曽三川の組み合わせとして正しいものを選びましょう。",
+          "options": [
+            "利根川・荒川・多摩川",
+            "木曽川・天竜川・富士川",
+            "淀川・大和川・紀の川",
+            "木曽川・長良川・揖斐川"
+          ],
+          "correctIndex": 3,
+          "explanation": "木曽川・長良川・揖斐川の三つを木曽三川と呼びます。",
+          "topic": "landform",
+          "subtopic": "河川",
+          "questionType": "knowledge",
+          "region": [
+            "岐阜県",
+            "愛知県",
+            "三重県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "木曽三川"
+        },
+        {
+          "id": "geography-basic-001-q005",
+          "title": "瀬戸内の気候",
+          "context": "山地に囲まれ、季節風の影響を受けにくい地域です。",
+          "prompt": "この地域の気候の特徴として適切なものを選びましょう。",
+          "options": [
+            "一年を通して降水量が比較的少ない。",
+            "冬の降雪量が日本で最も多い。",
+            "夏でも平均気温が0℃以下になる。",
+            "一年中台風の影響を受けない。"
+          ],
+          "correctIndex": 0,
+          "explanation": "瀬戸内は周囲を山地に囲まれ、季節風の影響を受けにくいため、降水量が比較的少ない地域です。",
+          "topic": "climate",
+          "subtopic": "瀬戸内の気候",
+          "questionType": "reasoning",
+          "region": [
+            "瀬戸内地方"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "瀬戸内-少雨"
+        },
+        {
+          "id": "geography-basic-001-q006",
+          "title": "北海道の農業",
+          "context": "",
+          "prompt": "北海道で広く行われている農業の特色として適切なものを選びましょう。",
+          "options": [
+            "狭い水田だけを使う農業",
+            "広い土地を生かした大規模な畑作や酪農",
+            "温室だけを使った花の栽培",
+            "山地だけを使ったみかん栽培"
+          ],
+          "correctIndex": 1,
+          "explanation": "北海道では広い土地を生かした大規模な畑作や酪農が盛んです。",
+          "topic": "industry",
+          "subtopic": "農業",
+          "questionType": "knowledge",
+          "region": [
+            "北海道"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "北海道-大規模農業"
+        },
+        {
+          "id": "geography-basic-001-q007",
+          "title": "果樹園の地図記号",
+          "context": "",
+          "prompt": "果樹園の地図記号が多い場所では、どのような土地利用が考えられますか。",
+          "options": [
+            "水田で稲を育てている。",
+            "工場が集中している。",
+            "りんごやぶどうなどの果物を育てている。",
+            "学校が多く建っている。"
+          ],
+          "correctIndex": 2,
+          "explanation": "国土地理院の果樹園の地図記号は、りんご、みかん、なし、もも、ぶどうなどを栽培している土地を示します。",
+          "topic": "map",
+          "subtopic": "地図記号",
+          "questionType": "knowledge",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.gsi.go.jp/KIDS/map-sign-tizukigou-2022.htm"
+          ],
+          "knowledgeKey": "地図記号-果樹園"
+        },
+        {
+          "id": "geography-basic-001-q008",
+          "title": "三陸海岸",
+          "context": "海岸線が複雑に入り組み、細長い湾が多く見られます。",
+          "prompt": "このような海岸地形を何といいますか。",
+          "options": [
+            "砂丘",
+            "カルデラ",
+            "三角州",
+            "リアス海岸"
+          ],
+          "correctIndex": 3,
+          "explanation": "三陸海岸には、海岸線が複雑に入り組んだリアス海岸が広がります。",
+          "topic": "landform",
+          "subtopic": "海岸地形",
+          "questionType": "knowledge",
+          "region": [
+            "岩手県",
+            "宮城県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "三陸-リアス海岸"
+        },
+        {
+          "id": "geography-basic-001-q009",
+          "title": "割合と実数",
+          "context": "X県ではある工業が県全体の40％、Y県では同じ工業が県全体の20％を占めています。",
+          "prompt": "この資料だけから必ず言えることを選びましょう。",
+          "options": [
+            "X県では、その工業が県全体に占める割合がY県より大きい。",
+            "X県のその工業の生産額は必ずY県より多い。",
+            "Y県のその工業の生産額は必ずX県より多い。",
+            "両県のその工業の生産額は同じである。"
+          ],
+          "correctIndex": 0,
+          "explanation": "分かるのは割合だけです。県全体の生産額が分からないので、実際の生産額の大小は判断できません。",
+          "topic": "data",
+          "subtopic": "割合と実数",
+          "questionType": "data-reading",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 3,
+          "timeLimitSeconds": 25,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "割合-実数-区別"
+        },
+        {
+          "id": "geography-basic-001-q010",
+          "title": "都市近郊の農業",
+          "context": "大都市の近くでは、消費地への距離の短さを生かした農業が行われています。",
+          "prompt": "その農業の説明として適切なものを選びましょう。",
+          "options": [
+            "農産物をすべて海外へ運ぶ。",
+            "新鮮な野菜などを大都市へ出荷する。",
+            "農地をすべて牧場にする。",
+            "米だけを一年中栽培する。"
+          ],
+          "correctIndex": 1,
+          "explanation": "大都市の近くでは、新鮮な野菜などを短時間で消費地へ出荷できる利点を生かした近郊農業が見られます。",
+          "topic": "industry",
+          "subtopic": "近郊農業",
+          "questionType": "reasoning",
+          "region": [
+            "関東地方",
+            "近畿地方"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "近郊農業"
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "geography-basic-002",
+      "setTitle": "地理 基礎トレ2",
+      "type": "geography",
+      "questions": [
+        {
+          "id": "geography-basic-002-q001",
+          "title": "北陸の冬",
+          "context": "冬に雪や雨の日が多い地域です。",
+          "prompt": "この特徴に最も当てはまりやすい都市を選びましょう。",
+          "options": [
+            "金沢市",
+            "高松市",
+            "那覇市",
+            "甲府市"
+          ],
+          "correctIndex": 0,
+          "explanation": "金沢市は日本海側の北陸地方にあり、冬に雪や雨の日が多い気候の特徴があります。",
+          "topic": "climate",
+          "subtopic": "日本海側",
+          "questionType": "reasoning",
+          "region": [
+            "石川県"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "金沢-日本海側"
+        },
+        {
+          "id": "geography-basic-002-q002",
+          "title": "都道府県と地方区分",
+          "context": "",
+          "prompt": "九州地方に含まれる県を選びましょう。",
+          "options": [
+            "山口県",
+            "熊本県",
+            "高知県",
+            "岡山県"
+          ],
+          "correctIndex": 1,
+          "explanation": "熊本県は九州地方です。山口県と岡山県は中国地方、高知県は四国地方です。",
+          "topic": "prefecture",
+          "subtopic": "地方区分",
+          "questionType": "knowledge",
+          "region": [
+            "九州地方"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.stat.go.jp/data/nihon/"
+          ],
+          "knowledgeKey": "熊本県-九州地方"
+        },
+        {
+          "id": "geography-basic-002-q003",
+          "title": "日本一長い川",
+          "context": "",
+          "prompt": "日本で最も長い川を選びましょう。",
+          "options": [
+            "利根川",
+            "石狩川",
+            "信濃川",
+            "木曽川"
+          ],
+          "correctIndex": 2,
+          "explanation": "信濃川は日本で最も長い川で、長野県では千曲川と呼ばれる区間があります。",
+          "topic": "landform",
+          "subtopic": "河川",
+          "questionType": "knowledge",
+          "region": [
+            "長野県",
+            "新潟県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "信濃川-最長"
+        },
+        {
+          "id": "geography-basic-002-q004",
+          "title": "日本アルプス",
+          "context": "",
+          "prompt": "日本アルプスを構成する山脈の組み合わせとして適切なものを選びましょう。",
+          "options": [
+            "日高山脈・奥羽山脈・阿武隈高地",
+            "中国山地・四国山地・九州山地",
+            "筑紫山地・鈴鹿山脈・紀伊山地",
+            "飛騨山脈・木曽山脈・赤石山脈"
+          ],
+          "correctIndex": 3,
+          "explanation": "飛騨山脈・木曽山脈・赤石山脈を合わせて日本アルプスと呼びます。",
+          "topic": "landform",
+          "subtopic": "山脈",
+          "questionType": "knowledge",
+          "region": [
+            "中部地方"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "日本アルプス"
+        },
+        {
+          "id": "geography-basic-002-q005",
+          "title": "黒潮の流れ",
+          "context": "",
+          "prompt": "黒潮について正しいものを選びましょう。",
+          "options": [
+            "日本の南岸に沿って北東へ流れる暖流である。",
+            "北海道の東から南へ流れる寒流である。",
+            "日本海だけを流れる寒流である。",
+            "一年の半分だけ流れる海流である。"
+          ],
+          "correctIndex": 0,
+          "explanation": "黒潮は日本の南岸に沿って流れる代表的な暖流です。",
+          "topic": "landform",
+          "subtopic": "海流",
+          "questionType": "knowledge",
+          "region": [
+            "日本近海"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "黒潮-暖流"
+        },
+        {
+          "id": "geography-basic-002-q006",
+          "title": "中京工業地帯",
+          "context": "",
+          "prompt": "中京工業地帯で特に盛んな工業として知られているものを選びましょう。",
+          "options": [
+            "製紙業だけ",
+            "自動車などの輸送用機械工業",
+            "造船業だけ",
+            "食品工業だけ"
+          ],
+          "correctIndex": 1,
+          "explanation": "中京工業地帯では、自動車などの輸送用機械工業が特に盛んです。",
+          "topic": "industry",
+          "subtopic": "工業地帯",
+          "questionType": "knowledge",
+          "region": [
+            "愛知県",
+            "岐阜県",
+            "三重県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "中京工業地帯-輸送用機械"
+        },
+        {
+          "id": "geography-basic-002-q007",
+          "title": "扇状地",
+          "context": "山地から平地へ出た川が運んだ砂れきが、扇の形に積もってできた地形です。",
+          "prompt": "この地形を選びましょう。",
+          "options": [
+            "三角州",
+            "盆地",
+            "扇状地",
+            "干潟"
+          ],
+          "correctIndex": 2,
+          "explanation": "山地から平地へ出たところに、川が運んだ砂れきが扇形に積もった地形を扇状地といいます。",
+          "topic": "landform",
+          "subtopic": "扇状地",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "扇状地"
+        },
+        {
+          "id": "geography-basic-002-q008",
+          "title": "沖縄の農業",
+          "context": "",
+          "prompt": "沖縄県の温暖な気候を生かした農業として代表的なものを選びましょう。",
+          "options": [
+            "てんさいの栽培",
+            "りんごの栽培",
+            "小麦だけの栽培",
+            "さとうきびの栽培"
+          ],
+          "correctIndex": 3,
+          "explanation": "沖縄県では温暖な気候を生かして、さとうきびなどが栽培されています。",
+          "topic": "industry",
+          "subtopic": "農業",
+          "questionType": "knowledge",
+          "region": [
+            "沖縄県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "沖縄-さとうきび"
+        },
+        {
+          "id": "geography-basic-002-q009",
+          "title": "資料から言えること",
+          "context": "ある市の人口は、2000年に12万人、2020年に10万人でした。",
+          "prompt": "この資料から直接分かることを選びましょう。",
+          "options": [
+            "2000年から2020年に人口が2万人減った。",
+            "2020年には子どもが一人もいない。",
+            "減少の原因はすべて転出である。",
+            "2030年には必ず8万人になる。"
+          ],
+          "correctIndex": 0,
+          "explanation": "資料から直接分かるのは、20年間で人口が2万人減ったことです。原因や将来の人口までは、この数字だけでは判断できません。",
+          "topic": "data",
+          "subtopic": "人口統計",
+          "questionType": "data-reading",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "資料-直接分かること"
+        },
+        {
+          "id": "geography-basic-002-q010",
+          "title": "高速交通網",
+          "context": "高速道路や新幹線が整備されると、地域間の移動時間が短くなることがあります。",
+          "prompt": "その影響として最も適切なものを選びましょう。",
+          "options": [
+            "人や物の移動がしにくくなる。",
+            "遠くの地域との交流や物流がしやすくなる。",
+            "港が必ずなくなる。",
+            "人口が必ず同じになる。"
+          ],
+          "correctIndex": 1,
+          "explanation": "高速交通網の整備は、人や物の移動時間を短縮し、交流や物流をしやすくする働きがあります。",
+          "topic": "transport",
+          "subtopic": "交通網",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "高速交通網-交流物流"
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "geography-basic-003",
+      "setTitle": "地理 基礎トレ3",
+      "type": "geography",
+      "questions": [
+        {
+          "id": "geography-basic-003-q001",
+          "title": "縮尺",
+          "context": "縮尺1万分の1の地図があります。地図上の1cmは実際には何mですか。",
+          "prompt": "正しいものを選びましょう。",
+          "options": [
+            "100m",
+            "10m",
+            "1km",
+            "10km"
+          ],
+          "correctIndex": 0,
+          "explanation": "1cm×10000=10000cmです。10000cmは100mです。",
+          "topic": "map",
+          "subtopic": "縮尺",
+          "questionType": "calculation",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 25,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "縮尺-1万分の1"
+        },
+        {
+          "id": "geography-basic-003-q002",
+          "title": "方位",
+          "context": "地図は上が北を表しています。A地点からB地点へ、右上の方向に進みました。",
+          "prompt": "B地点はA地点から見てどの方位ですか。",
+          "options": [
+            "北西",
+            "北東",
+            "南東",
+            "南西"
+          ],
+          "correctIndex": 1,
+          "explanation": "地図で上が北なら、右は東です。右上は北東になります。",
+          "topic": "map",
+          "subtopic": "方位",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "方位-北東"
+        },
+        {
+          "id": "geography-basic-003-q003",
+          "title": "等高線",
+          "context": "等高線の間隔がせまい場所があります。",
+          "prompt": "この場所の地形について適切なものを選びましょう。",
+          "options": [
+            "平らな土地である。",
+            "海の中である。",
+            "傾斜が急である。",
+            "必ず川が流れている。"
+          ],
+          "correctIndex": 2,
+          "explanation": "等高線の間隔がせまいほど、短い距離で高さが大きく変わるため、傾斜が急です。",
+          "topic": "map",
+          "subtopic": "等高線",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.gsi.go.jp/KIDS/map-sign-tizukigou-2022.htm"
+          ],
+          "knowledgeKey": "等高線-間隔-傾斜"
+        },
+        {
+          "id": "geography-basic-003-q004",
+          "title": "三角州",
+          "context": "川が海や湖に流れこむ河口付近に、細かい土砂が積もってできる低く平らな地形です。",
+          "prompt": "この地形を選びましょう。",
+          "options": [
+            "盆地",
+            "台地",
+            "扇状地",
+            "三角州"
+          ],
+          "correctIndex": 3,
+          "explanation": "河口付近に細かな土砂が積もってできる低く平らな地形を三角州といいます。",
+          "topic": "landform",
+          "subtopic": "三角州",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "三角州"
+        },
+        {
+          "id": "geography-basic-003-q005",
+          "title": "盆地の特徴",
+          "context": "周囲を山地に囲まれた平地について考えます。",
+          "prompt": "この地形の名前として適切なものを選びましょう。",
+          "options": [
+            "盆地",
+            "半島",
+            "岬",
+            "湾"
+          ],
+          "correctIndex": 0,
+          "explanation": "周囲を山地に囲まれた平地を盆地といいます。",
+          "topic": "landform",
+          "subtopic": "盆地",
+          "questionType": "knowledge",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "盆地"
+        },
+        {
+          "id": "geography-basic-003-q006",
+          "title": "海岸の地形",
+          "context": "",
+          "prompt": "陸地が海へ細長く突き出した地形を選びましょう。",
+          "options": [
+            "湾",
+            "半島",
+            "平野",
+            "盆地"
+          ],
+          "correctIndex": 1,
+          "explanation": "陸地が海へ突き出し、三方を海に囲まれている地形を半島といいます。",
+          "topic": "landform",
+          "subtopic": "半島",
+          "questionType": "knowledge",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.mlit.go.jp/river/toukei_chousa/kasen/jiten/nihon_kawa/"
+          ],
+          "knowledgeKey": "半島"
+        },
+        {
+          "id": "geography-basic-003-q007",
+          "title": "果樹栽培と地形",
+          "context": "扇状地では水はけがよい場所が多くあります。",
+          "prompt": "この特色を生かして行われることが多い農業を選びましょう。",
+          "options": [
+            "水田だけを作る。",
+            "海面養殖を行う。",
+            "果樹を栽培する。",
+            "さとうきびだけを栽培する。"
+          ],
+          "correctIndex": 2,
+          "explanation": "扇状地は水はけがよい場所が多く、果樹栽培に利用されることがあります。",
+          "topic": "industry",
+          "subtopic": "果樹農業",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "扇状地-果樹"
+        },
+        {
+          "id": "geography-basic-003-q008",
+          "title": "日本の火山",
+          "context": "",
+          "prompt": "火山が多い日本で起こりうる自然災害として適切なものを選びましょう。",
+          "options": [
+            "砂漠化だけ",
+            "高潮だけ",
+            "流氷だけ",
+            "噴火による火山灰や溶岩の被害"
+          ],
+          "correctIndex": 3,
+          "explanation": "火山の噴火では、火山灰、噴石、溶岩流などによる被害が起こることがあります。",
+          "topic": "landform",
+          "subtopic": "自然災害",
+          "questionType": "knowledge",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "火山-噴火災害"
+        },
+        {
+          "id": "geography-basic-003-q009",
+          "title": "地図から読み取れること",
+          "context": "地図上で、駅の周辺に建物が多く、道路が集中しています。",
+          "prompt": "最も自然な読み取りを選びましょう。",
+          "options": [
+            "駅の周辺に市街地が発達している可能性がある。",
+            "必ず農業だけが行われている。",
+            "人口が0人である。",
+            "山頂に駅があることが確定する。"
+          ],
+          "correctIndex": 0,
+          "explanation": "建物や道路が集中していることから、駅周辺に市街地が発達している可能性を読み取れます。",
+          "topic": "map",
+          "subtopic": "地図読解",
+          "questionType": "data-reading",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "地図-駅-市街地"
+        },
+        {
+          "id": "geography-basic-003-q010",
+          "title": "緯度と気温",
+          "context": "同じような条件なら、一般に低緯度の地域ほど太陽から受けるエネルギーが多くなります。",
+          "prompt": "日本国内で比較した場合、一般に気温が高くなりやすい地域を選びましょう。",
+          "options": [
+            "北海道北部",
+            "沖縄県",
+            "東北地方北部",
+            "北海道東部"
+          ],
+          "correctIndex": 1,
+          "explanation": "日本は南北に長く、低緯度にある沖縄県は北海道などより一般に気温が高くなります。",
+          "topic": "climate",
+          "subtopic": "緯度と気温",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "緯度-気温"
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "geography-basic-004",
+      "setTitle": "地理 基礎トレ4",
+      "type": "geography",
+      "questions": [
+        {
+          "id": "geography-basic-004-q001",
+          "title": "雨温図の読み方",
+          "context": "A都市は1月の平均気温が低く、冬にも降水量が多いという特徴があります。",
+          "prompt": "最も当てはまりやすい都市を選びましょう。",
+          "options": [
+            "金沢市",
+            "高松市",
+            "那覇市",
+            "静岡市"
+          ],
+          "correctIndex": 0,
+          "explanation": "金沢市は日本海側に位置し、冬にも降水量が多い特徴があります。",
+          "topic": "climate",
+          "subtopic": "雨温図",
+          "questionType": "data-reading",
+          "region": [
+            "石川県"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 25,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "雨温図-日本海側"
+        },
+        {
+          "id": "geography-basic-004-q002",
+          "title": "農産物と地域",
+          "context": "次のうち、温暖な気候を利用したみかん栽培で知られる県を選びましょう。",
+          "prompt": "正しいものを選びましょう。",
+          "options": [
+            "青森県",
+            "愛媛県",
+            "北海道",
+            "岩手県"
+          ],
+          "correctIndex": 1,
+          "explanation": "愛媛県では温暖な気候を利用したかんきつ類の栽培が盛んです。",
+          "topic": "industry",
+          "subtopic": "果樹農業",
+          "questionType": "knowledge",
+          "region": [
+            "愛媛県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "愛媛-みかん"
+        },
+        {
+          "id": "geography-basic-004-q003",
+          "title": "高冷地の農業",
+          "context": "夏でも比較的冷涼な高原では、その気候を生かした農業が行われます。",
+          "prompt": "代表的なものを選びましょう。",
+          "options": [
+            "さとうきび栽培",
+            "海面養殖",
+            "レタスなどの高原野菜の栽培",
+            "てんさいだけの栽培"
+          ],
+          "correctIndex": 2,
+          "explanation": "長野県などの高原では、夏の冷涼な気候を生かしてレタスなどの高原野菜が栽培されています。",
+          "topic": "industry",
+          "subtopic": "高原野菜",
+          "questionType": "knowledge",
+          "region": [
+            "長野県"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "高原野菜-長野"
+        },
+        {
+          "id": "geography-basic-004-q004",
+          "title": "漁港と海流",
+          "context": "暖流と寒流が出会う海域では、さまざまな魚が集まりやすくなります。",
+          "prompt": "この条件に関係が深い地域を選びましょう。",
+          "options": [
+            "琵琶湖周辺",
+            "瀬戸内海の中央だけ",
+            "富士山頂",
+            "三陸沖"
+          ],
+          "correctIndex": 3,
+          "explanation": "三陸沖付近では暖流と寒流の影響を受け、好漁場が形成されることで知られています。",
+          "topic": "industry",
+          "subtopic": "水産業",
+          "questionType": "reasoning",
+          "region": [
+            "東北地方"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "三陸沖-好漁場"
+        },
+        {
+          "id": "geography-basic-004-q005",
+          "title": "工業地帯の立地",
+          "context": "大きな港の近くに工場が集まる理由として最も適切なものを選びましょう。",
+          "prompt": "正しいものを選びましょう。",
+          "options": [
+            "原料の輸入や製品の輸送に便利だから。",
+            "山の頂上に近いから。",
+            "必ず雨が少ないから。",
+            "農地を広く確保できるから。"
+          ],
+          "correctIndex": 0,
+          "explanation": "臨海部では、船を使って大量の原料を運び込んだり製品を送り出したりしやすいという利点があります。",
+          "topic": "industry",
+          "subtopic": "臨海工業",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "臨海工業-港-輸送"
+        },
+        {
+          "id": "geography-basic-004-q006",
+          "title": "過疎地域",
+          "context": "人口が減り、高齢者の割合が高くなる地域では、さまざまな課題が起こります。",
+          "prompt": "考えられる課題として適切なものを選びましょう。",
+          "options": [
+            "学校や商店、公共交通の維持が難しくなることがある。",
+            "人口が必ず急増する。",
+            "農地がすべて工場になる。",
+            "道路がすべて高速道路になる。"
+          ],
+          "correctIndex": 1,
+          "explanation": "人口減少が進む地域では、学校、商店、病院、公共交通などの維持が課題になることがあります。",
+          "topic": "population",
+          "subtopic": "過疎",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.stat.go.jp/data/nihon/"
+          ],
+          "knowledgeKey": "過疎-生活サービス"
+        },
+        {
+          "id": "geography-basic-004-q007",
+          "title": "都市への人口集中",
+          "context": "大都市に人口が集中すると、住宅や交通に関する課題が生じることがあります。",
+          "prompt": "その例として適切なものを選びましょう。",
+          "options": [
+            "積雪が必ず増える。",
+            "火山が必ず噴火する。",
+            "通勤時間帯の混雑が起こる。",
+            "海岸線が短くなる。"
+          ],
+          "correctIndex": 2,
+          "explanation": "人口が集中する大都市では、通勤・通学時間帯の交通混雑などが課題になることがあります。",
+          "topic": "population",
+          "subtopic": "都市問題",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.stat.go.jp/data/nihon/"
+          ],
+          "knowledgeKey": "都市-交通混雑"
+        },
+        {
+          "id": "geography-basic-004-q008",
+          "title": "日本の貿易",
+          "context": "日本は海外から多くの資源や食料を輸入しています。",
+          "prompt": "このことと関係が深い説明を選びましょう。",
+          "options": [
+            "輸送手段は徒歩だけでよい。",
+            "港は必要ない。",
+            "国内では物を全く作っていない。",
+            "港湾や海上輸送が重要な役割を持つ。"
+          ],
+          "correctIndex": 3,
+          "explanation": "島国である日本では、海外との大量輸送に港湾や海上輸送が重要な役割を果たしています。",
+          "topic": "transport",
+          "subtopic": "貿易・物流",
+          "questionType": "reasoning",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "貿易-港湾-海上輸送"
+        },
+        {
+          "id": "geography-basic-004-q009",
+          "title": "表の読み取り",
+          "context": "A県の米の生産量が80、野菜が40。B県の米が50、野菜が70とします。単位は同じです。",
+          "prompt": "この表から直接分かることを選びましょう。",
+          "options": [
+            "A県では米の値が野菜の値より大きい。",
+            "A県の農業人口はB県より多い。",
+            "B県は必ず米を輸入している。",
+            "A県の面積はB県より広い。"
+          ],
+          "correctIndex": 0,
+          "explanation": "表から直接比較できるのは示された数値だけです。人口や面積、輸入の有無までは分かりません。",
+          "topic": "data",
+          "subtopic": "表の読み取り",
+          "questionType": "data-reading",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "表-直接比較"
+        },
+        {
+          "id": "geography-basic-004-q010",
+          "title": "複数条件で県を判断",
+          "context": "ある県には、世界的に知られる自動車関連産業が集まり、伊勢湾に面し、県庁所在地は名古屋市です。",
+          "prompt": "この県を選びましょう。",
+          "options": [
+            "岐阜県",
+            "愛知県",
+            "静岡県",
+            "三重県"
+          ],
+          "correctIndex": 1,
+          "explanation": "名古屋市を県庁所在地とし、伊勢湾に面するのは愛知県です。自動車関連産業も盛んです。",
+          "topic": "integrated",
+          "subtopic": "地域総合",
+          "questionType": "reasoning",
+          "region": [
+            "愛知県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "愛知県-複数条件"
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "setId": "geography-basic-005",
+      "setTitle": "地理 基礎トレ5",
+      "type": "geography",
+      "questions": [
+        {
+          "id": "geography-basic-005-q001",
+          "title": "北海道の土地利用",
+          "context": "広い平地を利用し、大型機械を使う農業が行われています。",
+          "prompt": "この特徴に最も当てはまる地域を選びましょう。",
+          "options": [
+            "北海道",
+            "沖縄県",
+            "東京都心部",
+            "大阪市中心部"
+          ],
+          "correctIndex": 0,
+          "explanation": "北海道では広い土地を利用した大規模な畑作や酪農が行われています。",
+          "topic": "industry",
+          "subtopic": "農業",
+          "questionType": "reasoning",
+          "region": [
+            "北海道"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "北海道-広い農地"
+        },
+        {
+          "id": "geography-basic-005-q002",
+          "title": "青森の果樹",
+          "context": "青森県で生産が盛んな果物として知られるものを選びましょう。",
+          "prompt": "正しいものを選びましょう。",
+          "options": [
+            "パイナップル",
+            "りんご",
+            "マンゴー",
+            "バナナ"
+          ],
+          "correctIndex": 1,
+          "explanation": "青森県はりんごの産地として広く知られています。",
+          "topic": "industry",
+          "subtopic": "果樹農業",
+          "questionType": "knowledge",
+          "region": [
+            "青森県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "青森-りんご"
+        },
+        {
+          "id": "geography-basic-005-q003",
+          "title": "山梨の果樹",
+          "context": "山梨県の盆地周辺などで生産が盛んな果物として知られるものを選びましょう。",
+          "prompt": "正しいものを選びましょう。",
+          "options": [
+            "さとうきび",
+            "てんさい",
+            "ぶどう",
+            "パイナップル"
+          ],
+          "correctIndex": 2,
+          "explanation": "山梨県ではぶどうやももなどの果樹栽培が盛んです。",
+          "topic": "industry",
+          "subtopic": "果樹農業",
+          "questionType": "knowledge",
+          "region": [
+            "山梨県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "山梨-ぶどう"
+        },
+        {
+          "id": "geography-basic-005-q004",
+          "title": "高知の促成栽培",
+          "context": "温暖な気候を利用し、野菜を普通より早い時期に出荷する栽培方法があります。",
+          "prompt": "この栽培方法を選びましょう。",
+          "options": [
+            "抑制栽培",
+            "焼畑農業",
+            "輪作",
+            "促成栽培"
+          ],
+          "correctIndex": 3,
+          "explanation": "温暖な地域で、施設なども利用して出荷時期を早める栽培を促成栽培といいます。高知県などで行われています。",
+          "topic": "industry",
+          "subtopic": "促成栽培",
+          "questionType": "knowledge",
+          "region": [
+            "高知県"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "促成栽培-高知"
+        },
+        {
+          "id": "geography-basic-005-q005",
+          "title": "新潟と米",
+          "context": "広い平野と豊かな水を利用した米づくりで知られる県です。",
+          "prompt": "最も当てはまる県を選びましょう。",
+          "options": [
+            "新潟県",
+            "香川県",
+            "沖縄県",
+            "東京都"
+          ],
+          "correctIndex": 0,
+          "explanation": "新潟県は越後平野などで米づくりが盛んな地域として知られています。",
+          "topic": "industry",
+          "subtopic": "稲作",
+          "questionType": "knowledge",
+          "region": [
+            "新潟県"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "新潟-米"
+        },
+        {
+          "id": "geography-basic-005-q006",
+          "title": "瀬戸内海の交通",
+          "context": "瀬戸内海沿岸には多くの港や工業地域があります。",
+          "prompt": "その理由の一つとして適切なものを選びましょう。",
+          "options": [
+            "一年中海が凍るから。",
+            "海上交通を利用しやすいから。",
+            "山が全くないから。",
+            "川が一本もないから。"
+          ],
+          "correctIndex": 1,
+          "explanation": "瀬戸内海は海上交通に利用され、沿岸には港や工業地域が発達してきました。",
+          "topic": "transport",
+          "subtopic": "海上交通",
+          "questionType": "reasoning",
+          "region": [
+            "瀬戸内地方"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "瀬戸内-海上交通"
+        },
+        {
+          "id": "geography-basic-005-q007",
+          "title": "台風と地域",
+          "context": "日本では夏から秋にかけて台風の影響を受けることがあります。",
+          "prompt": "台風によって起こる可能性がある災害を選びましょう。",
+          "options": [
+            "オーロラ",
+            "永久凍土",
+            "大雨や強風による風水害",
+            "流氷の接岸だけ"
+          ],
+          "correctIndex": 2,
+          "explanation": "台風は大雨や強風をもたらし、洪水、土砂災害、高潮などにつながることがあります。",
+          "topic": "climate",
+          "subtopic": "台風",
+          "questionType": "knowledge",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 1,
+          "timeLimitSeconds": 15,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html"
+          ],
+          "knowledgeKey": "台風-風水害"
+        },
+        {
+          "id": "geography-basic-005-q008",
+          "title": "人口密度",
+          "context": "A市は人口20万人で面積100km²、B市は人口20万人で面積200km²です。",
+          "prompt": "人口密度が高いのはどちらですか。",
+          "options": [
+            "同じ",
+            "判断できない",
+            "B市",
+            "A市"
+          ],
+          "correctIndex": 3,
+          "explanation": "人口密度は人口÷面積で求めます。A市は2000人/km²、B市は1000人/km²なのでA市の方が高いです。",
+          "topic": "population",
+          "subtopic": "人口密度",
+          "questionType": "calculation",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 25,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "人口密度-計算"
+        },
+        {
+          "id": "geography-basic-005-q009",
+          "title": "資料の読み取り",
+          "context": "ある地域で、鉄道利用者数が10年間で増えたという資料があります。",
+          "prompt": "この資料だけから必ず言えることを選びましょう。",
+          "options": [
+            "10年間で鉄道利用者数が増えた。",
+            "人口も必ず増えた。",
+            "自動車利用者は0人になった。",
+            "鉄道会社の利益も必ず増えた。"
+          ],
+          "correctIndex": 0,
+          "explanation": "資料から直接分かるのは鉄道利用者数が増えたことだけです。人口や利益などは別の資料が必要です。",
+          "topic": "data",
+          "subtopic": "資料読解",
+          "questionType": "data-reading",
+          "region": [
+            "日本"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [],
+          "knowledgeKey": "資料-因果を決めつけない"
+        },
+        {
+          "id": "geography-basic-005-q010",
+          "title": "地域の特色を組み合わせる",
+          "context": "ある地域は、日本海に面し、冬に雪が多く、稲作も盛んです。",
+          "prompt": "最も当てはまりやすい県を選びましょう。",
+          "options": [
+            "沖縄県",
+            "新潟県",
+            "香川県",
+            "山梨県"
+          ],
+          "correctIndex": 1,
+          "explanation": "新潟県は日本海側にあり、冬に雪が多い地域を含み、米づくりも盛んです。",
+          "topic": "integrated",
+          "subtopic": "地域総合",
+          "questionType": "reasoning",
+          "region": [
+            "新潟県"
+          ],
+          "difficulty": 2,
+          "timeLimitSeconds": 20,
+          "materials": [],
+          "statisticsYear": null,
+          "source": "custom",
+          "references": [
+            "https://www.jma.go.jp/jma/kishou/know/kisetsu_riyou/tenkou/Average_Climate_Japan.html",
+            "https://www.maff.go.jp/j/wpaper/w_maff/r6/"
+          ],
+          "knowledgeKey": "新潟-日本海側-稲作"
+        }
+      ]
+    }
+  ]
+}
