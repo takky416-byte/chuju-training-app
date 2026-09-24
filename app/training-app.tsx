@@ -1672,7 +1672,7 @@ export default function TrainingApp() {
   const recent = useMemo(() => [
     ...attempts.map((attempt) => ({ ...attempt, trainingType: "aptitude" as const })),
     ...basicAttempts.map((attempt) => ({ ...attempt, trainingType: "basic" as const })),
-  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 6), [attempts, basicAttempts]);
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 15), [attempts, basicAttempts]);
   const sessionScore = sessionAnswers.filter(Boolean).length;
   const sessionAccuracy = session.length ? Math.round((sessionScore / session.length) * 100) : 0;
   const sessionRank = getSessionRank(sessionScore, session.length);
@@ -1996,7 +1996,10 @@ export default function TrainingApp() {
                     const quest = dailyQuestProgress.quests[id];
                     return (
                       <li key={id} className={quest.done ? "done" : ""}>
-                        <span>{quest.done && <Check size={13} />}{DAILY_QUEST_LABELS[id]}</span>
+                        <div className="daily-quest-row">
+                          <span>{quest.done && <Check size={13} />}{DAILY_QUEST_LABELS[id]}</span>
+                          <b>{quest.done ? `達成！+${DAILY_QUEST_REWARD}コイン` : `+${DAILY_QUEST_REWARD}コイン`}</b>
+                        </div>
                         <small>{quest.detail}</small>
                       </li>
                     );
@@ -2218,15 +2221,17 @@ export default function TrainingApp() {
           </div>
           <div className="recent-panel">
             <div className="recent-title"><BarChart3 size={18} /><strong>最近の記録</strong></div>
-            {recent.length ? recent.map((attempt) => {
-              const title = attempt.trainingType === "aptitude"
-                ? questions.find((question) => question.id === attempt.questionId)?.title ?? attempt.domain
-                : basicQuestionTitles.get(attempt.questionId) ?? "基礎トレ";
-              const category = attempt.trainingType === "aptitude"
-                ? `適性検査・${attempt.domain}`
-                : `基礎トレ・${basicSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`;
-              return <div className="recent-row" key={`${attempt.trainingType}-${attempt.clientAttemptId}`}><span className={attempt.isCorrect ? "recent-ok" : "recent-ng"}>{attempt.isCorrect ? <Check size={14} /> : <X size={14} />}</span><div><strong>{title}</strong><small>{category}・{new Date(attempt.createdAt).toLocaleString("ja-JP", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })}</small></div></div>;
-            }) : <p className="recent-empty">演習すると、ここに記録が並びます。</p>}
+            <div className="recent-list">
+              {recent.length ? recent.map((attempt) => {
+                const title = attempt.trainingType === "aptitude"
+                  ? questions.find((question) => question.id === attempt.questionId)?.title ?? attempt.domain
+                  : basicQuestionTitles.get(attempt.questionId) ?? "基礎トレ";
+                const category = attempt.trainingType === "aptitude"
+                  ? `適性検査・${attempt.domain}`
+                  : `基礎トレ・${basicSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`;
+                return <div className="recent-row" key={`${attempt.trainingType}-${attempt.clientAttemptId}`}><span className={attempt.isCorrect ? "recent-ok" : "recent-ng"}>{attempt.isCorrect ? <Check size={14} /> : <X size={14} />}</span><div><strong>{title}</strong><small>{category}・{new Date(attempt.createdAt).toLocaleString("ja-JP", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })}</small></div></div>;
+              }) : <p className="recent-empty">演習すると、ここに記録が並びます。</p>}
+            </div>
           </div>
         </div>
 
@@ -2263,7 +2268,11 @@ export default function TrainingApp() {
                   <Coins size={18} /> {isDrawingGacha ? "抽選中…" : !gachaEnabled ? "保護者が停止中" : gameProgress.coins < GACHA_COST ? `あと${GACHA_COST - gameProgress.coins}コイン` : `${GACHA_COST}コインで引く`}
                 </button>
                 <button className="gacha-button gacha-button-multi" type="button" disabled={!gachaEnabled || gameProgress.coins < GACHA_MULTI_COST || isDrawingGacha} onClick={() => void drawGachaMulti()}>
-                  <Gift size={18} /> {isDrawingGacha ? "抽選中…" : !gachaEnabled ? "保護者が停止中" : gameProgress.coins < GACHA_MULTI_COST ? `あと${GACHA_MULTI_COST - gameProgress.coins}コイン` : `${GACHA_MULTI_COST}コインで${GACHA_MULTI_TOTAL}回（+${GACHA_MULTI_BONUS}回おまけ）`}
+                  <Gift size={18} />
+                  <span className="gacha-button-label">
+                    <strong>{GACHA_MULTI_TOTAL}連ガチャ</strong>
+                    <small>{isDrawingGacha ? "抽選中…" : !gachaEnabled ? "保護者が停止中" : gameProgress.coins < GACHA_MULTI_COST ? `あと${GACHA_MULTI_COST - gameProgress.coins}コイン` : `${GACHA_COST}コイン×${GACHA_MULTI_COUNT}回分＝${GACHA_MULTI_COST}コインで${GACHA_MULTI_TOTAL}回引ける！（+${GACHA_MULTI_BONUS}回おまけ）`}</small>
+                  </span>
                 </button>
               </div>
               <div className="gacha-rates"><span>通常 70%</span><span>レア 25%</span><span>スーパーレア 5%</span></div>

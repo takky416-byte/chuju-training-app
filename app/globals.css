@@ -146,11 +146,14 @@ button { color: inherit; }
 .daily-quest-heading small { color: var(--muted); font-size: 9px; font-weight: 800; }
 .daily-quest-complete { color: var(--teal); font-size: 10px; font-weight: 900; }
 .daily-quest-list { display: grid; gap: 5px; }
-.daily-quest-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 9px; background: white; border: 1px solid #e3e7ec; border-radius: 7px; }
+.daily-quest-list li { display: grid; gap: 3px; padding: 7px 9px; background: white; border: 1px solid #e3e7ec; border-radius: 7px; }
 .daily-quest-list li.done { color: #126359; background: var(--teal-pale); border-color: #7cbab3; }
-.daily-quest-list li > span:first-child { display: inline-flex; align-items: center; gap: 5px; color: var(--navy-dark); font-size: 11px; font-weight: 800; }
-.daily-quest-list li.done > span:first-child { color: #126359; }
-.daily-quest-list li small { color: var(--muted); font-size: 9px; font-weight: 800; white-space: nowrap; }
+.daily-quest-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.daily-quest-row > span:first-child { display: inline-flex; align-items: center; gap: 5px; color: var(--navy-dark); font-size: 11px; font-weight: 800; }
+.daily-quest-list li.done .daily-quest-row > span:first-child { color: #126359; }
+.daily-quest-row > b { color: #9b6b0f; font-size: 10px; font-weight: 900; white-space: nowrap; }
+.daily-quest-list li.done .daily-quest-row > b { color: #126359; }
+.daily-quest-list li small { color: var(--muted); font-size: 9px; font-weight: 800; }
 .daily-quest-list li.done small { color: #126359; }
 .player-wallet-card { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: center; width: 100%; margin-top: 9px; padding: 10px 13px; color: var(--navy-dark); text-align: left; background: #fff8df; border: 1px solid #ead28b; border-radius: 9px; cursor: pointer; }
 .player-wallet-card:hover { background: #fff1bd; border-color: #d9b64c; }
@@ -296,6 +299,7 @@ button { color: inherit; }
 .recent-panel { padding: 18px 20px; }
 .recent-title { display: flex; align-items: center; gap: 8px; padding: 0 0 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
 .recent-title svg { color: var(--teal); }
+.recent-list { max-height: 620px; overflow-y: auto; }
 .recent-row { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid #edf0f3; }
 .recent-row:last-child { border-bottom: 0; }
 .recent-row > span { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; }
@@ -339,8 +343,11 @@ button { color: inherit; }
 .gacha-button-row .gacha-button { margin-top: 0; }
 .gacha-button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #873316; }
 .gacha-button:disabled { opacity: .6; cursor: not-allowed; }
-.gacha-button-multi { color: white; background: #2d6dc7; border-color: #163e91; font-size: 12px; box-shadow: 0 5px 0 #163e91; }
+.gacha-button-multi { min-height: 58px; color: white; background: #2d6dc7; border-color: #163e91; box-shadow: 0 5px 0 #163e91; }
 .gacha-button-multi:active:not(:disabled) { box-shadow: 0 2px 0 #163e91; }
+.gacha-button-label { display: grid; justify-items: center; gap: 2px; }
+.gacha-button-label strong { font-size: 15px; }
+.gacha-button-label small { font-size: 10px; font-weight: 800; line-height: 1.3; white-space: normal; }
 .gacha-rates { display: flex; justify-content: center; gap: 8px; margin-top: 13px; color: #755920; font-size: 8px; font-weight: 900; }
 .gacha-machine > p { margin: 6px 0 0; color: #755920; font-size: 9px; text-align: center; }
 .gacha-machine > p strong { color: #9b3f20; font-size: 12px; }
