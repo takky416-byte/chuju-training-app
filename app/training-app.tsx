@@ -138,6 +138,7 @@ type Collectible = {
   gachaType: GachaType;
   description: string;
 };
+type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
@@ -151,6 +152,10 @@ const EMPTY_GACHA_DRAWS: Record<GachaType, number> = { local: 0, industry: 0, pe
 const EMPTY_GAME_PROGRESS: GameProgress = { totalXp: 0, bestScore: 0, bestAccuracy: 0, bestCombo: 0, coins: 0, inventory: [], collectionCounts: {}, gachaDraws: 0, gachaDrawsByType: EMPTY_GACHA_DRAWS, updatedAt: "" };
 const XP_PER_LEVEL = 300;
 const GACHA_COST = 20;
+const GACHA_MULTI_COUNT = 10;
+const GACHA_MULTI_BONUS = 1;
+const GACHA_MULTI_TOTAL = GACHA_MULTI_COUNT + GACHA_MULTI_BONUS;
+const GACHA_MULTI_COST = GACHA_COST * GACHA_MULTI_COUNT;
 const BASIC_SUBJECT_LABELS = Object.fromEntries(BASIC_SUBJECT_IDS.map((id) => [id, BASIC_SUBJECT_CONFIG[id].label])) as Record<BasicSubject, string>;
 
 const COLLECTIBLES: Collectible[] = [
@@ -321,6 +326,12 @@ function drawCollectible(drawNumber: number, gachaType: GachaType) {
     : (roll < 5 ? "superRare" : roll < 30 ? "rare" : "common");
   const pool = COLLECTIBLES.filter((item) => item.gachaType === gachaType && item.rarity === rarity);
   return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function bestRarity(results: GachaDrawResult[]): CollectibleRarity {
+  if (results.some((result) => result.item.rarity === "superRare")) return "superRare";
+  if (results.some((result) => result.item.rarity === "rare")) return "rare";
+  return "common";
 }
 
 function getSessionRank(correct: number, total: number) {
@@ -617,7 +628,8 @@ export default function TrainingApp() {
   const [gameProgress, setGameProgress] = useState<GameProgress>(EMPTY_GAME_PROGRESS);
   const [sessionNewBest, setSessionNewBest] = useState(false);
   const [gachaEnabled, setGachaEnabled] = useState(true);
-  const [gachaResult, setGachaResult] = useState<{ item: Collectible; count: number; isNew: boolean } | null>(null);
+  const [gachaResult, setGachaResult] = useState<GachaDrawResult | null>(null);
+  const [gachaMultiResults, setGachaMultiResults] = useState<GachaDrawResult[] | null>(null);
   const [gachaStatus, setGachaStatus] = useState("");
   const [isDrawingGacha, setIsDrawingGacha] = useState(false);
   const [gachaRevealOpen, setGachaRevealOpen] = useState(false);
@@ -1681,6 +1693,7 @@ export default function TrainingApp() {
     if (!gachaEnabled || gameProgress.coins < GACHA_COST || isDrawingGacha || !db) return;
     setIsDrawingGacha(true);
     setGachaResult(null);
+    setGachaMultiResults(null);
     setGachaRevealOpen(true);
     setGachaStatus("");
     await new Promise((resolve) => window.setTimeout(resolve, 1250));
@@ -1702,6 +1715,54 @@ export default function TrainingApp() {
     setIsDrawingGacha(false);
     localStorage.setItem(GAME_PROGRESS_KEY, JSON.stringify(nextProgress));
     if (effectsEnabledRef.current) void audioEngine.current?.playEffect(item.rarity === "superRare" ? "finish" : item.rarity === "rare" ? "combo" : "correct");
+    try {
+      await setDoc(doc(db, "learners", LEARNER_RECORD_ID, "gameProgress", "summary"), nextProgress, { merge: true });
+      setSyncState("synced");
+    } catch {
+      setGachaStatus("この端末には保存しました。通信が戻ったらもう一度開いてください");
+      setSyncState("local");
+    }
+  }
+
+  async function drawGachaMulti() {
+    if (!gachaEnabled || gameProgress.coins < GACHA_MULTI_COST || isDrawingGacha || !db) return;
+    setIsDrawingGacha(true);
+    setGachaResult(null);
+    setGachaMultiResults(null);
+    setGachaRevealOpen(true);
+    setGachaStatus("");
+    await new Promise((resolve) => window.setTimeout(resolve, 1250));
+    let drawNumber = gameProgress.gachaDrawsByType[gachaType];
+    let inventory = gameProgress.inventory;
+    let collectionCounts = gameProgress.collectionCounts;
+    const results: GachaDrawResult[] = [];
+    for (let index = 0; index < GACHA_MULTI_TOTAL; index += 1) {
+      drawNumber += 1;
+      const item = drawCollectible(drawNumber, gachaType);
+      const previousCount = collectionCounts[item.id] ?? (inventory.includes(item.id) ? 1 : 0);
+      const nextCount = previousCount + 1;
+      inventory = previousCount ? inventory : [...inventory, item.id];
+      collectionCounts = { ...collectionCounts, [item.id]: nextCount };
+      results.push({ item, count: nextCount, isNew: previousCount === 0 });
+    }
+    const nextProgress: GameProgress = {
+      ...gameProgress,
+      coins: Math.max(0, gameProgress.coins - GACHA_MULTI_COST),
+      inventory,
+      collectionCounts,
+      gachaDraws: gameProgress.gachaDraws + GACHA_MULTI_TOTAL,
+      gachaDrawsByType: { ...gameProgress.gachaDrawsByType, [gachaType]: drawNumber },
+      updatedAt: new Date().toISOString(),
+    };
+    setGameProgress(nextProgress);
+    setGachaMultiResults(results);
+    setGachaResult(results[results.length - 1]);
+    setIsDrawingGacha(false);
+    localStorage.setItem(GAME_PROGRESS_KEY, JSON.stringify(nextProgress));
+    if (effectsEnabledRef.current) {
+      const bestRarity = results.some((result) => result.item.rarity === "superRare") ? "finish" : results.some((result) => result.item.rarity === "rare") ? "combo" : "correct";
+      void audioEngine.current?.playEffect(bestRarity);
+    }
     try {
       await setDoc(doc(db, "learners", LEARNER_RECORD_ID, "gameProgress", "summary"), nextProgress, { merge: true });
       setSyncState("synced");
@@ -2105,9 +2166,14 @@ export default function TrainingApp() {
                   <><Gift size={42} /><strong>{GACHA_TYPES.find((type) => type.id === gachaType)?.label}</strong><span>1回 {GACHA_COST}コイン</span></>
                 )}
               </div>
-              <button className="gacha-button" type="button" disabled={!gachaEnabled || gameProgress.coins < GACHA_COST || isDrawingGacha} onClick={() => void drawGacha()}>
-                <Coins size={18} /> {isDrawingGacha ? "抽選中…" : !gachaEnabled ? "保護者が停止中" : gameProgress.coins < GACHA_COST ? `あと${GACHA_COST - gameProgress.coins}コイン` : `${GACHA_COST}コインで引く`}
-              </button>
+              <div className="gacha-button-row">
+                <button className="gacha-button" type="button" disabled={!gachaEnabled || gameProgress.coins < GACHA_COST || isDrawingGacha} onClick={() => void drawGacha()}>
+                  <Coins size={18} /> {isDrawingGacha ? "抽選中…" : !gachaEnabled ? "保護者が停止中" : gameProgress.coins < GACHA_COST ? `あと${GACHA_COST - gameProgress.coins}コイン` : `${GACHA_COST}コインで引く`}
+                </button>
+                <button className="gacha-button gacha-button-multi" type="button" disabled={!gachaEnabled || gameProgress.coins < GACHA_MULTI_COST || isDrawingGacha} onClick={() => void drawGachaMulti()}>
+                  <Gift size={18} /> {isDrawingGacha ? "抽選中…" : !gachaEnabled ? "保護者が停止中" : gameProgress.coins < GACHA_MULTI_COST ? `あと${GACHA_MULTI_COST - gameProgress.coins}コイン` : `${GACHA_MULTI_COST}コインで${GACHA_MULTI_TOTAL}回（+${GACHA_MULTI_BONUS}回おまけ）`}
+                </button>
+              </div>
               <div className="gacha-rates"><span>通常 70%</span><span>レア 25%</span><span>スーパーレア 5%</span></div>
               <p>このガチャは、あと<strong>{10 - (gameProgress.gachaDrawsByType[gachaType] % 10)}</strong>回以内にレア以上確定・同じ景品は所持数が増えるよ</p>
               {gachaStatus && <small className="gacha-status">{gachaStatus}</small>}
@@ -2129,7 +2195,7 @@ export default function TrainingApp() {
         </section>
 
         {gachaRevealOpen && (
-          <div className={`gacha-reveal rarity-bg-${gachaResult?.item.rarity ?? "common"}`} role="dialog" aria-modal="true" aria-label={isDrawingGacha ? "ガチャ抽選中" : "ガチャ結果"}>
+          <div className={`gacha-reveal rarity-bg-${(gachaMultiResults ? bestRarity(gachaMultiResults) : gachaResult?.item.rarity) ?? "common"}`} role="dialog" aria-modal="true" aria-label={isDrawingGacha ? "ガチャ抽選中" : "ガチャ結果"}>
             <div className="gacha-rays" aria-hidden="true" />
             {Array.from({ length: 22 }, (_, index) => <i key={index} className={`gacha-confetti confetti-${index % 6}`} style={{ "--i": index } as CSSProperties} aria-hidden="true" />)}
             {isDrawingGacha ? (
@@ -2137,6 +2203,20 @@ export default function TrainingApp() {
                 <span className="gacha-capsule"><span /></span>
                 <strong>ガチャガチャ…</strong>
                 <small>タップせずに待ってね</small>
+              </div>
+            ) : gachaMultiResults ? (
+              <div className="gacha-reveal-multi">
+                <strong>{GACHA_MULTI_TOTAL}連ガチャ結果</strong>
+                <div className="gacha-multi-grid">
+                  {gachaMultiResults.map((result, index) => (
+                    <div key={`${result.item.id}-${index}`} className={`gacha-multi-item rarity-card-${result.item.rarity}`}>
+                      <span className="gacha-multi-icon">{result.item.icon}</span>
+                      <small>{result.item.name}</small>
+                      {result.isNew && <b className="gacha-multi-new">NEW</b>}
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => { setGachaRevealOpen(false); setGachaMultiResults(null); }}>図鑑にしまう</button>
               </div>
             ) : gachaResult && (
               <div className={`gacha-reveal-card rarity-card-${gachaResult.item.rarity}`}>

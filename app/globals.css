@@ -322,9 +322,13 @@ button { color: inherit; }
 .rarity-rare { color: #168f84; }
 .rarity-superRare { color: #bf6d00; }
 .gacha-machine.drawing .gacha-window svg { animation: gacha-spin .65s ease-in-out infinite alternate; }
-.gacha-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; margin-top: 13px; color: white; background: #c7552d; border: 2px solid #913716; border-radius: 99px; font-size: 14px; font-weight: 1000; cursor: pointer; box-shadow: 0 5px 0 #873316; }
+.gacha-button-row { display: flex; flex-direction: column; gap: 8px; margin-top: 13px; }
+.gacha-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 8px 12px; color: white; background: #c7552d; border: 2px solid #913716; border-radius: 99px; font-size: 14px; font-weight: 1000; text-align: center; cursor: pointer; box-shadow: 0 5px 0 #873316; }
+.gacha-button-row .gacha-button { margin-top: 0; }
 .gacha-button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #873316; }
 .gacha-button:disabled { opacity: .6; cursor: not-allowed; }
+.gacha-button-multi { color: white; background: #2d6dc7; border-color: #163e91; font-size: 12px; box-shadow: 0 5px 0 #163e91; }
+.gacha-button-multi:active:not(:disabled) { box-shadow: 0 2px 0 #163e91; }
 .gacha-rates { display: flex; justify-content: center; gap: 8px; margin-top: 13px; color: #755920; font-size: 8px; font-weight: 900; }
 .gacha-machine > p { margin: 6px 0 0; color: #755920; font-size: 9px; text-align: center; }
 .gacha-machine > p strong { color: #9b3f20; font-size: 12px; }
@@ -370,6 +374,17 @@ button { color: inherit; }
 .gacha-reveal-card > b { margin-top: 13px; color: #986309; font-size: 11px; letter-spacing: .14em; }
 .gacha-reveal-card > button { width: 100%; min-height: 47px; margin-top: 21px; color: white; background: #17345f; border: 0; border-radius: 99px; font-size: 13px; font-weight: 1000; cursor: pointer; box-shadow: 0 4px 0 #0c203b; }
 .gacha-reveal-card > button:active { transform: translateY(3px); box-shadow: 0 1px 0 #0c203b; }
+.gacha-reveal-multi { position: relative; z-index: 2; display: grid; justify-items: center; gap: 16px; width: min(94vw, 560px); max-height: 88vh; padding: 26px 22px; overflow-y: auto; color: #152239; text-align: center; background: white; border: 5px solid #d9e0e9; border-radius: 22px; box-shadow: 0 25px 70px rgba(0, 0, 0, .4); animation: gacha-card-pop .6s cubic-bezier(.2, 1.45, .38, 1); }
+.gacha-reveal-multi > strong { font-size: 18px; }
+.gacha-multi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.gacha-multi-item { position: relative; display: grid; justify-items: center; gap: 4px; padding: 10px 6px; background: #f6f7f9; border: 2px solid #e1e5eb; border-radius: 12px; }
+.gacha-multi-item.rarity-card-rare { border-color: #64d8c8; background: #eafbf8; }
+.gacha-multi-item.rarity-card-superRare { border-color: #ffd34e; background: #fffaea; }
+.gacha-multi-icon { font-size: 30px; line-height: 1; }
+.gacha-multi-item small { color: #475467; font-size: 9px; font-weight: 800; line-height: 1.25; }
+.gacha-multi-new { position: absolute; top: -6px; right: -6px; padding: 2px 6px; color: white; background: #d1492e; border-radius: 999px; font-size: 8px; font-weight: 1000; }
+.gacha-reveal-multi > button { width: 100%; min-height: 47px; color: white; background: #17345f; border: 0; border-radius: 99px; font-size: 13px; font-weight: 1000; cursor: pointer; box-shadow: 0 4px 0 #0c203b; }
+.gacha-reveal-multi > button:active { transform: translateY(3px); box-shadow: 0 1px 0 #0c203b; }
 .gacha-confetti { --i: 0; position: absolute; z-index: 1; top: -12%; left: calc(var(--i) * 4.5%); width: 9px; height: 18px; background: #ffd34e; border-radius: 2px; opacity: 0; animation: gacha-confetti-fall 2.3s calc(var(--i) * -.08s) linear infinite; }
 .gacha-confetti.confetti-1 { background: #ef5e4b; }
 .gacha-confetti.confetti-2 { background: #62d7c7; }
@@ -607,6 +622,7 @@ footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px
 }
 
 @media (max-width: 620px) {
+  .gacha-multi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .topbar { min-height: 64px; padding: 9px 16px; }
   .brand strong { font-size: 12px; }
   .brand small { display: none; }
