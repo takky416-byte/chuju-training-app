@@ -110,6 +110,8 @@ type GameProgress = {
   gachaDraws: number;
   gachaDrawsByType: Record<GachaType, number>;
   updatedAt: string;
+  dailyQuestDay: string;
+  dailyQuestClaimed: string[];
 };
 type AnswerAward = {
   points: number;
@@ -149,7 +151,7 @@ const GACHA_SETTINGS_KEY = "aichi_training_gacha_settings_v1";
 const QUESTION_PROGRESS_KEY = "aichi_training_question_progress_v1";
 const MASTERY_ORDER: MasteryState[] = ["practicing", "unattempted", "done", "mastered"];
 const EMPTY_GACHA_DRAWS: Record<GachaType, number> = { local: 0, industry: 0, people: 0 };
-const EMPTY_GAME_PROGRESS: GameProgress = { totalXp: 0, bestScore: 0, bestAccuracy: 0, bestCombo: 0, coins: 0, inventory: [], collectionCounts: {}, gachaDraws: 0, gachaDrawsByType: EMPTY_GACHA_DRAWS, updatedAt: "" };
+const EMPTY_GAME_PROGRESS: GameProgress = { totalXp: 0, bestScore: 0, bestAccuracy: 0, bestCombo: 0, coins: 0, inventory: [], collectionCounts: {}, gachaDraws: 0, gachaDrawsByType: EMPTY_GACHA_DRAWS, updatedAt: "", dailyQuestDay: "", dailyQuestClaimed: [] };
 const XP_PER_LEVEL = 300;
 const GACHA_COST = 20;
 const GACHA_MULTI_COUNT = 10;
@@ -157,6 +159,31 @@ const GACHA_MULTI_BONUS = 1;
 const GACHA_MULTI_TOTAL = GACHA_MULTI_COUNT + GACHA_MULTI_BONUS;
 const GACHA_MULTI_COST = GACHA_COST * GACHA_MULTI_COUNT;
 const BASIC_SUBJECT_LABELS = Object.fromEntries(BASIC_SUBJECT_IDS.map((id) => [id, BASIC_SUBJECT_CONFIG[id].label])) as Record<BasicSubject, string>;
+
+type DailyQuestGroupId = "kokugo" | "shakai" | "rika";
+type DailyQuestId = DailyQuestGroupId | "aptitude";
+const DAILY_QUEST_IDS: DailyQuestId[] = ["kokugo", "shakai", "rika", "aptitude"];
+const DAILY_QUEST_LABELS: Record<DailyQuestId, string> = {
+  kokugo: "国語（3科目）",
+  shakai: "社会（2科目）",
+  rika: "理科（4科目）",
+  aptitude: "適性検査（30問）",
+};
+const DAILY_QUEST_SUBJECT_GROUPS: Record<DailyQuestGroupId, BasicSubject[]> = {
+  kokugo: ["kanji", "vocabulary", "kanjiReading"],
+  shakai: ["geography", "history"],
+  rika: ["biology", "earthScience", "physics", "chemistry"],
+};
+const DAILY_QUEST_SHORT_LABELS: Record<BasicSubject, string> = {
+  kanji: "書き", vocabulary: "語句", kanjiReading: "読み",
+  geography: "地理", history: "歴史",
+  biology: "生物", earthScience: "地学", physics: "物理", chemistry: "化学",
+};
+const DAILY_QUEST_SUBJECT_TARGET = 5;
+const DAILY_QUEST_APTITUDE_TARGET = 30;
+const DAILY_QUEST_REWARD = 10;
+const DAILY_QUEST_BONUS_ID = "bonus";
+const DAILY_QUEST_BONUS_COINS = 20;
 
 const COLLECTIBLES: Collectible[] = [
   { id: "uiro", name: "ういろう", icon: "🍡", rarity: "common", category: "名物・文化", gachaType: "local", description: "名古屋のやさしい甘味" },
@@ -289,6 +316,8 @@ function normalizeGameProgress(value: unknown): GameProgress {
     gachaDraws: legacyDraws,
     gachaDrawsByType,
     updatedAt: typeof row.updatedAt === "string" ? row.updatedAt : "",
+    dailyQuestDay: typeof row.dailyQuestDay === "string" ? row.dailyQuestDay : "",
+    dailyQuestClaimed: Array.isArray(row.dailyQuestClaimed) ? row.dailyQuestClaimed.filter((item): item is string => typeof item === "string") : [],
   };
 }
 
@@ -311,6 +340,8 @@ function mergeGameProgress(a: GameProgress, b: GameProgress): GameProgress {
       people: Math.max(a.gachaDrawsByType.people, b.gachaDrawsByType.people),
     },
     updatedAt: newer.updatedAt,
+    dailyQuestDay: newer.dailyQuestDay,
+    dailyQuestClaimed: newer.dailyQuestClaimed,
   };
 }
 
@@ -970,6 +1001,53 @@ export default function TrainingApp() {
     };
   }, [attempts, basicAttempts, basicQuestionCatalog, basicQuestionStates, questionStates, questions]);
 
+  const dailyQuestProgress = useMemo(() => {
+    const todayStart = localDay().toISOString();
+    const todayBasic = basicAttempts.filter((attempt) => attempt.createdAt >= todayStart);
+    const todayAptitudeCount = attempts.filter((attempt) => attempt.createdAt >= todayStart).length;
+    const subjectCount = (subject: BasicSubject) => todayBasic.filter((attempt) => attempt.subject === subject).length;
+    const groups = Object.fromEntries((Object.keys(DAILY_QUEST_SUBJECT_GROUPS) as DailyQuestGroupId[]).map((groupId) => {
+      const rows = DAILY_QUEST_SUBJECT_GROUPS[groupId].map((subject) => ({
+        subject,
+        count: subjectCount(subject),
+        done: subjectCount(subject) >= DAILY_QUEST_SUBJECT_TARGET,
+      }));
+      return [groupId, rows];
+    })) as Record<DailyQuestGroupId, Array<{ subject: BasicSubject; count: number; done: boolean }>>;
+    const quests: Record<DailyQuestId, { done: boolean; detail: string }> = {
+      kokugo: { done: groups.kokugo.every((row) => row.done), detail: groups.kokugo.map((row) => `${DAILY_QUEST_SHORT_LABELS[row.subject]}${Math.min(row.count, DAILY_QUEST_SUBJECT_TARGET)}`).join("・") },
+      shakai: { done: groups.shakai.every((row) => row.done), detail: groups.shakai.map((row) => `${DAILY_QUEST_SHORT_LABELS[row.subject]}${Math.min(row.count, DAILY_QUEST_SUBJECT_TARGET)}`).join("・") },
+      rika: { done: groups.rika.every((row) => row.done), detail: groups.rika.map((row) => `${DAILY_QUEST_SHORT_LABELS[row.subject]}${Math.min(row.count, DAILY_QUEST_SUBJECT_TARGET)}`).join("・") },
+      aptitude: { done: todayAptitudeCount >= DAILY_QUEST_APTITUDE_TARGET, detail: `${Math.min(todayAptitudeCount, DAILY_QUEST_APTITUDE_TARGET)}/${DAILY_QUEST_APTITUDE_TARGET}問` },
+    };
+    const allDone = DAILY_QUEST_IDS.every((id) => quests[id].done);
+    return { quests, allDone };
+  }, [attempts, basicAttempts]);
+
+  useEffect(() => {
+    if (!db || syncState === "loading") return;
+    const today = localDay().toISOString().slice(0, 10);
+    const claimedToday = gameProgress.dailyQuestDay === today ? gameProgress.dailyQuestClaimed : [];
+    const newlyCompleted = DAILY_QUEST_IDS.filter((id) => dailyQuestProgress.quests[id].done && !claimedToday.includes(id));
+    const shouldClaimBonus = dailyQuestProgress.allDone && !claimedToday.includes(DAILY_QUEST_BONUS_ID) && claimedToday.length + newlyCompleted.length >= DAILY_QUEST_IDS.length;
+    if (!newlyCompleted.length && !shouldClaimBonus) return;
+    const dailyQuestClaimed = [...new Set([...claimedToday, ...newlyCompleted, ...(shouldClaimBonus ? [DAILY_QUEST_BONUS_ID] : [])])];
+    const coinsEarned = newlyCompleted.length * DAILY_QUEST_REWARD + (shouldClaimBonus ? DAILY_QUEST_BONUS_COINS : 0);
+    const nextProgress: GameProgress = {
+      ...gameProgress,
+      coins: gameProgress.coins + coinsEarned,
+      dailyQuestDay: today,
+      dailyQuestClaimed,
+      updatedAt: new Date().toISOString(),
+    };
+    setGameProgress(nextProgress);
+    localStorage.setItem(GAME_PROGRESS_KEY, JSON.stringify(nextProgress));
+    if (effectsEnabledRef.current) void audioEngine.current?.playEffect("combo");
+    void setDoc(doc(db, "learners", LEARNER_RECORD_ID, "gameProgress", "summary"), nextProgress, { merge: true })
+      .then(() => setSyncState("synced"))
+      .catch(() => setSyncState("local"));
+  }, [dailyQuestProgress, db, gameProgress, syncState]);
+
   const resetRange = useMemo(() => {
     const today = localDay();
     const tomorrow = new Date(today);
@@ -1174,15 +1252,12 @@ export default function TrainingApp() {
       const completionCoins = getCompletionCoinBonus(rank);
       const totalSessionCoins = sessionCoins + completionCoins;
       const nextProgress: GameProgress = {
+        ...gameProgress,
         totalXp: gameProgress.totalXp + sessionXp,
         bestScore: Math.max(gameProgress.bestScore, sessionPoints),
         bestAccuracy: Math.max(gameProgress.bestAccuracy, accuracy),
         bestCombo: Math.max(gameProgress.bestCombo, sessionBestCombo),
         coins: gameProgress.coins + completionCoins,
-        inventory: gameProgress.inventory,
-        collectionCounts: gameProgress.collectionCounts,
-        gachaDraws: gameProgress.gachaDraws,
-        gachaDrawsByType: gameProgress.gachaDrawsByType,
         updatedAt: new Date().toISOString(),
       };
       setSessionCoins(totalSessionCoins);
@@ -1910,6 +1985,23 @@ export default function TrainingApp() {
                 <div className="player-level-number"><Gamepad2 size={18} /><span>LEVEL</span><strong>{gameLevel}</strong></div>
                 <div className="player-level-progress"><div><span>合計 {gameProgress.totalXp} XP</span><strong>次まで {XP_PER_LEVEL - levelXp}</strong></div><div className="xp-track"><span style={{ width: `${(levelXp / XP_PER_LEVEL) * 100}%` }} /></div></div>
                 <div className="player-best"><span>BEST</span><strong>{gameProgress.bestScore}</strong></div>
+              </div>
+              <div className="daily-quest-card" aria-label="デイリークエスト">
+                <div className="daily-quest-heading">
+                  <span>デイリークエスト</span>
+                  {dailyQuestProgress.allDone ? <b className="daily-quest-complete">全部達成！+{DAILY_QUEST_BONUS_COINS}コイン</b> : <small>今日中に全部達成でボーナス+{DAILY_QUEST_BONUS_COINS}コイン</small>}
+                </div>
+                <ul className="daily-quest-list">
+                  {DAILY_QUEST_IDS.map((id) => {
+                    const quest = dailyQuestProgress.quests[id];
+                    return (
+                      <li key={id} className={quest.done ? "done" : ""}>
+                        <span>{quest.done && <Check size={13} />}{DAILY_QUEST_LABELS[id]}</span>
+                        <small>{quest.detail}</small>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             </>
           )}

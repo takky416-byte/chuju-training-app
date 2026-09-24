@@ -140,6 +140,18 @@ button { color: inherit; }
 .player-best { text-align: right; }
 .player-best span, .player-best strong { display: block; }
 .player-best strong { color: #ffd36b; font-size: 18px; line-height: 1.1; }
+.daily-quest-card { margin-top: 9px; padding: 11px 13px; background: #f4f6f9; border: 1px solid var(--line); border-radius: 9px; }
+.daily-quest-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.daily-quest-heading > span:first-child { color: var(--navy-dark); font-size: 11px; font-weight: 900; }
+.daily-quest-heading small { color: var(--muted); font-size: 9px; font-weight: 800; }
+.daily-quest-complete { color: var(--teal); font-size: 10px; font-weight: 900; }
+.daily-quest-list { display: grid; gap: 5px; }
+.daily-quest-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 9px; background: white; border: 1px solid #e3e7ec; border-radius: 7px; }
+.daily-quest-list li.done { color: #126359; background: var(--teal-pale); border-color: #7cbab3; }
+.daily-quest-list li > span:first-child { display: inline-flex; align-items: center; gap: 5px; color: var(--navy-dark); font-size: 11px; font-weight: 800; }
+.daily-quest-list li.done > span:first-child { color: #126359; }
+.daily-quest-list li small { color: var(--muted); font-size: 9px; font-weight: 800; white-space: nowrap; }
+.daily-quest-list li.done small { color: #126359; }
 .player-wallet-card { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: center; width: 100%; margin-top: 9px; padding: 10px 13px; color: var(--navy-dark); text-align: left; background: #fff8df; border: 1px solid #ead28b; border-radius: 9px; cursor: pointer; }
 .player-wallet-card:hover { background: #fff1bd; border-color: #d9b64c; }
 .wallet-icon { display: grid; place-items: center; width: 34px; height: 34px; color: #8b5a0f; background: #ffd96f; border-radius: 50%; }
