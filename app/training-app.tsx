@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import {
   ArrowRight,
   BarChart3,
+  Bell,
   BookOpenCheck,
   Check,
   ChevronRight,
@@ -30,7 +31,8 @@ import {
   Zap,
 } from "lucide-react";
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc, where, writeBatch } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, setDoc, where, writeBatch } from "firebase/firestore";
+import { getToken } from "firebase/messaging";
 import { DOMAINS, type Domain, type Question } from "./questions";
 import { StudyAudioEngine, type AudioVolume, type BgmStyle, type SoundEffect } from "./audio-engine";
 import { BasicTraining, type BasicAttempt, type BasicAward, type BasicStartRequest } from "./basic-training";
@@ -47,7 +49,9 @@ import {
 import {
   auth,
   db,
+  FCM_VAPID_KEY,
   firebaseConfigured,
+  getMessagingInstance,
   googleProvider,
   hashEmail,
   LEARNER_ACCOUNT_HASH,
@@ -149,6 +153,7 @@ const AUDIO_SETTINGS_KEY = "aichi_training_audio_settings_v1";
 const GAME_PROGRESS_KEY = "aichi_training_game_progress_v1";
 const GACHA_SETTINGS_KEY = "aichi_training_gacha_settings_v1";
 const QUESTION_PROGRESS_KEY = "aichi_training_question_progress_v1";
+const PUSH_TOKEN_KEY = "aichi_training_push_token_v1";
 const MASTERY_ORDER: MasteryState[] = ["practicing", "unattempted", "done", "mastered"];
 const EMPTY_GACHA_DRAWS: Record<GachaType, number> = { local: 0, industry: 0, people: 0 };
 const EMPTY_GAME_PROGRESS: GameProgress = { totalXp: 0, bestScore: 0, bestAccuracy: 0, bestCombo: 0, coins: 0, inventory: [], collectionCounts: {}, gachaDraws: 0, gachaDrawsByType: EMPTY_GACHA_DRAWS, updatedAt: "", dailyQuestDay: "", dailyQuestClaimed: [] };
@@ -690,6 +695,13 @@ export default function TrainingApp() {
   const [bgmVolume, setBgmVolume] = useState<AudioVolume>("medium");
   const [effectVolume, setEffectVolume] = useState<AudioVolume>("medium");
   const [audioSettingsReady, setAudioSettingsReady] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushStatus, setPushStatus] = useState("");
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    setPushEnabled(Boolean(localStorage.getItem(PUSH_TOKEN_KEY)));
+  }, []);
   const questionStartedAt = useRef(Date.now());
   const audioEngine = useRef<StudyAudioEngine | null>(null);
   const effectsEnabledRef = useRef(true);
@@ -1894,6 +1906,76 @@ export default function TrainingApp() {
     );
   }
 
+  async function enablePush() {
+    if (!db) return;
+    setPushBusy(true);
+    setPushStatus("");
+    try {
+      if (typeof Notification === "undefined" || !("serviceWorker" in navigator)) {
+        setPushStatus("この端末では通知を使えません");
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setPushStatus("通知が許可されませんでした");
+        return;
+      }
+      const messaging = await getMessagingInstance();
+      if (!messaging) {
+        setPushStatus("この端末では通知を使えません");
+        return;
+      }
+      const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: registration });
+      if (!token) {
+        setPushStatus("通知の設定に失敗しました");
+        return;
+      }
+      await setDoc(doc(db, "learners", LEARNER_RECORD_ID, "pushTokens", token), {
+        token,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      localStorage.setItem(PUSH_TOKEN_KEY, token);
+      setPushEnabled(true);
+      setPushStatus("通知をオンにしました");
+    } catch {
+      setPushStatus("通知の設定に失敗しました。時間をおいて試してください");
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
+  async function disablePush() {
+    setPushBusy(true);
+    setPushStatus("");
+    try {
+      const token = localStorage.getItem(PUSH_TOKEN_KEY);
+      if (token && db) {
+        await deleteDoc(doc(db, "learners", LEARNER_RECORD_ID, "pushTokens", token)).catch(() => undefined);
+      }
+      localStorage.removeItem(PUSH_TOKEN_KEY);
+      setPushEnabled(false);
+      setPushStatus("通知をオフにしました");
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
+  function notificationSettings() {
+    return (
+      <details className="audio-settings notification-settings">
+        <summary><Bell size={17} />通知</summary>
+        <div className="audio-settings-panel">
+          <label className="audio-toggle">
+            <span><Bell size={16} />学習リマインダー・達成おしらせ</span>
+            <input type="checkbox" checked={pushEnabled} disabled={pushBusy} onChange={(event) => void (event.target.checked ? enablePush() : disablePush())} />
+          </label>
+          {pushStatus && <small className="notification-status">{pushStatus}</small>}
+        </div>
+      </details>
+    );
+  }
+
   if (!firebaseConfigured) {
     return <main className="login-shell"><section className="login-card"><CircleAlert size={34} /><h1>初期設定中です</h1><p>Googleログインの設定が完了すると利用できます。</p></section></main>;
   }
@@ -1951,7 +2033,7 @@ export default function TrainingApp() {
               <button className="secondary-button" onClick={openBasicSubjectPicker}>科目を選ぶ</button>
             </>}
           </div>
-          <div className="hero-audio-settings">{audioSettings()}</div>
+          <div className="hero-audio-settings">{audioSettings()}{!isAdmin && notificationSettings()}</div>
         </div>
         <div className="dashboard-panel" aria-label="学習サマリー">
           <div className="panel-heading">

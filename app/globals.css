@@ -96,7 +96,8 @@ button { color: inherit; }
 .secondary-button:hover { background: white; border-color: var(--navy); transform: translateY(-1px); }
 .primary-button:disabled, .secondary-button:disabled { opacity: .48; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.hero-audio-settings { margin-top: 14px; }
+.hero-audio-settings { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.notification-status { color: var(--muted); font-size: 10px; font-weight: 800; }
 .audio-settings { position: relative; width: fit-content; }
 .audio-settings summary { display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 6px 11px; color: var(--navy); background: white; border: 1px solid #c7ced8; border-radius: 7px; font-size: 12px; font-weight: 800; cursor: pointer; list-style: none; }
 .audio-settings summary::-webkit-details-marker { display: none; }

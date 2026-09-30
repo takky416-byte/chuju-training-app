@@ -2,6 +2,7 @@ import { getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
+import { getMessaging, isSupported as isMessagingSupported, type Messaging } from "firebase/messaging";
 
 export const PARENT_ACCOUNT_HASHES = [
   "4344c27a54708b8f93f4ee6188e6cc1f6c34acae8c591663a999fd879f579076",
@@ -27,6 +28,19 @@ export const db = app ? getFirestore(app) : null;
 export const functions = app ? getFunctions(app, "asia-northeast1") : null;
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
+
+// Firebase Console > プロジェクトの設定 > Cloud Messaging > ウェブ構成 > 「鍵ペアを生成」で取得した値に差し替える
+export const FCM_VAPID_KEY = "REPLACE_WITH_VAPID_KEY_FROM_FIREBASE_CONSOLE";
+
+let messagingInstance: Messaging | null = null;
+export async function getMessagingInstance(): Promise<Messaging | null> {
+  if (!app || typeof window === "undefined") return null;
+  if (messagingInstance) return messagingInstance;
+  const supported = await isMessagingSupported().catch(() => false);
+  if (!supported) return null;
+  messagingInstance = getMessaging(app);
+  return messagingInstance;
+}
 
 export async function hashEmail(email: string) {
   const bytes = new TextEncoder().encode(email.trim().toLowerCase());

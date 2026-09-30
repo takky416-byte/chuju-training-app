@@ -1,14 +1,17 @@
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getMessaging } = require("firebase-admin/messaging");
 const { defineSecret } = require("firebase-functions/params");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { ImageAnnotatorClient } = require("@google-cloud/vision");
 const nodemailer = require("nodemailer");
 
 initializeApp();
 
 const db = getFirestore();
+const messaging = getMessaging();
 const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
 const visionClient = new ImageAnnotatorClient();
 
@@ -101,6 +104,10 @@ function reportKey(value) {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
+function startOfJstDay(value) {
+  return new Date(`${reportKey(value)}T00:00:00+09:00`);
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -108,6 +115,26 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+async function sendPushToLearner(title, body, tag) {
+  const tokensRef = db.collection("learners").doc(LEARNER_RECORD_ID).collection("pushTokens");
+  const snapshot = await tokensRef.get();
+  if (snapshot.empty) return;
+  const tokens = snapshot.docs.map((doc) => doc.id);
+  const response = await messaging.sendEachForMulticast({
+    tokens,
+    notification: { title, body },
+    data: { tag },
+  });
+  const staleTokens = [];
+  response.responses.forEach((result, index) => {
+    const code = result.error?.code;
+    if (code === "messaging/registration-token-not-registered" || code === "messaging/invalid-registration-token") {
+      staleTokens.push(tokens[index]);
+    }
+  });
+  await Promise.all(staleTokens.map((token) => tokensRef.doc(token).delete().catch(() => undefined)));
 }
 
 function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, correct, streak, newlyDone, newlyMastered, domainRows, subjectRows, wrongTitles, neglectedDomains, neglectedSubjects }) {
@@ -380,4 +407,60 @@ exports.recognizeKanjiWriting = onCall({
   } catch (error) {
     throw new HttpsError("internal", "文字認識に失敗しました。");
   }
+});
+
+const REMINDER_MESSAGES = [
+  "今日はまだ挑戦していないよ。5問だけやってみよう！",
+  "少しだけでも進めると気持ちいいよ。今日の分、始めてみない？",
+  "コツコツ続けるのがいちばんの近道。今日も少しがんばろう！",
+  "今日の分、まだ間に合うよ。ちょっとだけ挑戦してみよう！",
+  "毎日の積み重ねが力になるよ。今日も一歩進めよう！",
+  "ひと休みしたら、今日の分に挑戦してみよう！",
+];
+
+exports.sendStudyReminder = onSchedule({
+  schedule: "0 19 * * *",
+  timeZone: "Asia/Tokyo",
+  region: "asia-northeast1",
+}, async () => {
+  const todayStart = startOfJstDay(new Date()).toISOString();
+  const [attemptSnapshot, basicAttemptSnapshot] = await Promise.all([
+    db.collection("learners").doc(LEARNER_RECORD_ID).collection("attempts").where("createdAt", ">=", todayStart).limit(1).get(),
+    db.collection("learners").doc(LEARNER_RECORD_ID).collection("basicAttempts").where("createdAt", ">=", todayStart).limit(1).get(),
+  ]);
+  if (!attemptSnapshot.empty || !basicAttemptSnapshot.empty) return;
+  const message = REMINDER_MESSAGES[Math.floor(Math.random() * REMINDER_MESSAGES.length)];
+  await sendPushToLearner("今日の分、忘れていない？", message, "study-reminder");
+});
+
+const QUESTION_MILESTONES = [50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000];
+
+async function checkQuestionMilestone() {
+  const milestoneRef = db.collection("learners").doc(LEARNER_RECORD_ID).collection("gameProgress").doc("milestones");
+  const [aptCount, basicCount, milestoneDoc] = await Promise.all([
+    db.collection("learners").doc(LEARNER_RECORD_ID).collection("attempts").count().get(),
+    db.collection("learners").doc(LEARNER_RECORD_ID).collection("basicAttempts").count().get(),
+    milestoneRef.get(),
+  ]);
+  const total = aptCount.data().count + basicCount.data().count;
+  const notified = Array.isArray(milestoneDoc.data()?.notified) ? milestoneDoc.data().notified : [];
+  const newlyReached = QUESTION_MILESTONES.filter((value) => total >= value && !notified.includes(value));
+  if (!newlyReached.length) return;
+  const highest = Math.max(...newlyReached);
+  await milestoneRef.set({ notified: [...notified, ...newlyReached], updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  await sendPushToLearner("やったね！", `合計${highest}問に挑戦したよ！すごいね！`, "question-milestone");
+}
+
+exports.notifyAptitudeMilestone = onDocumentCreated({
+  document: `learners/${LEARNER_RECORD_ID}/attempts/{attemptId}`,
+  region: "asia-northeast1",
+}, async () => {
+  await checkQuestionMilestone();
+});
+
+exports.notifyBasicMilestone = onDocumentCreated({
+  document: `learners/${LEARNER_RECORD_ID}/basicAttempts/{attemptId}`,
+  region: "asia-northeast1",
+}, async () => {
+  await checkQuestionMilestone();
 });
