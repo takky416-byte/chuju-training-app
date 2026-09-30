@@ -419,7 +419,7 @@ const REMINDER_MESSAGES = [
 ];
 
 exports.sendStudyReminder = onSchedule({
-  schedule: "0 19 * * *",
+  schedule: "0 6,15,19 * * *",
   timeZone: "Asia/Tokyo",
   region: "asia-northeast1",
 }, async () => {
