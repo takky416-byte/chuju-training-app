@@ -30,7 +30,7 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // Firebase Console > プロジェクトの設定 > Cloud Messaging > ウェブ構成 > 「鍵ペアを生成」で取得した値に差し替える
-export const FCM_VAPID_KEY = "REPLACE_WITH_VAPID_KEY_FROM_FIREBASE_CONSOLE";
+export const FCM_VAPID_KEY = "BArPQaLFL6JTtUtfoHOnWo4uoF-Hh8tzHyy_KO3kOAKpjSenb8EzPSp-nM7LLV8n2PkVgg7cLMwf1oHoYKU0Mis";
 
 let messagingInstance: Messaging | null = null;
 export async function getMessagingInstance(): Promise<Messaging | null> {
