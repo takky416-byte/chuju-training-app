@@ -146,6 +146,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
+const APP_VERSION = "v28";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -2013,7 +2014,7 @@ export default function TrainingApp() {
       <header className="topbar">
         <a className="brand" href="#top" aria-label="ページ上部へ">
           <span className="brand-mark"><BookOpenCheck size={20} /></span>
-          <span><strong>適性検査トレーニング</strong><small>愛知県立附属中 対策</small></span>
+          <span><strong>適性検査トレーニング</strong><small>愛知県立附属中 対策{isAdmin ? `・${APP_VERSION}` : ""}</small></span>
         </a>
         <nav aria-label="ページ内メニュー">
           <a href="#practice">適性検査</a>
@@ -2577,7 +2578,7 @@ export default function TrainingApp() {
         )}
       </section>
 
-      <footer><span>愛知県立附属中 適性検査トレーニング</span><span>登録した問題を家族の端末間で共有します。</span></footer>
+      <footer><span>愛知県立附属中 適性検査トレーニング</span><span>登録した問題を家族の端末間で共有します。</span><span className="app-version">バージョン {APP_VERSION}</span></footer>
     </main>
   );
 }

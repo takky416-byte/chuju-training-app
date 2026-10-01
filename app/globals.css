@@ -602,6 +602,7 @@ button { color: inherit; }
 .session-active .feedback { box-shadow: 0 10px 34px rgba(22, 35, 59, .05); }
 
 footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px clamp(20px, 4vw, 64px); color: #aab4c2; background: var(--navy-dark); font-size: 10px; }
+.app-version { color: #7c8aa0; font-weight: 800; }
 
 @keyframes award-pop { 0% { opacity: 0; transform: translateY(10px) scale(.72) rotate(-4deg); } 18%, 72% { opacity: 1; transform: translateY(0) scale(1) rotate(0); } 100% { opacity: 0; transform: translateY(-14px) scale(.94); } }
 @keyframes correct-pulse { 0% { transform: scale(1); } 45% { transform: scale(1.025); box-shadow: 0 0 0 5px rgba(24, 125, 116, .13); } 100% { transform: scale(1); } }
