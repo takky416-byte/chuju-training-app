@@ -120,16 +120,26 @@ function escapeHtml(value) {
 async function sendPushToLearner(title, body, tag) {
   const tokensRef = db.collection("learners").doc(LEARNER_RECORD_ID).collection("pushTokens");
   const snapshot = await tokensRef.get();
-  if (snapshot.empty) return;
+  if (snapshot.empty) {
+    console.log(`sendPushToLearner(${tag}): no push tokens registered, skipping`);
+    return;
+  }
   const tokens = snapshot.docs.map((doc) => doc.id);
   const response = await messaging.sendEachForMulticast({
     tokens,
     notification: { title, body },
     data: { tag },
+    webpush: {
+      headers: { Urgency: "high" },
+      notification: { icon: "/icons/icon-192.png" },
+    },
   });
+  console.log(`sendPushToLearner(${tag}): ${response.successCount} succeeded, ${response.failureCount} failed out of ${tokens.length}`);
   const staleTokens = [];
   response.responses.forEach((result, index) => {
+    if (result.success) return;
     const code = result.error?.code;
+    console.log(`sendPushToLearner(${tag}): token ${index} failed with ${code} - ${result.error?.message}`);
     if (code === "messaging/registration-token-not-registered" || code === "messaging/invalid-registration-token") {
       staleTokens.push(tokens[index]);
     }
