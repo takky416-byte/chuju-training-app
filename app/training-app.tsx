@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
 import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, setDoc, where, writeBatch } from "firebase/firestore";
-import { getToken } from "firebase/messaging";
+import { getToken, onMessage } from "firebase/messaging";
 import { DOMAINS, type Domain, type Question } from "./questions";
 import { StudyAudioEngine, type AudioVolume, type BgmStyle, type SoundEffect } from "./audio-engine";
 import { BasicTraining, type BasicAttempt, type BasicAward, type BasicStartRequest } from "./basic-training";
@@ -701,6 +701,22 @@ export default function TrainingApp() {
 
   useEffect(() => {
     setPushEnabled(Boolean(localStorage.getItem(PUSH_TOKEN_KEY)));
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    (async () => {
+      const messaging = await getMessagingInstance();
+      if (!messaging) return;
+      unsubscribe = onMessage(messaging, (payload) => {
+        const title = payload.notification?.title || "適性検査トレーニング";
+        const body = payload.notification?.body || "";
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          new Notification(title, { body, icon: "/icons/icon-192.png" });
+        }
+      });
+    })();
+    return () => unsubscribe?.();
   }, []);
   const questionStartedAt = useRef(Date.now());
   const audioEngine = useRef<StudyAudioEngine | null>(null);
