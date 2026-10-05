@@ -32,6 +32,11 @@ const BASIC_SUBJECT_LABELS = {
   physics: "物理",
   chemistry: "化学",
 };
+const CHECK_TEST_SUBJECT_LABELS = {
+  checkTestKanji: "漢字",
+  checkTestScience: "理科",
+  checkTestSocial: "社会",
+};
 const DOMAIN_ALIASES = {
   "数量・図形": "数量・図形",
   "文章・会話": "文章・ことば",
@@ -147,7 +152,7 @@ async function sendPushToLearner(title, body, tag) {
   await Promise.all(staleTokens.map((token) => tokensRef.doc(token).delete().catch(() => undefined)));
 }
 
-function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, correct, streak, newlyDone, newlyMastered, domainRows, subjectRows, wrongTitles, neglectedDomains, neglectedSubjects }) {
+function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, checkTestRows, correct, streak, newlyDone, newlyMastered, domainRows, subjectRows, checkTestSubjectRows, wrongTitles, neglectedDomains, neglectedSubjects }) {
   const hasActivity = rows.length > 0;
   const period = `${formatJst(periodStart)}〜${formatJst(periodEnd)}`;
   const subject = hasActivity
@@ -158,6 +163,9 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
     : "・演習なし";
   const subjectText = subjectRows.length
     ? subjectRows.map((row) => `・${row.subject}：${row.attempts}問／${row.correct}問正解`).join("\n")
+    : "・演習なし";
+  const checkTestSubjectText = checkTestSubjectRows.length
+    ? checkTestSubjectRows.map((row) => `・${row.subject}：${row.attempts}問／${row.correct}問正解`).join("\n")
     : "・演習なし";
   const wrongText = wrongTitles.length ? wrongTitles.map((title) => `・${title}`).join("\n") : "・なし";
   const balanceLines = [
@@ -170,7 +178,7 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
     period,
     "",
     hasActivity ? `挑戦 ${rows.length}問／正解 ${correct}問／最高 ${streak}問連続正解` : "この24時間の演習はありませんでした。",
-    `適性検査 ${aptitudeRows.length}問／基礎トレ ${basicRows.length}問`,
+    `適性検査 ${aptitudeRows.length}問／基礎トレ ${basicRows.length}問／チェックテスト対策 ${checkTestRows.length}問`,
     `新しく「できた」 ${newlyDone.length}問／新しく「身についた」 ${newlyMastered.length}問`,
     "",
     "適性検査・分野別",
@@ -178,6 +186,9 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
     "",
     "基礎トレ・科目別",
     subjectText,
+    "",
+    "チェックテスト対策・科目別",
+    checkTestSubjectText,
     "",
     "分野・科目のバランス",
     balanceText,
@@ -193,6 +204,9 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
     : "<li>演習なし</li>";
   const subjectHtml = subjectRows.length
     ? subjectRows.map((row) => `<li><strong>${escapeHtml(row.subject)}</strong>：${row.attempts}問／${row.correct}問正解</li>`).join("")
+    : "<li>演習なし</li>";
+  const checkTestSubjectHtml = checkTestSubjectRows.length
+    ? checkTestSubjectRows.map((row) => `<li><strong>${escapeHtml(row.subject)}</strong>：${row.attempts}問／${row.correct}問正解</li>`).join("")
     : "<li>演習なし</li>";
   const wrongHtml = wrongTitles.length
     ? wrongTitles.map((title) => `<li>${escapeHtml(title)}</li>`).join("")
@@ -210,12 +224,13 @@ function renderReport({ periodStart, periodEnd, rows, aptitudeRows, basicRows, c
           <div style="flex:1;padding:14px;background:#e6f3f0;border-radius:8px"><strong style="font-size:24px">${correct}</strong><br><span style="font-size:12px">正解</span></div>
           <div style="flex:1;padding:14px;background:#e9eef6;border-radius:8px"><strong style="font-size:24px">${streak}</strong><br><span style="font-size:12px">最高連続正解</span></div>
         </div>` : '<p style="padding:16px;background:#f4f6f9;border-radius:8px">この24時間の演習はありませんでした。</p>'}
-      <p style="margin:0 0 14px;color:#52606f;font-size:13px">適性検査 <strong>${aptitudeRows.length}問</strong>　／　基礎トレ <strong>${basicRows.length}問</strong></p>
+      <p style="margin:0 0 14px;color:#52606f;font-size:13px">適性検査 <strong>${aptitudeRows.length}問</strong>　／　基礎トレ <strong>${basicRows.length}問</strong>　／　チェックテスト対策 <strong>${checkTestRows.length}問</strong></p>
       <p style="padding:14px 16px;background:#fff3d8;border-left:4px solid #e8a735;border-radius:6px">
         新しく「できた」 <strong>${newlyDone.length}問</strong>　／　新しく「身についた」 <strong>${newlyMastered.length}問</strong>
       </p>
       <h2 style="margin:24px 0 8px;font-size:16px">適性検査・分野別</h2><ul style="margin:0;padding-left:22px">${domainHtml}</ul>
       <h2 style="margin:24px 0 8px;font-size:16px">基礎トレ・科目別</h2><ul style="margin:0;padding-left:22px">${subjectHtml}</ul>
+      <h2 style="margin:24px 0 8px;font-size:16px">チェックテスト対策・科目別</h2><ul style="margin:0;padding-left:22px">${checkTestSubjectHtml}</ul>
       <h2 style="margin:24px 0 8px;font-size:16px">分野・科目のバランス</h2><ul style="margin:0;padding-left:22px">${balanceHtml}</ul>
       <h2 style="margin:24px 0 8px;font-size:16px">間違えた問題</h2><ul style="margin:0;padding-left:22px">${wrongHtml}</ul>
       <a href="${SITE_URL}" style="display:inline-block;margin-top:26px;padding:12px 18px;color:white;background:#17345f;border-radius:7px;text-decoration:none;font-weight:700">学習サイトを開く</a>
@@ -252,9 +267,10 @@ exports.sendDailyLearningReport = onSchedule({
   if (!shouldSend) return;
 
   try {
-    const [attemptSnapshot, basicAttemptSnapshot, questionSnapshot, basicQuestionSnapshot] = await Promise.all([
+    const [attemptSnapshot, basicAttemptSnapshot, checkTestAttemptSnapshot, questionSnapshot, basicQuestionSnapshot] = await Promise.all([
       db.collection("learners").doc(LEARNER_RECORD_ID).collection("attempts").get(),
       db.collection("learners").doc(LEARNER_RECORD_ID).collection("basicAttempts").get(),
+      db.collection("learners").doc(LEARNER_RECORD_ID).collection("checkTestAttempts").get(),
       db.collection("questionBank").get(),
       db.collection("basicQuestionBank").get(),
     ]);
@@ -277,15 +293,27 @@ exports.sendDailyLearningReport = onSchedule({
       createdAt: doc.data().createdAt || "",
       isCorrect: doc.data().isCorrect === true,
     })).filter((attempt) => attempt.questionId && attempt.createdAt && attempt.createdAt < periodEnd.toISOString());
+    const allCheckTestAttempts = checkTestAttemptSnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      track: "checktest",
+      questionId: doc.data().questionId || "",
+      subject: doc.data().subject || "",
+      questionTitle: doc.data().questionTitle || "",
+      createdAt: doc.data().createdAt || "",
+      isCorrect: doc.data().isCorrect === true,
+    })).filter((attempt) => attempt.questionId && attempt.createdAt && attempt.createdAt < periodEnd.toISOString());
     const aptitudeRows = allAptitudeAttempts.filter((attempt) => attempt.createdAt >= periodStart.toISOString());
     const basicRows = allBasicAttempts.filter((attempt) => attempt.createdAt >= periodStart.toISOString());
-    const rows = [...aptitudeRows, ...basicRows];
+    const checkTestRows = allCheckTestAttempts.filter((attempt) => attempt.createdAt >= periodStart.toISOString());
+    const rows = [...aptitudeRows, ...basicRows, ...checkTestRows];
     const correct = rows.filter((attempt) => attempt.isCorrect).length;
 
     const beforeAptitudeGrouped = groupAttempts(allAptitudeAttempts.filter((attempt) => attempt.createdAt < periodStart.toISOString()));
     const currentAptitudeGrouped = groupAttempts(allAptitudeAttempts);
     const beforeBasicGrouped = groupAttempts(allBasicAttempts.filter((attempt) => attempt.createdAt < periodStart.toISOString()));
     const currentBasicGrouped = groupAttempts(allBasicAttempts);
+    const beforeCheckTestGrouped = groupAttempts(allCheckTestAttempts.filter((attempt) => attempt.createdAt < periodStart.toISOString()));
+    const currentCheckTestGrouped = groupAttempts(allCheckTestAttempts);
     const newlyDone = [];
     const newlyMastered = [];
     currentAptitudeGrouped.forEach((attempts, questionId) => {
@@ -303,6 +331,14 @@ exports.sendDailyLearningReport = onSchedule({
       if (current === "done" && before !== "done" && before !== "mastered") newlyDone.push(title);
       if (current === "mastered" && before !== "mastered") newlyMastered.push(title);
     });
+    currentCheckTestGrouped.forEach((attempts, questionId) => {
+      const question = basicQuestions.get(questionId);
+      const title = question?.title || attempts[0]?.questionTitle || questionId;
+      const before = masteryState(beforeCheckTestGrouped.get(questionId) || []);
+      const current = masteryState(attempts);
+      if (current === "done" && before !== "done" && before !== "mastered") newlyDone.push(title);
+      if (current === "mastered" && before !== "mastered") newlyMastered.push(title);
+    });
 
     const domainRows = DOMAINS.map((domain) => {
       const attempts = rows.filter((attempt) => attempt.domain === domain);
@@ -310,6 +346,10 @@ exports.sendDailyLearningReport = onSchedule({
     }).filter((row) => row.attempts > 0);
     const subjectRows = Object.entries(BASIC_SUBJECT_LABELS).map(([subject, label]) => {
       const attempts = basicRows.filter((attempt) => attempt.subject === subject);
+      return { subject: label, attempts: attempts.length, correct: attempts.filter((attempt) => attempt.isCorrect).length };
+    }).filter((row) => row.attempts > 0);
+    const checkTestSubjectRows = Object.entries(CHECK_TEST_SUBJECT_LABELS).map(([subject, label]) => {
+      const attempts = checkTestRows.filter((attempt) => attempt.subject === subject);
       return { subject: label, attempts: attempts.length, correct: attempts.filter((attempt) => attempt.isCorrect).length };
     }).filter((row) => row.attempts > 0);
     const wrongAptitudeTitles = aptitudeRows
@@ -329,7 +369,16 @@ exports.sendDailyLearningReport = onSchedule({
         const correctAnswer = attempt.correctAnswer || question?.answer || (question?.options?.[question.correctIndex] ?? "");
         return `【基礎トレ_${subjectLabel}】${title}${correctAnswer ? `（正答：${correctAnswer}）` : ""}`;
       });
-    const wrongTitles = [...new Set([...wrongAptitudeTitles, ...wrongBasicTitles])];
+    const wrongCheckTestTitles = checkTestRows
+      .filter((attempt) => !attempt.isCorrect)
+      .map((attempt) => {
+        const question = basicQuestions.get(attempt.questionId);
+        const subjectLabel = CHECK_TEST_SUBJECT_LABELS[attempt.subject] || attempt.subject;
+        const title = attempt.questionTitle || question?.title || attempt.questionId;
+        const correctAnswer = attempt.correctAnswer || question?.answer || (question?.options?.[question.correctIndex] ?? "");
+        return `【チェックテスト対策_${subjectLabel}】${title}${correctAnswer ? `（正答：${correctAnswer}）` : ""}`;
+      });
+    const wrongTitles = [...new Set([...wrongAptitudeTitles, ...wrongBasicTitles, ...wrongCheckTestTitles])];
 
     const aptitudeDomainTotals = DOMAINS.map((domain) => ({
       label: domain,
@@ -348,12 +397,14 @@ exports.sendDailyLearningReport = onSchedule({
       rows,
       aptitudeRows,
       basicRows,
+      checkTestRows,
       correct,
       streak: bestCorrectStreak(rows),
       newlyDone,
       newlyMastered,
       domainRows,
       subjectRows,
+      checkTestSubjectRows,
       wrongTitles,
       neglectedDomains,
       neglectedSubjects,
@@ -378,6 +429,7 @@ exports.sendDailyLearningReport = onSchedule({
       attemptCount: rows.length,
       aptitudeAttemptCount: aptitudeRows.length,
       basicAttemptCount: basicRows.length,
+      checkTestAttemptCount: checkTestRows.length,
     }, { merge: true });
   } catch (error) {
     await reportRef.set({
@@ -434,11 +486,12 @@ exports.sendStudyReminder = onSchedule({
   region: "asia-northeast1",
 }, async () => {
   const todayStart = startOfJstDay(new Date()).toISOString();
-  const [attemptSnapshot, basicAttemptSnapshot] = await Promise.all([
+  const [attemptSnapshot, basicAttemptSnapshot, checkTestAttemptSnapshot] = await Promise.all([
     db.collection("learners").doc(LEARNER_RECORD_ID).collection("attempts").where("createdAt", ">=", todayStart).limit(1).get(),
     db.collection("learners").doc(LEARNER_RECORD_ID).collection("basicAttempts").where("createdAt", ">=", todayStart).limit(1).get(),
+    db.collection("learners").doc(LEARNER_RECORD_ID).collection("checkTestAttempts").where("createdAt", ">=", todayStart).limit(1).get(),
   ]);
-  if (!attemptSnapshot.empty || !basicAttemptSnapshot.empty) return;
+  if (!attemptSnapshot.empty || !basicAttemptSnapshot.empty || !checkTestAttemptSnapshot.empty) return;
   const message = REMINDER_MESSAGES[Math.floor(Math.random() * REMINDER_MESSAGES.length)];
   await sendPushToLearner("今日の分、忘れていない？", message, "study-reminder");
 });
@@ -447,12 +500,13 @@ const QUESTION_MILESTONES = [50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 2500
 
 async function checkQuestionMilestone() {
   const milestoneRef = db.collection("learners").doc(LEARNER_RECORD_ID).collection("gameProgress").doc("milestones");
-  const [aptCount, basicCount, milestoneDoc] = await Promise.all([
+  const [aptCount, basicCount, checkTestCount, milestoneDoc] = await Promise.all([
     db.collection("learners").doc(LEARNER_RECORD_ID).collection("attempts").count().get(),
     db.collection("learners").doc(LEARNER_RECORD_ID).collection("basicAttempts").count().get(),
+    db.collection("learners").doc(LEARNER_RECORD_ID).collection("checkTestAttempts").count().get(),
     milestoneRef.get(),
   ]);
-  const total = aptCount.data().count + basicCount.data().count;
+  const total = aptCount.data().count + basicCount.data().count + checkTestCount.data().count;
   const notified = Array.isArray(milestoneDoc.data()?.notified) ? milestoneDoc.data().notified : [];
   const newlyReached = QUESTION_MILESTONES.filter((value) => total >= value && !notified.includes(value));
   if (!newlyReached.length) return;
@@ -470,6 +524,13 @@ exports.notifyAptitudeMilestone = onDocumentCreated({
 
 exports.notifyBasicMilestone = onDocumentCreated({
   document: `learners/${LEARNER_RECORD_ID}/basicAttempts/{attemptId}`,
+  region: "asia-northeast1",
+}, async () => {
+  await checkQuestionMilestone();
+});
+
+exports.notifyCheckTestMilestone = onDocumentCreated({
+  document: `learners/${LEARNER_RECORD_ID}/checkTestAttempts/{attemptId}`,
   region: "asia-northeast1",
 }, async () => {
   await checkQuestionMilestone();

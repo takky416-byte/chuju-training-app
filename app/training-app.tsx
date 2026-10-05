@@ -148,7 +148,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v32";
+const APP_VERSION = "v33";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -171,14 +171,16 @@ const BASIC_TRAINING_SUBJECT_IDS = BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST
 const CHECK_TEST_KANJI_ROUNDS = Array.from({ length: 13 }, (_, index) => index + 1);
 
 type DailyQuestGroupId = "kokugo" | "shakai" | "rika";
-type DailyQuestId = DailyQuestGroupId | "aptitude";
-const DAILY_QUEST_IDS: DailyQuestId[] = ["kokugo", "shakai", "rika", "aptitude"];
+type DailyQuestId = DailyQuestGroupId | "aptitude" | "checktest";
+const DAILY_QUEST_IDS: DailyQuestId[] = ["kokugo", "shakai", "rika", "aptitude", "checktest"];
 const DAILY_QUEST_LABELS: Record<DailyQuestId, string> = {
   kokugo: "国語（3科目）",
   shakai: "社会（2科目）",
   rika: "理科（4科目）",
   aptitude: "適性検査（30問）",
+  checktest: "チェックテスト対策（10問）",
 };
+const DAILY_QUEST_CHECKTEST_TARGET = 10;
 const DAILY_QUEST_SUBJECT_GROUPS: Record<DailyQuestGroupId, BasicSubject[]> = {
   kokugo: ["kanji", "vocabulary", "kanjiReading"],
   shakai: ["geography", "history"],
@@ -238,18 +240,18 @@ const COLLECTIBLES: Collectible[] = [
   { id: "nobunaga", name: "織田信長", icon: "🦅", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "尾張から天下を目指した武将" },
   { id: "hideyoshi", name: "豊臣秀吉", icon: "🌞", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "尾張に生まれ天下統一を進めた武将" },
   { id: "ieyasu", name: "徳川家康", icon: "🐢", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "三河に生まれ江戸幕府を開いた武将" },
-  { id: "toshiie", name: "前田利家", icon: "🗡️", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "尾張に生まれ加賀藩の基礎を築いた武将" },
-  { id: "kiyomasa", name: "加藤清正", icon: "🐯", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "尾張に生まれた築城の名手" },
+  { id: "toshiie", name: "前田利家", icon: "🗡️", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "尾張に生まれ加賀藩の基礎を築いた武将" },
+  { id: "kiyomasa", name: "加藤清正", icon: "🐯", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "尾張に生まれた築城の名手" },
   { id: "katsuie", name: "柴田勝家", icon: "🛡️", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "織田信長を支えた尾張の武将" },
   { id: "de-rijke", name: "ヨハネス・デ・レイケ", icon: "🌊", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "木曽三川の分流計画に力を尽くしたオランダ人技師" },
-  { id: "tsuzuki-yako", name: "都築弥厚", icon: "💧", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "碧海台地へ水を引く明治用水を構想した人物" },
+  { id: "tsuzuki-yako", name: "都築弥厚", icon: "💧", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "碧海台地へ水を引く明治用水を構想した人物" },
   { id: "niimi-nankichi", name: "新美南吉", icon: "🦊", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "半田出身で『ごんぎつね』を書いた児童文学者" },
   { id: "honda-kotaro", name: "本多光太郎", icon: "🧲", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "強力な磁石鋼・KS鋼を発明した科学者" },
   { id: "toyoda-sakichi", name: "豊田佐吉", icon: "🧵", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "自動織機を発明し地域産業の礎を築いた発明家" },
   { id: "toyoda-kiichiro", name: "豊田喜一郎", icon: "🚙", rarity: "superRare", category: "愛知の偉人", gachaType: "people", description: "国産自動車の量産をめざし自動車会社を設立した人物" },
   { id: "morita-akio", name: "盛田昭夫", icon: "📻", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "常滑にゆかりを持ち、世界へ電機製品を広げた実業家" },
   { id: "tokugawa-muneharu", name: "徳川宗春", icon: "🎭", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "尾張藩の文化とにぎわいを育てた藩主" },
-  { id: "sugimoto-kyota", name: "杉本京太", icon: "⌨️", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "邦文タイプライターを発明した人物" },
+  { id: "sugimoto-kyota", name: "杉本京太", icon: "⌨️", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "邦文タイプライターを発明した人物" },
   { id: "ichikawa-fusae", name: "市川房枝", icon: "🗳️", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "一宮出身で女性参政権運動に尽くした人物" },
   { id: "honda-tadakatsu", name: "本多忠勝", icon: "🦌", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "三河に生まれ、徳川家康を支えた武将" },
   { id: "kawai-gyokudo", name: "川合玉堂", icon: "🖌️", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "一宮に生まれ、日本の自然を描いた日本画家" },
@@ -678,6 +680,7 @@ export default function TrainingApp() {
   const [gachaRevealOpen, setGachaRevealOpen] = useState(false);
   const [gachaType, setGachaType] = useState<GachaType>("local");
   const [collectionGachaType, setCollectionGachaType] = useState<GachaType>("local");
+  const [selectedCollectibleId, setSelectedCollectibleId] = useState<string | null>(null);
   const [basicTrainingActive, setBasicTrainingActive] = useState(false);
   const [basicAttempts, setBasicAttempts] = useState<BasicAttempt[]>([]);
   const [basicQuestionCatalog, setBasicQuestionCatalog] = useState<BasicQuestionEntry[]>(() => BASIC_QUESTION_POOL.filter((entry) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(entry.subject)));
@@ -1086,6 +1089,7 @@ export default function TrainingApp() {
     const todayStart = localDay().toISOString();
     const todayBasic = basicAttempts.filter((attempt) => attempt.createdAt >= todayStart);
     const todayAptitudeCount = attempts.filter((attempt) => attempt.createdAt >= todayStart).length;
+    const todayCheckTestCount = checkTestAttempts.filter((attempt) => attempt.createdAt >= todayStart).length;
     const subjectCount = (subject: BasicSubject) => todayBasic.filter((attempt) => attempt.subject === subject).length;
     const groups = Object.fromEntries((Object.keys(DAILY_QUEST_SUBJECT_GROUPS) as DailyQuestGroupId[]).map((groupId) => {
       const rows = DAILY_QUEST_SUBJECT_GROUPS[groupId].map((subject) => ({
@@ -1100,10 +1104,11 @@ export default function TrainingApp() {
       shakai: { done: groups.shakai.every((row) => row.done), detail: groups.shakai.map((row) => `${DAILY_QUEST_SHORT_LABELS[row.subject]}${Math.min(row.count, DAILY_QUEST_SUBJECT_TARGET)}`).join("・") },
       rika: { done: groups.rika.every((row) => row.done), detail: groups.rika.map((row) => `${DAILY_QUEST_SHORT_LABELS[row.subject]}${Math.min(row.count, DAILY_QUEST_SUBJECT_TARGET)}`).join("・") },
       aptitude: { done: todayAptitudeCount >= DAILY_QUEST_APTITUDE_TARGET, detail: `${Math.min(todayAptitudeCount, DAILY_QUEST_APTITUDE_TARGET)}/${DAILY_QUEST_APTITUDE_TARGET}問` },
+      checktest: { done: todayCheckTestCount >= DAILY_QUEST_CHECKTEST_TARGET, detail: `${Math.min(todayCheckTestCount, DAILY_QUEST_CHECKTEST_TARGET)}/${DAILY_QUEST_CHECKTEST_TARGET}問` },
     };
     const allDone = DAILY_QUEST_IDS.every((id) => quests[id].done);
     return { quests, allDone };
-  }, [attempts, basicAttempts]);
+  }, [attempts, basicAttempts, checkTestAttempts]);
 
   useEffect(() => {
     if (!db || syncState === "loading") return;
@@ -2535,15 +2540,38 @@ export default function TrainingApp() {
             <div className="collection-panel">
               <div className="collection-title"><strong>コレクション図鑑</strong><span>{ownedCollectibles.length} / {COLLECTIBLES.length}</span></div>
               <div className="collection-filters" aria-label="コレクションの種類">
-                {GACHA_TYPES.map((type) => <button key={type.id} type="button" className={collectionGachaType === type.id ? "active" : ""} onClick={() => setCollectionGachaType(type.id)}>{type.label.replace("ガチャ", "")}</button>)}
+                {GACHA_TYPES.map((type) => <button key={type.id} type="button" className={collectionGachaType === type.id ? "active" : ""} onClick={() => { setCollectionGachaType(type.id); setSelectedCollectibleId(null); }}>{type.label.replace("ガチャ", "")}</button>)}
               </div>
               <div className="collection-grid">
                 {visibleCollectibles.map((item) => {
                   const count = gameProgress.collectionCounts[item.id] ?? (gameProgress.inventory.includes(item.id) ? 1 : 0);
                   const owned = count > 0;
-                  return <article key={item.id} className={`collection-item ${owned ? "owned" : "locked"} rarity-border-${item.rarity}`} aria-label={owned ? `${item.name}を${count}個所持` : "未入手のアイテム"}><span>{owned ? item.icon : "?"}</span><strong>{owned ? item.name : "？？？"}</strong><small>{owned ? (item.rarity === "superRare" ? "SR" : item.rarity === "rare" ? "R" : "N") : "LOCK"}</small>{owned && <b className="collection-count">×{count}</b>}</article>;
+                  return (
+                    <article
+                      key={item.id}
+                      className={`collection-item ${owned ? "owned" : "locked"} rarity-border-${item.rarity} ${selectedCollectibleId === item.id ? "selected" : ""}`}
+                      aria-label={owned ? `${item.name}を${count}個所持。タップで説明を見る` : "未入手のアイテム"}
+                      role={owned ? "button" : undefined}
+                      tabIndex={owned ? 0 : undefined}
+                      onClick={() => owned && setSelectedCollectibleId((current) => current === item.id ? null : item.id)}
+                      onKeyDown={(event) => { if (owned && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); setSelectedCollectibleId((current) => current === item.id ? null : item.id); } }}
+                    >
+                      <span>{owned ? item.icon : "?"}</span><strong>{owned ? item.name : "？？？"}</strong><small>{owned ? (item.rarity === "superRare" ? "SR" : item.rarity === "rare" ? "R" : "N") : "LOCK"}</small>{owned && <b className="collection-count">×{count}</b>}
+                    </article>
+                  );
                 })}
               </div>
+              {selectedCollectibleId && (() => {
+                const selected = COLLECTIBLES.find((item) => item.id === selectedCollectibleId);
+                if (!selected) return null;
+                return (
+                  <div className="collection-detail">
+                    <span>{selected.icon}</span>
+                    <div><strong>{selected.name}</strong><small>{selected.category}</small><p>{selected.description}</p></div>
+                    <button type="button" onClick={() => setSelectedCollectibleId(null)} aria-label="閉じる"><X size={16} /></button>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </section>
