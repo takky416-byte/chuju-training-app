@@ -539,7 +539,7 @@ button { color: inherit; }
 .kanji-instruction { margin: 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 800; }
 .kanji-sentence { padding: 15px 17px; color: var(--navy-dark); background: #f4f6f9; border-left: 3px solid #7857a6; font-size: 21px; font-weight: 800; line-height: 1.55; }
 .kanji-sentence mark { padding: 2px 4px; color: #694592; background: #eee5f8; border-radius: 4px; }
-.writing-board { position: relative; height: 205px; margin-top: 12px; overflow: hidden; background-color: #fff; background-image: linear-gradient(#edf0f4 1px, transparent 1px), linear-gradient(90deg, #edf0f4 1px, transparent 1px); background-size: 50% 50%; border: 2px solid #aeb7c4; border-radius: 9px; }
+.writing-board { position: relative; height: 320px; margin-top: 12px; overflow: hidden; background-color: #fff; background-image: linear-gradient(#edf0f4 1px, transparent 1px), linear-gradient(90deg, #edf0f4 1px, transparent 1px); background-size: 50% 50%; border: 2px solid #aeb7c4; border-radius: 9px; }
 .writing-board::before, .writing-board::after { position: absolute; z-index: 0; background: #e3e7ed; content: ""; pointer-events: none; }
 .writing-board::before { top: 50%; right: 0; left: 0; height: 1px; }
 .writing-board::after { top: 0; bottom: 0; left: 50%; width: 1px; }
@@ -590,7 +590,7 @@ button { color: inherit; }
 .basic-active .brand { justify-self: center; }
 .basic-active .brand small { display: none; }
 .basic-active .hero, .basic-active .practice, .basic-active .progress-section, .basic-active footer { display: none; }
-.basic-active .basic-training { width: min(1040px, calc(100% - 32px)); min-height: calc(100dvh - 72px); padding-top: 20px; padding-bottom: 30px; border-top: 0; }
+.basic-active .basic-training { width: min(1160px, calc(100% - 32px)); min-height: calc(100dvh - 72px); padding-top: 20px; padding-bottom: 30px; border-top: 0; }
 .basic-active .basic-title-row { margin-bottom: 12px; }
 .basic-active .basic-title-row h2 { font-size: 25px; }
 
@@ -717,7 +717,7 @@ footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px
   .basic-set-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .basic-question-card { padding: 18px 14px; }
   .kanji-sentence { padding: 11px 12px; font-size: 18px; }
-  .writing-board { height: 190px; }
+  .writing-board { height: min(50dvh, 320px); }
   .self-score { min-width: 125px; }
   .basic-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .basic-options .option { min-height: 58px; padding: 7px 8px; font-size: 13px; line-height: 1.35; }
@@ -786,7 +786,7 @@ footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px
   .basic-active .question-time-track { height: 3px; margin: 4px 0 7px; }
   .basic-active .kanji-instruction { margin-bottom: 4px; font-size: 10px; }
   .basic-active .kanji-sentence { padding: 8px 10px; font-size: 17px; line-height: 1.42; }
-  .basic-active .writing-board { height: min(42dvh, 250px); margin-top: 7px; }
+  .basic-active .writing-board { height: min(58dvh, 440px); margin-top: 7px; }
   .basic-active .reveal-answer-button { width: auto; min-height: 40px; margin-top: 6px; padding: 7px 15px; }
   .basic-active .kanji-answer-panel { margin-top: 7px; padding: 12px; }
   .basic-active .kanji-answer-panel > strong { font-size: 44px; }
@@ -805,8 +805,8 @@ footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px
 }
 
 @media (orientation: landscape) and (min-width: 700px) {
-  .basic-active .kanji-writing-row { display: grid; grid-template-columns: minmax(360px, 690px) minmax(80px, 110px); gap: 16px; align-items: center; justify-content: center; margin-top: 8px; }
-  .basic-active .kanji-writing-row .writing-board { width: 100%; height: min(52dvh, 370px); margin-top: 0; }
+  .basic-active .kanji-writing-row { display: grid; grid-template-columns: minmax(360px, 900px) minmax(90px, 130px); gap: 16px; align-items: center; justify-content: center; margin-top: 8px; }
+  .basic-active .kanji-writing-row .writing-board { width: 100%; height: min(70dvh, 560px); margin-top: 0; }
   .basic-active .kanji-writing-row .reveal-answer-button { float: none; width: 100%; min-height: 64px; margin-top: 0; padding: 12px 8px; font-size: 13px; line-height: 1.25; }
 }
 
