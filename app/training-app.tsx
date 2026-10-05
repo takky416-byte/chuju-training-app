@@ -150,7 +150,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v34";
+const APP_VERSION = "v35";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -611,6 +611,8 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
     required.forEach((key) => { if (!text(key)) errors.push(`${label}（${id || "IDなし"}）: ${key}が空です`); });
     if (!Array.isArray(value.acceptedAnswers) || strings("acceptedAnswers").some((item) => !item)) errors.push(`${label}（${id || "IDなし"}）: acceptedAnswersは文字列配列にしてください`);
     if (value.round !== undefined && !Number.isInteger(value.round)) errors.push(`${label}（${id || "IDなし"}）: roundは整数にしてください`);
+    if (value.imageUrl !== undefined && (typeof value.imageUrl !== "string" || !value.imageUrl.trim())) errors.push(`${label}（${id || "IDなし"}）: imageUrlは空でない文字列にしてください`);
+    if (value.steps !== undefined && (!Array.isArray(value.steps) || strings("steps").some((item) => !item))) errors.push(`${label}（${id || "IDなし"}）: stepsは空欄のない文字列配列にしてください`);
     if (errors.length) return { errors };
     return { question: { subject, setId, question: { ...value, id, title, explanation, source: "custom" } as ShortAnswerQuestion } satisfies BasicQuestionEntry, errors };
   }

@@ -96,6 +96,8 @@ export type ShortAnswerQuestion = {
   source: "custom";
   references: string[];
   round?: number;
+  imageUrl?: string;
+  steps?: string[];
 };
 
 export type BasicQuestionSet<T> = {

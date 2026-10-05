@@ -137,6 +137,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   const [aiResult, setAiResult] = useState<{ text: string; matches: boolean } | null>(null);
   const [canUndoStroke, setCanUndoStroke] = useState(false);
   const [shortAnswerInput, setShortAnswerInput] = useState("");
+  const [revealedStepCount, setRevealedStepCount] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -299,6 +300,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     setAiState("idle");
     setAiResult(null);
     setShortAnswerInput("");
+    setRevealedStepCount(0);
     setSeconds(clampTime(nextSession[0].question.timeLimitSeconds));
     startedAtRef.current = Date.now();
     setRoundPickerSubject(null);
@@ -492,6 +494,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     setAiState("idle");
     setAiResult(null);
     setShortAnswerInput("");
+    setRevealedStepCount(0);
     const next = session[index + 1];
     setSeconds(clampTime(next.question.timeLimitSeconds));
     startedAtRef.current = Date.now();
@@ -606,6 +609,28 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
               <>
                 {active.question.context && <div className="question-context">{active.question.context}</div>}
                 <p className="question-prompt">{active.question.prompt}</p>
+                {active.question.imageUrl && (
+                  <div className="question-diagram">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={active.question.imageUrl} alt="問題の図" />
+                  </div>
+                )}
+                {active.question.steps && active.question.steps.length > 0 && (
+                  <div className="step-reveal">
+                    {active.question.steps.slice(0, revealedStepCount).map((step, stepIndex) => (
+                      <p className="step-reveal-line" key={stepIndex}>{step}</p>
+                    ))}
+                    {revealedStepCount < active.question.steps.length && (
+                      <button
+                        type="button"
+                        className="step-reveal-button"
+                        onClick={() => setRevealedStepCount((count) => count + 1)}
+                      >
+                        途中式を見る（{revealedStepCount}/{active.question.steps.length}）
+                      </button>
+                    )}
+                  </div>
+                )}
                 <div className="short-answer-row">
                   <input
                     type="text"
