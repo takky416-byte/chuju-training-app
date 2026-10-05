@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { BookOpenCheck, Check, ChevronRight, Eraser, Map as MapIcon, PencilLine, RotateCcw, Sparkles, Timer, Trophy, X } from "lucide-react";
+import { BookOpenCheck, Check, ChevronRight, Eraser, Map as MapIcon, PencilLine, RotateCcw, Sparkles, Timer, Trophy, Undo2, X } from "lucide-react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import {
@@ -124,9 +124,12 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   const [completionCoins, setCompletionCoins] = useState(0);
   const [aiState, setAiState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [aiResult, setAiResult] = useState<{ text: string; matches: boolean } | null>(null);
+  const [canUndoStroke, setCanUndoStroke] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+  const strokesRef = useRef<Array<Array<{ x: number; y: number }>>>([]);
+  const currentStrokeRef = useRef<Array<{ x: number; y: number }>>([]);
   const startedAtRef = useRef(Date.now());
 
   const active = session[index];
@@ -212,6 +215,9 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     if (!active || !isWritingEntry(active) || answered || revealed) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    strokesRef.current = [];
+    currentStrokeRef.current = [];
+    setCanUndoStroke(false);
     const resize = () => {
       const ratio = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
@@ -225,6 +231,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
         context.lineWidth = 5;
         context.strokeStyle = "#17233b";
       }
+      redrawStrokes();
     };
     resize();
     const observer = new ResizeObserver(resize);
@@ -304,10 +311,32 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     beginSession(prioritizeQuestions(bySubject).slice(0, 5));
   }
 
-  function clearCanvas() {
+  function redrawStrokes() {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (canvas && context) context.clearRect(0, 0, canvas.width, canvas.height);
+    if (!canvas || !context) return;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    strokesRef.current.forEach((stroke) => {
+      if (stroke.length < 2) return;
+      context.beginPath();
+      context.moveTo(stroke[0].x, stroke[0].y);
+      stroke.slice(1).forEach((point) => context.lineTo(point.x, point.y));
+      context.stroke();
+    });
+  }
+
+  function clearCanvas() {
+    strokesRef.current = [];
+    currentStrokeRef.current = [];
+    setCanUndoStroke(false);
+    redrawStrokes();
+  }
+
+  function undoStroke() {
+    if (!strokesRef.current.length) return;
+    strokesRef.current = strokesRef.current.slice(0, -1);
+    setCanUndoStroke(strokesRef.current.length > 0);
+    redrawStrokes();
   }
 
   function revealAnswer() {
@@ -346,7 +375,9 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   function startDrawing(event: ReactPointerEvent<HTMLCanvasElement>) {
     event.currentTarget.setPointerCapture(event.pointerId);
     drawingRef.current = true;
-    lastPointRef.current = canvasPoint(event);
+    const point = canvasPoint(event);
+    lastPointRef.current = point;
+    currentStrokeRef.current = [point];
   }
 
   function draw(event: ReactPointerEvent<HTMLCanvasElement>) {
@@ -359,11 +390,17 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     context.lineTo(next.x, next.y);
     context.stroke();
     lastPointRef.current = next;
+    currentStrokeRef.current.push(next);
   }
 
   function stopDrawing() {
     drawingRef.current = false;
     lastPointRef.current = null;
+    if (currentStrokeRef.current.length > 1) {
+      strokesRef.current = [...strokesRef.current, currentStrokeRef.current];
+      setCanUndoStroke(true);
+    }
+    currentStrokeRef.current = [];
   }
 
   async function saveAttempt(isCorrect: boolean, wasTimedOut: boolean) {
@@ -517,7 +554,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                 <div className="kanji-sentence">{renderKanjiSentence(active.question.sentence)}</div>
                 {!revealed ? (
                   <div className="kanji-writing-row">
-                    <div className="writing-board"><canvas ref={canvasRef} onPointerDown={startDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} /><button type="button" onClick={clearCanvas}><Eraser size={17} />消す</button></div>
+                    <div className="writing-board"><canvas ref={canvasRef} onPointerDown={startDrawing} onPointerMove={draw} onPointerUp={stopDrawing} onPointerCancel={stopDrawing} /><div className="writing-board-actions"><button type="button" onClick={undoStroke} disabled={!canUndoStroke}><Undo2 size={17} />一画前を消す</button><button type="button" onClick={clearCanvas}><Eraser size={17} />消す</button></div></div>
                     <button className="primary-button reveal-answer-button" type="button" onClick={revealAnswer}>答えを<br />見る</button>
                   </div>
                 ) : (
