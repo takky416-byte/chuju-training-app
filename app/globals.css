@@ -497,6 +497,13 @@ button { color: inherit; }
 .basic-subject-picker .domain-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .basic-subject-picker .domain-picker-grid button > span { display: flex; align-items: center; gap: 7px; }
 .basic-subject-picker .domain-picker-grid button > span svg { flex: 0 0 auto; }
+.round-picker { width: 100%; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.round-picker-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 11px; }
+.round-picker-heading strong { color: var(--navy-dark); font-size: 14px; }
+.round-picker-back { padding: 4px 10px; color: var(--muted); font-size: 11px; background: white; border: 1px solid #cfd5de; border-radius: 6px; cursor: pointer; }
+.round-picker-back:hover { color: var(--teal); border-color: var(--teal); }
+.round-picker-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.round-picker-grid button { flex-direction: column; align-items: flex-start; min-height: 46px; }
 .basic-subject-card { padding: 24px; background: white; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 32px rgba(22, 35, 59, .06); }
 .basic-subject-card.kanji-card { border-top: 5px solid #7857a6; }
 .basic-subject-card.geography-card { border-top: 5px solid #28836e; }

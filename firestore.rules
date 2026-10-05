@@ -27,6 +27,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /learners/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960/checkTestAttempts/{attemptId} {
+      allow read, create, update: if isFamily();
+      allow delete: if isAdmin();
+    }
+
     match /learners/69b4e9b0e95a3cb3c9a3ecdf7cc12468f707634f698e879f3c7c636481cd0960/gameProgress/{documentId} {
       allow read, create, update: if isFamily();
       allow delete: if isAdmin();
