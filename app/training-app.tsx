@@ -41,12 +41,14 @@ import {
   BASIC_SUBJECT_CONFIG,
   BASIC_SUBJECT_IDS,
   CHECK_TEST_SUBJECT_IDS,
+  isShortAnswerBasicSubject,
   isWritingBasicSubject,
   type BasicQuestionEntry,
   type BasicSubject,
   type ChoiceBasicSubject,
   type GeographyQuestion,
   type KanjiQuestion,
+  type ShortAnswerQuestion,
 } from "./basic-questions";
 import {
   auth,
@@ -148,7 +150,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v33";
+const APP_VERSION = "v34";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -168,7 +170,7 @@ const GACHA_MULTI_TOTAL = GACHA_MULTI_COUNT + GACHA_MULTI_BONUS;
 const GACHA_MULTI_COST = GACHA_COST * GACHA_MULTI_COUNT;
 const BASIC_SUBJECT_LABELS = Object.fromEntries(BASIC_SUBJECT_IDS.map((id) => [id, BASIC_SUBJECT_CONFIG[id].label])) as Record<BasicSubject, string>;
 const BASIC_TRAINING_SUBJECT_IDS = BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(id));
-const CHECK_TEST_KANJI_ROUNDS = Array.from({ length: 13 }, (_, index) => index + 1);
+const CHECK_TEST_ROUNDS = Array.from({ length: 13 }, (_, index) => index + 1);
 
 type DailyQuestGroupId = "kokugo" | "shakai" | "rika";
 type DailyQuestId = DailyQuestGroupId | "aptitude" | "checktest";
@@ -190,7 +192,7 @@ const DAILY_QUEST_SHORT_LABELS: Record<BasicSubject, string> = {
   kanji: "書き", vocabulary: "語句", kanjiReading: "読み",
   geography: "地理", history: "歴史",
   biology: "生物", earthScience: "地学", physics: "物理", chemistry: "化学",
-  checkTestKanji: "漢字", checkTestScience: "理科", checkTestSocial: "社会",
+  checkTestKanji: "漢字", checkTestScience: "理科", checkTestSocial: "社会", checkTestMath: "算数",
 };
 const DAILY_QUEST_SUBJECT_TARGET = 5;
 const DAILY_QUEST_APTITUDE_TARGET = 30;
@@ -602,6 +604,15 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
     if (value.round !== undefined && !Number.isInteger(value.round)) errors.push(`${label}（${id || "IDなし"}）: roundは整数にしてください`);
     if (errors.length) return { errors };
     return { question: { subject, setId, question: { ...value, id, title, explanation, source: "custom" } as KanjiQuestion } satisfies BasicQuestionEntry, errors };
+  }
+
+  if (isShortAnswerBasicSubject(subject)) {
+    const required = ["prompt", "answer", "category", "knowledgeKey"] as const;
+    required.forEach((key) => { if (!text(key)) errors.push(`${label}（${id || "IDなし"}）: ${key}が空です`); });
+    if (!Array.isArray(value.acceptedAnswers) || strings("acceptedAnswers").some((item) => !item)) errors.push(`${label}（${id || "IDなし"}）: acceptedAnswersは文字列配列にしてください`);
+    if (value.round !== undefined && !Number.isInteger(value.round)) errors.push(`${label}（${id || "IDなし"}）: roundは整数にしてください`);
+    if (errors.length) return { errors };
+    return { question: { subject, setId, question: { ...value, id, title, explanation, source: "custom" } as ShortAnswerQuestion } satisfies BasicQuestionEntry, errors };
   }
 
   const required = ["prompt", "topic", "subtopic", "knowledgeKey"] as const;
@@ -1578,10 +1589,9 @@ export default function TrainingApp() {
   }
 
   function downloadBasicImportTemplate(subject: BasicSubject) {
-    const isKanji = isWritingBasicSubject(subject);
     const config = BASIC_SUBJECT_CONFIG[subject];
     const slug = config.setType;
-    const template = isKanji ? {
+    const template = isWritingBasicSubject(subject) ? {
       schemaVersion: 1,
       collectionId: `${slug}-basic-001-005`,
       collectionTitle: `${config.label} 基礎トレ 1〜5`,
@@ -1596,6 +1606,23 @@ export default function TrainingApp() {
           acceptedAnswers: [], explanation: "正答の理由や注意点を書きます。", targetKanji: ["言", "葉"], targetWord: "言葉", grade: 4,
           category: "熟語", tags: ["熟語"], difficulty: 1, timeLimitSeconds: 30, knowledgeKey: "ことば-言葉", source: "custom", references: [],
           ...(subject === "checkTestKanji" ? { round: 1 } : {}),
+        }],
+      }],
+    } : isShortAnswerBasicSubject(subject) ? {
+      schemaVersion: 1,
+      collectionId: `${slug}-basic-001-005`,
+      collectionTitle: `${config.label} 基礎トレ 1〜5`,
+      type: config.collectionType,
+      sets: [{
+        schemaVersion: 1,
+        setId: `${slug}-basic-001`,
+        setTitle: `${config.label} 基礎トレ1`,
+        type: config.setType,
+        questions: [{
+          id: `${slug}-basic-001-q001`, title: "単位の換算", context: "", prompt: "3.4kmは何mですか。",
+          answer: "3400", acceptedAnswers: ["3400m"], explanation: "1km=1000mなので、3.4km=3400mです。",
+          category: "単位の換算", tags: ["単位の換算"], difficulty: 1, timeLimitSeconds: 30, knowledgeKey: `${slug}-例題`, source: "custom", references: [],
+          ...(subject === "checkTestMath" ? { round: 1 } : {}),
         }],
       }],
     } : {
@@ -2372,11 +2399,11 @@ export default function TrainingApp() {
         heading="チェックテスト対策"
         description="塾のチェックテストに合わせて、科目・回を選んで練習しよう。"
         menuTitle="科目を選んで始めましょう"
-        menuDescription="漢字は回（第1回〜第13回）を選んで練習できます。"
+        menuDescription="漢字・算数は回（第1回〜第13回）を選んで練習できます。"
         attemptsCollection="checkTestAttempts"
         storageKey="aichi_training_checktest_attempts_v1"
-        roundSubject="checkTestKanji"
-        roundOptions={CHECK_TEST_KANJI_ROUNDS}
+        roundSubjects={["checkTestKanji", "checkTestMath"]}
+        roundOptions={CHECK_TEST_ROUNDS}
         startRequest={checkTestStartRequest}
         questionRefreshToken={basicQuestionRefreshToken}
         resetWindows={resetWindows}

@@ -9,12 +9,14 @@ import {
   BASIC_SUBJECT_CONFIG,
   BASIC_SUBJECT_IDS,
   GEOGRAPHY_TOPIC_LABELS,
+  isShortAnswerBasicSubject,
   isWritingBasicSubject,
   normalizeStoredBasicQuestion,
   type BasicQuestionEntry,
   type BasicSubject,
   type GeographyQuestion,
   type KanjiQuestion,
+  type ShortAnswerQuestion,
 } from "./basic-questions";
 import { db, functions, LEARNER_RECORD_ID } from "./firebase";
 import type { SoundEffect } from "./audio-engine";
@@ -37,9 +39,18 @@ export type BasicAttempt = {
 
 type ActiveQuestion = BasicQuestionEntry;
 type WritingActiveQuestion = Extract<ActiveQuestion, { question: KanjiQuestion }>;
+type ShortAnswerActiveQuestion = Extract<ActiveQuestion, { question: ShortAnswerQuestion }>;
 
 function isWritingEntry(entry: ActiveQuestion): entry is WritingActiveQuestion {
   return isWritingBasicSubject(entry.subject);
+}
+
+function isShortAnswerEntry(entry: ActiveQuestion): entry is ShortAnswerActiveQuestion {
+  return isShortAnswerBasicSubject(entry.subject);
+}
+
+function normalizeAnswerText(value: string) {
+  return value.normalize("NFKC").trim().replace(/\s+/g, "");
 }
 
 type BasicSessionMode = "weak" | "balanced" | "subject";
@@ -56,7 +67,7 @@ type Props = {
   menuDescription: string;
   attemptsCollection: string;
   storageKey: string;
-  roundSubject?: BasicSubject;
+  roundSubjects?: BasicSubject[];
   roundOptions?: number[];
   startRequest?: BasicStartRequest | null;
   questionRefreshToken?: number;
@@ -107,7 +118,7 @@ function renderKanjiSentence(sentence: string) {
     : <span key={`${part}-${index}`}>{part}</span>);
 }
 
-export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKicker, heading, description, menuTitle, menuDescription, attemptsCollection, storageKey, roundSubject, roundOptions, startRequest, questionRefreshToken = 0, resetWindows, onActivityChange, onAttemptsChange, onQuestionCatalogChange, onReward, onComplete, onSound, onSyncStateChange }: Props) {
+export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKicker, heading, description, menuTitle, menuDescription, attemptsCollection, storageKey, roundSubjects, roundOptions, startRequest, questionRefreshToken = 0, resetWindows, onActivityChange, onAttemptsChange, onQuestionCatalogChange, onReward, onComplete, onSound, onSyncStateChange }: Props) {
   const [attempts, setAttempts] = useState<BasicAttempt[]>([]);
   const [questionPool, setQuestionPool] = useState<ActiveQuestion[]>(() => BASIC_QUESTION_POOL.filter((entry) => subjectIds.includes(entry.subject)));
   const [session, setSession] = useState<ActiveQuestion[]>([]);
@@ -125,6 +136,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   const [aiState, setAiState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [aiResult, setAiResult] = useState<{ text: string; matches: boolean } | null>(null);
   const [canUndoStroke, setCanUndoStroke] = useState(false);
+  const [shortAnswerInput, setShortAnswerInput] = useState("");
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -203,6 +215,8 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
         if (isWritingEntry(active)) {
           setRevealed(true);
           onSound("timeout");
+        } else if (isShortAnswerEntry(active)) {
+          void submitShortAnswer(true);
         } else {
           void answerChoice(-1, true);
         }
@@ -284,6 +298,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     setCompletionCoins(0);
     setAiState("idle");
     setAiResult(null);
+    setShortAnswerInput("");
     setSeconds(clampTime(nextSession[0].question.timeLimitSeconds));
     startedAtRef.current = Date.now();
     setRoundPickerSubject(null);
@@ -299,7 +314,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   }
 
   function startSubjectSession(subject: BasicSubject, round?: number) {
-    if (subject === roundSubject && round === undefined) {
+    if (roundSubjects?.includes(subject) && round === undefined) {
       setRoundPickerSubject(subject);
       return;
     }
@@ -406,7 +421,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   async function saveAttempt(isCorrect: boolean, wasTimedOut: boolean) {
     if (!active) return;
     const durationSeconds = wasTimedOut ? activeLimit : Math.min(activeLimit, Math.max(1, Math.round((Date.now() - startedAtRef.current) / 1000)));
-    const correctAnswer = isWritingEntry(active) ? active.question.answer : active.question.options[active.question.correctIndex] ?? "";
+    const correctAnswer = isWritingEntry(active) || isShortAnswerEntry(active) ? active.question.answer : active.question.options[active.question.correctIndex] ?? "";
     const attempt: BasicAttempt = {
       clientAttemptId: crypto.randomUUID(),
       questionId: active.question.id,
@@ -434,9 +449,18 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   }
 
   async function answerChoice(choice: number, wasTimedOut = false) {
-    if (!active || isWritingEntry(active) || answered) return;
+    if (!active || isWritingEntry(active) || isShortAnswerEntry(active) || answered) return;
     const isCorrect = choice === active.question.correctIndex;
     setSelectedIndex(choice);
+    setAnswered(true);
+    onSound(wasTimedOut ? "timeout" : isCorrect ? "correct" : "wrong");
+    await saveAttempt(isCorrect, wasTimedOut);
+  }
+
+  async function submitShortAnswer(wasTimedOut = false) {
+    if (!active || !isShortAnswerEntry(active) || answered) return;
+    const candidates = [active.question.answer, ...active.question.acceptedAnswers].map(normalizeAnswerText).filter(Boolean);
+    const isCorrect = !wasTimedOut && candidates.includes(normalizeAnswerText(shortAnswerInput));
     setAnswered(true);
     onSound(wasTimedOut ? "timeout" : isCorrect ? "correct" : "wrong");
     await saveAttempt(isCorrect, wasTimedOut);
@@ -467,6 +491,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     setAward(null);
     setAiState("idle");
     setAiResult(null);
+    setShortAnswerInput("");
     const next = session[index + 1];
     setSeconds(clampTime(next.question.timeLimitSeconds));
     startedAtRef.current = Date.now();
@@ -485,6 +510,9 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   }
 
   const timerClass = seconds <= 5 ? "danger" : seconds <= 10 ? "warning" : "";
+  const shortAnswerCorrect = active && isShortAnswerEntry(active)
+    ? [active.question.answer, ...active.question.acceptedAnswers].map(normalizeAnswerText).filter(Boolean).includes(normalizeAnswerText(shortAnswerInput))
+    : false;
 
   return (
     <section id={sectionId} className="basic-training section-shell">
@@ -505,7 +533,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
           <div id={`${sectionId}-subject-picker`} className="domain-picker basic-subject-picker">
             <div><strong>科目を選んで5問</strong><small>直近の誤答と未挑戦を優先します</small></div>
             <div className="domain-picker-grid">
-              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{row.subject === "kanji" || row.subject === "checkTestKanji" ? <PencilLine size={16} /> : row.subject === "geography" ? <MapIcon size={16} /> : <BookOpenCheck size={16} />} {BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? (row.subject === roundSubject ? "回を選んで練習" : `${row.attempted}/${row.total}問挑戦・正答率${row.accuracy}%`) : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
+              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{row.subject === "kanji" || row.subject === "checkTestKanji" ? <PencilLine size={16} /> : row.subject === "geography" ? <MapIcon size={16} /> : <BookOpenCheck size={16} />} {BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? (roundSubjects?.includes(row.subject) ? "回を選んで練習" : `${row.attempted}/${row.total}問挑戦・正答率${row.accuracy}%`) : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
             </div>
             {roundPickerSubject && roundOptions && (
               <div className="round-picker">
@@ -543,7 +571,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
           </div>
           <article className="basic-question-card">
             <div className="basic-question-heading">
-              <div><h3>{active.question.title}</h3><span>{isWritingEntry(active) ? active.question.category : active.subject === "geography" ? GEOGRAPHY_TOPIC_LABELS[active.question.topic] ?? active.question.subtopic : active.question.subtopic || active.question.topic}</span></div>
+              <div><h3>{active.question.title}</h3><span>{isWritingEntry(active) || isShortAnswerEntry(active) ? active.question.category : active.subject === "geography" ? GEOGRAPHY_TOPIC_LABELS[active.question.topic] ?? active.question.subtopic : active.question.subtopic || active.question.topic}</span></div>
               <div className={`question-timer ${timerClass}`}><Timer size={18} /><strong>{seconds}</strong><span>秒</span></div>
             </div>
             <div className={`question-time-track ${timerClass}`}><span style={{ width: `${seconds / activeLimit * 100}%` }} /></div>
@@ -571,6 +599,32 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                     </div>
                     <p>{active.question.explanation}</p>
                     {!answered ? <div><button type="button" className="self-score correct" onClick={() => void scoreKanji(true)}><Check size={20} />できた</button><button type="button" className="self-score wrong" onClick={() => void scoreKanji(false)}><X size={20} />まちがえた</button></div> : <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>}
+                  </div>
+                )}
+              </>
+            ) : isShortAnswerEntry(active) ? (
+              <>
+                {active.question.context && <div className="question-context">{active.question.context}</div>}
+                <p className="question-prompt">{active.question.prompt}</p>
+                <div className="short-answer-row">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    className="short-answer-input"
+                    placeholder="答えを入力"
+                    value={shortAnswerInput}
+                    disabled={answered}
+                    onChange={(event) => setShortAnswerInput(event.target.value)}
+                    onKeyDown={(event) => { if (event.key === "Enter" && shortAnswerInput.trim() && !answered) void submitShortAnswer(); }}
+                  />
+                  <button className="primary-button" type="button" disabled={!shortAnswerInput.trim() || answered} onClick={() => void submitShortAnswer()}>こたえる</button>
+                </div>
+                {answered && (
+                  <div className={`basic-feedback ${shortAnswerCorrect ? "good" : "retry"}`}>
+                    <div><strong>{timedOut ? "時間切れ" : shortAnswerCorrect ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div>
+                    <p className="short-answer-correct">正解：{active.question.answer}</p>
+                    <p>{active.question.explanation}</p>
+                    <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>
                   </div>
                 )}
               </>

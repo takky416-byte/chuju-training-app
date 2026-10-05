@@ -574,6 +574,12 @@ button { color: inherit; }
 .self-score.wrong { color: #913d3d; background: var(--red-pale); border: 1px solid #d99393; }
 .timeup-label { color: var(--red); font-weight: 1000; letter-spacing: .12em; }
 .basic-options { margin-top: 10px; }
+.short-answer-row { display: flex; gap: 10px; margin-top: 10px; }
+.short-answer-input { flex: 1 1 auto; min-width: 0; padding: 12px 14px; color: var(--navy-dark); font-size: 18px; font-weight: 800; background: white; border: 2px solid #aeb7c4; border-radius: 9px; }
+.short-answer-input:focus { border-color: var(--teal); outline: none; }
+.short-answer-input:disabled { background: #f4f6f9; }
+.short-answer-row .primary-button { flex: 0 0 auto; }
+.short-answer-correct { margin: 0; color: var(--navy-dark); font-weight: 900; }
 .basic-feedback { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 18px; align-items: center; margin-top: 13px; padding: 12px 14px; border-radius: 8px; }
 .basic-feedback.good { background: var(--teal-pale); }
 .basic-feedback.retry { background: var(--amber-pale); }

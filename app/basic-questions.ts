@@ -3,17 +3,23 @@ import kanjiCollection2 from "./data/kanji-basic-006-010.json";
 import geographyCollection from "./data/geography-basic-001-005.json";
 import geographyCollection2 from "./data/geography-basic-006-010.json";
 
-export const BASIC_SUBJECT_IDS = ["kanji", "vocabulary", "kanjiReading", "geography", "history", "biology", "earthScience", "physics", "chemistry", "checkTestKanji", "checkTestScience", "checkTestSocial"] as const;
+export const BASIC_SUBJECT_IDS = ["kanji", "vocabulary", "kanjiReading", "geography", "history", "biology", "earthScience", "physics", "chemistry", "checkTestKanji", "checkTestScience", "checkTestSocial", "checkTestMath"] as const;
 export type BasicSubject = (typeof BASIC_SUBJECT_IDS)[number];
 export const WRITING_BASIC_SUBJECT_IDS = ["kanji", "checkTestKanji"] as const;
 export type WritingBasicSubject = (typeof WRITING_BASIC_SUBJECT_IDS)[number];
-export type ChoiceBasicSubject = Exclude<BasicSubject, WritingBasicSubject>;
+export const SHORT_ANSWER_BASIC_SUBJECT_IDS = ["checkTestMath"] as const;
+export type ShortAnswerBasicSubject = (typeof SHORT_ANSWER_BASIC_SUBJECT_IDS)[number];
+export type ChoiceBasicSubject = Exclude<BasicSubject, WritingBasicSubject | ShortAnswerBasicSubject>;
 
 export function isWritingBasicSubject(subject: BasicSubject): subject is WritingBasicSubject {
   return (WRITING_BASIC_SUBJECT_IDS as readonly string[]).includes(subject);
 }
 
-export const CHECK_TEST_SUBJECT_IDS = ["checkTestKanji", "checkTestScience", "checkTestSocial"] as const;
+export function isShortAnswerBasicSubject(subject: BasicSubject): subject is ShortAnswerBasicSubject {
+  return (SHORT_ANSWER_BASIC_SUBJECT_IDS as readonly string[]).includes(subject);
+}
+
+export const CHECK_TEST_SUBJECT_IDS = ["checkTestKanji", "checkTestScience", "checkTestSocial", "checkTestMath"] as const;
 
 export const BASIC_SUBJECT_CONFIG: Record<BasicSubject, { label: string; collectionType: string; setType: string }> = {
   kanji: { label: "漢字の書き", collectionType: "kanji-writing-collection", setType: "kanji-writing" },
@@ -28,6 +34,7 @@ export const BASIC_SUBJECT_CONFIG: Record<BasicSubject, { label: string; collect
   checkTestKanji: { label: "漢字", collectionType: "checktest-kanji-collection", setType: "checktest-kanji" },
   checkTestScience: { label: "理科", collectionType: "checktest-science-collection", setType: "checktest-science" },
   checkTestSocial: { label: "社会", collectionType: "checktest-social-collection", setType: "checktest-social" },
+  checkTestMath: { label: "算数", collectionType: "checktest-math-collection", setType: "checktest-math" },
 };
 
 export type KanjiQuestion = {
@@ -73,6 +80,24 @@ export type GeographyQuestion = {
   round?: number;
 };
 
+export type ShortAnswerQuestion = {
+  id: string;
+  title: string;
+  context: string;
+  prompt: string;
+  answer: string;
+  acceptedAnswers: string[];
+  explanation: string;
+  category: string;
+  tags: string[];
+  difficulty: number;
+  timeLimitSeconds: number;
+  knowledgeKey: string;
+  source: "custom";
+  references: string[];
+  round?: number;
+};
+
 export type BasicQuestionSet<T> = {
   schemaVersion: number;
   setId: string;
@@ -83,6 +108,7 @@ export type BasicQuestionSet<T> = {
 
 export type BasicQuestionEntry =
   | { subject: WritingBasicSubject; setId: string; question: KanjiQuestion }
+  | { subject: ShortAnswerBasicSubject; setId: string; question: ShortAnswerQuestion }
   | { subject: ChoiceBasicSubject; setId: string; question: GeographyQuestion };
 
 export const KANJI_SETS = [
@@ -111,6 +137,10 @@ export function normalizeStoredBasicQuestion(value: unknown): BasicQuestionEntry
   if (isWritingBasicSubject(subject as BasicSubject)) {
     if (typeof question.sentence !== "string" || typeof question.answer !== "string" || typeof question.reading !== "string") return null;
     return { subject: subject as WritingBasicSubject, setId, question: question as KanjiQuestion };
+  }
+  if (isShortAnswerBasicSubject(subject as BasicSubject)) {
+    if (typeof question.prompt !== "string" || typeof question.answer !== "string") return null;
+    return { subject: subject as ShortAnswerBasicSubject, setId, question: question as ShortAnswerQuestion };
   }
   if (!Array.isArray(question.options) || question.options.length !== 4 || !Number.isInteger(question.correctIndex)) return null;
   return { subject: subject as ChoiceBasicSubject, setId, question: question as GeographyQuestion };

@@ -36,6 +36,7 @@ const CHECK_TEST_SUBJECT_LABELS = {
   checkTestKanji: "漢字",
   checkTestScience: "理科",
   checkTestSocial: "社会",
+  checkTestMath: "算数",
 };
 const DOMAIN_ALIASES = {
   "数量・図形": "数量・図形",
