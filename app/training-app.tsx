@@ -148,7 +148,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v30";
+const APP_VERSION = "v31";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -1589,7 +1589,7 @@ export default function TrainingApp() {
         questions: [{
           id: `${slug}-basic-001-q001`, title: "熟語", sentence: "文中の【ことば】を漢字で書きましょう。", reading: "ことば", answer: "言葉",
           acceptedAnswers: [], explanation: "正答の理由や注意点を書きます。", targetKanji: ["言", "葉"], targetWord: "言葉", grade: 4,
-          category: "熟語", tags: ["熟語"], difficulty: 1, timeLimitSeconds: 20, knowledgeKey: "ことば-言葉", source: "custom", references: [],
+          category: "熟語", tags: ["熟語"], difficulty: 1, timeLimitSeconds: 30, knowledgeKey: "ことば-言葉", source: "custom", references: [],
           ...(subject === "checkTestKanji" ? { round: 1 } : {}),
         }],
       }],

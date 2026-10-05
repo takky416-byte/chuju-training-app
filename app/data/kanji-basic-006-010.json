@@ -28,7 +28,7 @@
             "送り仮名"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "そう-沿う",
           "source": "custom",
           "references": [
@@ -54,7 +54,7 @@
             "熟語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "てきせつ-適切",
           "source": "custom",
           "references": [
@@ -80,7 +80,7 @@
             "教科学習語彙"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "さいげん-再現",
           "source": "custom",
           "references": [
@@ -106,7 +106,7 @@
             "抽象語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "こうか-効果",
           "source": "custom",
           "references": [
@@ -132,7 +132,7 @@
             "教科学習語彙"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "せいげん-制限",
           "source": "custom",
           "references": [
@@ -157,7 +157,7 @@
             "送り仮名"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "ことわる-断る",
           "source": "custom",
           "references": [
@@ -183,7 +183,7 @@
             "熟語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "きょうりょく-協力",
           "source": "custom",
           "references": [
@@ -209,7 +209,7 @@
             "抽象語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "あんい-安易",
           "source": "custom",
           "references": [
@@ -235,7 +235,7 @@
             "同音異義語"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "いぎ-意義",
           "source": "custom",
           "references": [
@@ -260,7 +260,7 @@
             "送り仮名"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "あずける-預ける",
           "source": "custom",
           "references": [
@@ -294,7 +294,7 @@
             "同音異義語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "せいさく-製作",
           "source": "custom",
           "references": [
@@ -320,7 +320,7 @@
             "同音異義語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "せいさく-制作",
           "source": "custom",
           "references": [
@@ -345,7 +345,7 @@
             "送り仮名"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "はぶく-省く",
           "source": "custom",
           "references": [
@@ -370,7 +370,7 @@
             "送り仮名"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "いちじるしく-著しく",
           "source": "custom",
           "references": [
@@ -395,7 +395,7 @@
             "送り仮名"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "おうじて-応じて",
           "source": "custom",
           "references": [
@@ -421,7 +421,7 @@
             "抽象語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "しゅちょう-主張",
           "source": "custom",
           "references": [
@@ -447,7 +447,7 @@
             "教科学習語彙"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "かてい-仮定",
           "source": "custom",
           "references": [
@@ -473,7 +473,7 @@
             "教科学習語彙"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "こうせい-構成",
           "source": "custom",
           "references": [
@@ -498,7 +498,7 @@
             "送り仮名"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "ひきいる-率いる",
           "source": "custom",
           "references": [
@@ -523,7 +523,7 @@
             "送り仮名"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "すぐれて-優れて",
           "source": "custom",
           "references": [
@@ -557,7 +557,7 @@
             "熟語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "きげん-期限",
           "source": "custom",
           "references": [
@@ -583,7 +583,7 @@
             "熟語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "きそく-規則",
           "source": "custom",
           "references": [
@@ -609,7 +609,7 @@
             "抽象語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "こうりつ-効率",
           "source": "custom",
           "references": [
@@ -635,7 +635,7 @@
             "抽象語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "ひょうか-評価",
           "source": "custom",
           "references": [
@@ -661,7 +661,7 @@
             "教科学習語彙"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "かせつ-仮説",
           "source": "custom",
           "references": [
@@ -686,7 +686,7 @@
             "送り仮名"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "すぎる-過ぎる",
           "source": "custom",
           "references": [
@@ -711,7 +711,7 @@
             "送り仮名"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "たもつ-保つ",
           "source": "custom",
           "references": [
@@ -736,7 +736,7 @@
             "同音異義語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "そなえる-備える",
           "source": "custom",
           "references": [
@@ -761,7 +761,7 @@
             "同音異義語"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "そなえる-供える",
           "source": "custom",
           "references": [
@@ -786,7 +786,7 @@
             "紛らわしい漢字"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "たつ-断つ",
           "source": "custom",
           "references": [
@@ -820,7 +820,7 @@
             "教科学習語彙"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "はんえい-反映",
           "source": "custom",
           "references": [
@@ -846,7 +846,7 @@
             "熟語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "げんいん-原因",
           "source": "custom",
           "references": [
@@ -872,7 +872,7 @@
             "熟語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "けっか-結果",
           "source": "custom",
           "references": [
@@ -898,7 +898,7 @@
             "教科学習語彙"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "しょうりゃく-省略",
           "source": "custom",
           "references": [
@@ -924,7 +924,7 @@
             "抽象語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "しょうにん-承認",
           "source": "custom",
           "references": [
@@ -950,7 +950,7 @@
             "熟語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "きょか-許可",
           "source": "custom",
           "references": [
@@ -975,7 +975,7 @@
             "同音異義語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "とる-採る",
           "source": "custom",
           "references": [
@@ -1001,7 +1001,7 @@
             "熟語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "さいよう-採用",
           "source": "custom",
           "references": [
@@ -1026,7 +1026,7 @@
             "送り仮名"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "のぞんで-望んで",
           "source": "custom",
           "references": [
@@ -1051,7 +1051,7 @@
             "送り仮名"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "ついやす-費やす",
           "source": "custom",
           "references": [
@@ -1085,7 +1085,7 @@
             "抽象語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "たいど-態度",
           "source": "custom",
           "references": [
@@ -1111,7 +1111,7 @@
             "教科学習語彙"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "じょうけん-条件",
           "source": "custom",
           "references": [
@@ -1137,7 +1137,7 @@
             "抽象語"
           ],
           "difficulty": 1,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "もくてき-目的",
           "source": "custom",
           "references": [
@@ -1163,7 +1163,7 @@
             "教科学習語彙"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "てじゅん-手順",
           "source": "custom",
           "references": [
@@ -1191,7 +1191,7 @@
             "四字熟語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "いっせきにちょう-一石二鳥",
           "source": "custom",
           "references": [
@@ -1219,7 +1219,7 @@
             "四字熟語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "りんきおうへん-臨機応変",
           "source": "custom",
           "references": [
@@ -1247,7 +1247,7 @@
             "四字熟語"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "おんこちしん-温故知新",
           "source": "custom",
           "references": [
@@ -1275,7 +1275,7 @@
             "ことわざ・慣用句"
           ],
           "difficulty": 2,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "いしのうえにもさんねん-石の上にも三年",
           "source": "custom",
           "references": [
@@ -1301,7 +1301,7 @@
             "ことわざ・慣用句"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "あたまがさがる-頭が下がる",
           "source": "custom",
           "references": [
@@ -1327,7 +1327,7 @@
             "ことわざ・慣用句"
           ],
           "difficulty": 3,
-          "timeLimitSeconds": 20,
+          "timeLimitSeconds": 30,
           "knowledgeKey": "むねをはって-胸を張って",
           "source": "custom",
           "references": [
