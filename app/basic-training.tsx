@@ -53,6 +53,19 @@ function normalizeAnswerText(value: string) {
   return value.normalize("NFKC").trim().replace(/\s+/g, "");
 }
 
+const MATH_SECTION_LABELS: Record<string, string> = {
+  A: "A（四則混合計算）",
+  B: "B（単位の換算）",
+  C: "C（□を求める計算）",
+  D: "D（文章題）",
+  E: "E（図形）",
+};
+
+function getMathSection(id: string): string | null {
+  const match = /^checktest-math-r\d+-([a-e])\d+/.exec(id);
+  return match ? match[1].toUpperCase() : null;
+}
+
 type BasicSessionMode = "weak" | "balanced" | "subject";
 
 type Props = {
@@ -123,6 +136,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   const [questionPool, setQuestionPool] = useState<ActiveQuestion[]>(() => BASIC_QUESTION_POOL.filter((entry) => subjectIds.includes(entry.subject)));
   const [session, setSession] = useState<ActiveQuestion[]>([]);
   const [roundPickerSubject, setRoundPickerSubject] = useState<BasicSubject | null>(null);
+  const [roundPickerSection, setRoundPickerSection] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
   const [seconds, setSeconds] = useState(20);
   const [answered, setAnswered] = useState(false);
@@ -314,6 +328,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     setSeconds(clampTime(nextSession[0].question.timeLimitSeconds));
     startedAtRef.current = Date.now();
     setRoundPickerSubject(null);
+    setRoundPickerSection(null);
     setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
   }
 
@@ -325,12 +340,12 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     beginSession(prioritizeQuestions(questionPool).slice(0, 10));
   }
 
-  function startSubjectSession(subject: BasicSubject, round?: number) {
+  function startSubjectSession(subject: BasicSubject, round?: number, section?: string | null) {
     if (roundSubjects?.includes(subject) && round === undefined) {
       setRoundPickerSubject(subject);
       return;
     }
-    const bySubject = questionPool.filter((item) => item.subject === subject && (round === undefined || item.question.round === round));
+    const bySubject = questionPool.filter((item) => item.subject === subject && (round === undefined || item.question.round === round) && (!section || getMathSection(item.question.id) === section));
     if (round !== undefined) {
       beginSession(shuffle(bySubject));
       return;
@@ -557,6 +572,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     setFinished(false);
     setAward(null);
     setRoundPickerSubject(null);
+    setRoundPickerSection(null);
   }
 
   const timerClass = seconds <= 5 ? "danger" : seconds <= 10 ? "warning" : "";
@@ -591,10 +607,18 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
             {roundPickerSubject && roundOptions && (
               <div className="round-picker">
                 <div className="round-picker-heading"><strong>{BASIC_SUBJECT_LABELS[roundPickerSubject]}：回を選ぶ</strong><button type="button" className="round-picker-back" onClick={() => setRoundPickerSubject(null)}>戻る</button></div>
+                {roundPickerSubject === "checkTestMath" && (
+                  <div className="section-picker">
+                    <button type="button" className={!roundPickerSection ? "active" : ""} onClick={() => setRoundPickerSection(null)}>全部</button>
+                    {Object.keys(MATH_SECTION_LABELS).map((section) => (
+                      <button key={section} type="button" className={roundPickerSection === section ? "active" : ""} onClick={() => setRoundPickerSection(section)}>{section}</button>
+                    ))}
+                  </div>
+                )}
                 <div className="domain-picker-grid round-picker-grid">
                   {roundOptions.map((round) => {
-                    const count = questionPool.filter((item) => item.subject === roundPickerSubject && item.question.round === round).length;
-                    return <button key={round} type="button" disabled={!count} onClick={() => startSubjectSession(roundPickerSubject, round)}><span>第{round}回</span><small>{count ? `${count}問` : "準備中"}</small></button>;
+                    const count = questionPool.filter((item) => item.subject === roundPickerSubject && item.question.round === round && (!roundPickerSection || getMathSection(item.question.id) === roundPickerSection)).length;
+                    return <button key={round} type="button" disabled={!count} onClick={() => startSubjectSession(roundPickerSubject, round, roundPickerSection)}><span>第{round}回</span><small>{count ? `${count}問` : "準備中"}</small></button>;
                   })}
                 </div>
               </div>
