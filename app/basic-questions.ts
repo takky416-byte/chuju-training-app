@@ -3,11 +3,11 @@ import kanjiCollection2 from "./data/kanji-basic-006-010.json";
 import geographyCollection from "./data/geography-basic-001-005.json";
 import geographyCollection2 from "./data/geography-basic-006-010.json";
 
-export const BASIC_SUBJECT_IDS = ["kanji", "vocabulary", "kanjiReading", "geography", "history", "biology", "earthScience", "physics", "chemistry", "checkTestKanji", "checkTestScience", "checkTestSocial", "checkTestMath"] as const;
+export const BASIC_SUBJECT_IDS = ["kanji", "vocabulary", "kanjiReading", "geography", "history", "biology", "earthScience", "physics", "chemistry", "checkTestKanji", "checkTestScience", "checkTestSocial", "checkTestMath", "bestCheckWriting", "bestCheckShortAnswer", "bestCheckChoice"] as const;
 export type BasicSubject = (typeof BASIC_SUBJECT_IDS)[number];
-export const WRITING_BASIC_SUBJECT_IDS = ["kanji", "checkTestKanji"] as const;
+export const WRITING_BASIC_SUBJECT_IDS = ["kanji", "checkTestKanji", "bestCheckWriting"] as const;
 export type WritingBasicSubject = (typeof WRITING_BASIC_SUBJECT_IDS)[number];
-export const SHORT_ANSWER_BASIC_SUBJECT_IDS = ["checkTestMath"] as const;
+export const SHORT_ANSWER_BASIC_SUBJECT_IDS = ["checkTestMath", "bestCheckShortAnswer"] as const;
 export type ShortAnswerBasicSubject = (typeof SHORT_ANSWER_BASIC_SUBJECT_IDS)[number];
 export type ChoiceBasicSubject = Exclude<BasicSubject, WritingBasicSubject | ShortAnswerBasicSubject>;
 
@@ -20,6 +20,7 @@ export function isShortAnswerBasicSubject(subject: BasicSubject): subject is Sho
 }
 
 export const CHECK_TEST_SUBJECT_IDS = ["checkTestKanji", "checkTestScience", "checkTestSocial", "checkTestMath"] as const;
+export const BEST_CHECK_SUBJECT_IDS = ["bestCheckWriting", "bestCheckShortAnswer", "bestCheckChoice"] as const;
 
 export const BASIC_SUBJECT_CONFIG: Record<BasicSubject, { label: string; collectionType: string; setType: string }> = {
   kanji: { label: "漢字の書き", collectionType: "kanji-writing-collection", setType: "kanji-writing" },
@@ -35,6 +36,9 @@ export const BASIC_SUBJECT_CONFIG: Record<BasicSubject, { label: string; collect
   checkTestScience: { label: "理科", collectionType: "checktest-science-collection", setType: "checktest-science" },
   checkTestSocial: { label: "社会", collectionType: "checktest-social-collection", setType: "checktest-social" },
   checkTestMath: { label: "算数", collectionType: "checktest-math-collection", setType: "checktest-math" },
+  bestCheckWriting: { label: "書き取り", collectionType: "bestcheck-writing-collection", setType: "bestcheck-writing" },
+  bestCheckShortAnswer: { label: "一問一答", collectionType: "bestcheck-shortanswer-collection", setType: "bestcheck-shortanswer" },
+  bestCheckChoice: { label: "選択問題", collectionType: "bestcheck-choice-collection", setType: "bestcheck-choice" },
 };
 
 export type KanjiQuestion = {

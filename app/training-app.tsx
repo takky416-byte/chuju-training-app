@@ -40,6 +40,7 @@ import {
   BASIC_QUESTION_POOL,
   BASIC_SUBJECT_CONFIG,
   BASIC_SUBJECT_IDS,
+  BEST_CHECK_SUBJECT_IDS,
   CHECK_TEST_SUBJECT_IDS,
   isShortAnswerBasicSubject,
   isWritingBasicSubject,
@@ -78,7 +79,7 @@ type Attempt = {
 
 type SyncState = "loading" | "synced" | "local";
 type SessionMode = "weak" | "balanced";
-type TrainingTrack = "aptitude" | "basic" | "checktest";
+type TrainingTrack = "aptitude" | "basic" | "checktest" | "bestcheck";
 type MasteryState = "unattempted" | "practicing" | "done" | "mastered";
 type ResetPreset = "today" | "7days" | "30days" | "custom" | "all";
 type ResetWindow = { start: string; end: string; createdAt: string };
@@ -150,7 +151,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v38";
+const APP_VERSION = "v39";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -169,8 +170,9 @@ const GACHA_MULTI_BONUS = 1;
 const GACHA_MULTI_TOTAL = GACHA_MULTI_COUNT + GACHA_MULTI_BONUS;
 const GACHA_MULTI_COST = GACHA_COST * GACHA_MULTI_COUNT;
 const BASIC_SUBJECT_LABELS = Object.fromEntries(BASIC_SUBJECT_IDS.map((id) => [id, BASIC_SUBJECT_CONFIG[id].label])) as Record<BasicSubject, string>;
-const BASIC_TRAINING_SUBJECT_IDS = BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(id));
+const BASIC_TRAINING_SUBJECT_IDS = BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(id) && !(BEST_CHECK_SUBJECT_IDS as readonly string[]).includes(id));
 const CHECK_TEST_ROUNDS = Array.from({ length: 13 }, (_, index) => index + 1);
+const BEST_CHECK_ROUNDS = Array.from({ length: 29 }, (_, index) => index + 1);
 
 type DailyQuestGroupId = "kokugo" | "shakai" | "rika";
 type DailyQuestId = DailyQuestGroupId | "aptitude" | "checktest";
@@ -193,6 +195,7 @@ const DAILY_QUEST_SHORT_LABELS: Record<BasicSubject, string> = {
   geography: "地理", history: "歴史",
   biology: "生物", earthScience: "地学", physics: "物理", chemistry: "化学",
   checkTestKanji: "漢字", checkTestScience: "理科", checkTestSocial: "社会", checkTestMath: "算数",
+  bestCheckWriting: "書取", bestCheckShortAnswer: "一問一答", bestCheckChoice: "選択",
 };
 const DAILY_QUEST_SUBJECT_TARGET = 5;
 const DAILY_QUEST_APTITUDE_TARGET = 30;
@@ -633,8 +636,8 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
   const required = ["prompt", "topic", "subtopic", "knowledgeKey"] as const;
   required.forEach((key) => { if (!text(key)) errors.push(`${label}（${id || "IDなし"}）: ${key}が空です`); });
   const options = strings("options");
-  if (options.length !== 4 || options.some((item) => !item)) errors.push(`${label}（${id || "IDなし"}）: optionsは空欄のない4項目にしてください`);
-  if (!Number.isInteger(value.correctIndex) || Number(value.correctIndex) < 0 || Number(value.correctIndex) > 3) errors.push(`${label}（${id || "IDなし"}）: correctIndexは0～3の整数にしてください`);
+  if (options.length < 2 || options.length > 8 || options.some((item) => !item)) errors.push(`${label}（${id || "IDなし"}）: optionsは空欄のない2～8項目にしてください`);
+  if (!Number.isInteger(value.correctIndex) || Number(value.correctIndex) < 0 || Number(value.correctIndex) >= options.length) errors.push(`${label}（${id || "IDなし"}）: correctIndexは0～${Math.max(options.length - 1, 0)}の整数にしてください`);
   if (errors.length) return { errors };
   return { question: { subject: subject as ChoiceBasicSubject, setId, question: { ...value, id, title, explanation, options, source: "custom" } as GeographyQuestion } satisfies BasicQuestionEntry, errors };
 }
@@ -716,6 +719,10 @@ export default function TrainingApp() {
   const [checkTestAttempts, setCheckTestAttempts] = useState<BasicAttempt[]>([]);
   const [checkTestQuestionCatalog, setCheckTestQuestionCatalog] = useState<BasicQuestionEntry[]>([]);
   const [checkTestStartRequest, setCheckTestStartRequest] = useState<BasicStartRequest | null>(null);
+  const [bestCheckTrainingActive, setBestCheckTrainingActive] = useState(false);
+  const [bestCheckAttempts, setBestCheckAttempts] = useState<BasicAttempt[]>([]);
+  const [bestCheckQuestionCatalog, setBestCheckQuestionCatalog] = useState<BasicQuestionEntry[]>([]);
+  const [bestCheckStartRequest, setBestCheckStartRequest] = useState<BasicStartRequest | null>(null);
   const [heroTrack, setHeroTrack] = useState<TrainingTrack>("aptitude");
   const [importFiles, setImportFiles] = useState<ImportPreview[]>([]);
   const [importMode, setImportMode] = useState<ImportMode>("skip");
@@ -766,13 +773,13 @@ export default function TrainingApp() {
   const activeQuestion = session[questionIndex];
   const activeTimeLimit = getTimeLimit(activeQuestion);
   const isExerciseActive = session.length > 0 && !sessionFinished;
-  const isAnyExerciseActive = isExerciseActive || basicTrainingActive || checkTestTrainingActive;
+  const isAnyExerciseActive = isExerciseActive || basicTrainingActive || checkTestTrainingActive || bestCheckTrainingActive;
   const gameLevel = Math.floor(gameProgress.totalXp / XP_PER_LEVEL) + 1;
   const levelXp = gameProgress.totalXp % XP_PER_LEVEL;
   const ownedCollectibles = COLLECTIBLES.filter((item) => gameProgress.inventory.includes(item.id));
   const visibleCollectibles = COLLECTIBLES.filter((item) => item.gachaType === collectionGachaType);
   const basicQuestionCount = basicQuestionCatalog.length;
-  const basicSubjects = useMemo(() => BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(id)).map((id) => ({
+  const basicSubjects = useMemo(() => BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(id) && !(BEST_CHECK_SUBJECT_IDS as readonly string[]).includes(id)).map((id) => ({
     id,
     label: BASIC_SUBJECT_LABELS[id],
     questionIds: basicQuestionCatalog.filter((entry) => entry.subject === id).map((entry) => entry.question.id),
@@ -784,6 +791,12 @@ export default function TrainingApp() {
     questionIds: checkTestQuestionCatalog.filter((entry) => entry.subject === id).map((entry) => entry.question.id),
   })), [checkTestQuestionCatalog]);
   const checkTestQuestionTitles = useMemo(() => new Map(checkTestQuestionCatalog.map((entry) => [entry.question.id, entry.question.title])), [checkTestQuestionCatalog]);
+  const bestCheckSubjects = useMemo(() => BEST_CHECK_SUBJECT_IDS.map((id) => ({
+    id,
+    label: BASIC_SUBJECT_LABELS[id],
+    questionIds: bestCheckQuestionCatalog.filter((entry) => entry.subject === id).map((entry) => entry.question.id),
+  })), [bestCheckQuestionCatalog]);
+  const bestCheckQuestionTitles = useMemo(() => new Map(bestCheckQuestionCatalog.map((entry) => [entry.question.id, entry.question.title])), [bestCheckQuestionCatalog]);
 
   const isAdmin = PARENT_ACCOUNT_HASHES.includes(accountHash);
   const isAllowed = isAdmin || accountHash === LEARNER_ACCOUNT_HASH;
@@ -984,6 +997,16 @@ export default function TrainingApp() {
     checkTestQuestionCatalog.map((entry) => [entry.question.id, getMasteryState(checkTestAttemptsByQuestion.get(entry.question.id) ?? [])]),
   ), [checkTestAttemptsByQuestion, checkTestQuestionCatalog]);
 
+  const bestCheckAttemptsByQuestion = useMemo(() => {
+    const rows = new Map<string, BasicAttempt[]>();
+    bestCheckAttempts.forEach((attempt) => rows.set(attempt.questionId, [...(rows.get(attempt.questionId) ?? []), attempt]));
+    return rows;
+  }, [bestCheckAttempts]);
+
+  const bestCheckQuestionStates = useMemo(() => new Map(
+    bestCheckQuestionCatalog.map((entry) => [entry.question.id, getMasteryState(bestCheckAttemptsByQuestion.get(entry.question.id) ?? [])]),
+  ), [bestCheckAttemptsByQuestion, bestCheckQuestionCatalog]);
+
   const questionStates = useMemo(() => new Map(questions.map((question) => [
     question.id,
     questionProgress[question.id]
@@ -1070,6 +1093,32 @@ export default function TrainingApp() {
       masteryScore,
     };
   }), [checkTestAttempts, checkTestQuestionStates, checkTestSubjects]);
+
+  const bestCheckSubjectStats = useMemo(() => bestCheckSubjects.map((subject) => {
+    const rows = bestCheckAttempts.filter((attempt) => attempt.subject === subject.id);
+    const states = subject.questionIds.map((questionId) => bestCheckQuestionStates.get(questionId) ?? "unattempted");
+    const attempted = states.filter((state) => state !== "unattempted").length;
+    const practicing = states.filter((state) => state === "practicing").length;
+    const done = states.filter((state) => state === "done").length;
+    const mastered = states.filter((state) => state === "mastered").length;
+    const correct = rows.filter((attempt) => attempt.isCorrect).length;
+    const masteryScore = subject.questionIds.length
+      ? Math.round(((practicing * 0.2 + done * 0.65 + mastered) / subject.questionIds.length) * 100)
+      : 100;
+    return {
+      subject: subject.id,
+      label: subject.label,
+      registered: subject.questionIds.length,
+      attempted,
+      practicing,
+      done,
+      mastered,
+      attempts: rows.length,
+      correct,
+      accuracy: rows.length ? Math.round(correct / rows.length * 100) : 0,
+      masteryScore,
+    };
+  }), [bestCheckAttempts, bestCheckQuestionStates, bestCheckSubjects]);
 
   const overallWeakest = useMemo(() => [
     ...domainStats.map((row) => ({ label: row.domain, attempts: row.attempts, accuracy: row.accuracy, masteryScore: row.masteryScore, attempted: row.attempted })),
@@ -1283,6 +1332,15 @@ export default function TrainingApp() {
     document.getElementById("check-test-training-subject-picker")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  function requestBestCheckSession(mode: BasicStartRequest["mode"], subject?: BasicSubject, round?: number) {
+    setBestCheckStartRequest({ id: crypto.randomUUID(), mode, subject, round });
+    setTimeout(() => document.getElementById("best-check-training")?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
+  }
+
+  function openBestCheckSubjectPicker() {
+    document.getElementById("best-check-training-subject-picker")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function answerQuestion(index: number, timedOut = false) {
     if (!activeQuestion || selectedIndex !== null) return;
     setSelectedIndex(index);
@@ -1459,7 +1517,7 @@ export default function TrainingApp() {
           if (seenIds.has(entry.question.id)) errors.push(`ファイル内でid「${entry.question.id}」が重複しています`);
           seenIds.add(entry.question.id);
         });
-        const existingIds = new Set([...basicQuestionCatalog, ...checkTestQuestionCatalog].map((entry) => entry.question.id));
+        const existingIds = new Set([...basicQuestionCatalog, ...checkTestQuestionCatalog, ...bestCheckQuestionCatalog].map((entry) => entry.question.id));
         const duplicates = importedQuestions.filter((entry) => existingIds.has(entry.question.id)).map((entry) => entry.question.id);
         return { kind: "basic", fileName: file.name, setTitle, subject, questions: importedQuestions, errors, duplicates };
       }
@@ -1549,7 +1607,8 @@ export default function TrainingApp() {
           await batch.commit();
         }
         const checkTestTargets = basicTargets.filter((entry) => (CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(entry.subject));
-        const originalBasicTargets = basicTargets.filter((entry) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(entry.subject));
+        const bestCheckTargets = basicTargets.filter((entry) => (BEST_CHECK_SUBJECT_IDS as readonly string[]).includes(entry.subject));
+        const originalBasicTargets = basicTargets.filter((entry) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(entry.subject) && !(BEST_CHECK_SUBJECT_IDS as readonly string[]).includes(entry.subject));
         if (originalBasicTargets.length) {
           const nextMap = new Map(basicQuestionCatalog.map((entry) => [entry.question.id, entry]));
           originalBasicTargets.forEach((entry) => nextMap.set(entry.question.id, entry));
@@ -1559,6 +1618,11 @@ export default function TrainingApp() {
           const nextMap = new Map(checkTestQuestionCatalog.map((entry) => [entry.question.id, entry]));
           checkTestTargets.forEach((entry) => nextMap.set(entry.question.id, entry));
           setCheckTestQuestionCatalog([...nextMap.values()]);
+        }
+        if (bestCheckTargets.length) {
+          const nextMap = new Map(bestCheckQuestionCatalog.map((entry) => [entry.question.id, entry]));
+          bestCheckTargets.forEach((entry) => nextMap.set(entry.question.id, entry));
+          setBestCheckQuestionCatalog([...nextMap.values()]);
         }
         setBasicQuestionRefreshToken((value) => value + 1);
       }
@@ -1620,7 +1684,7 @@ export default function TrainingApp() {
           id: `${slug}-basic-001-q001`, title: "熟語", sentence: "文中の【ことば】を漢字で書きましょう。", reading: "ことば", answer: "言葉",
           acceptedAnswers: [], explanation: "正答の理由や注意点を書きます。", targetKanji: ["言", "葉"], targetWord: "言葉", grade: 4,
           category: "熟語", tags: ["熟語"], difficulty: 1, timeLimitSeconds: 30, knowledgeKey: "ことば-言葉", source: "custom", references: [],
-          ...(subject === "checkTestKanji" ? { round: 1 } : {}),
+          ...(subject === "checkTestKanji" || subject === "bestCheckWriting" ? { round: 1 } : {}),
         }],
       }],
     } : isShortAnswerBasicSubject(subject) ? {
@@ -1637,7 +1701,7 @@ export default function TrainingApp() {
           id: `${slug}-basic-001-q001`, title: "単位の換算", context: "", prompt: "3.4kmは何mですか。",
           answer: "3400", acceptedAnswers: ["3400m"], explanation: "1km=1000mなので、3.4km=3400mです。",
           category: "単位の換算", tags: ["単位の換算"], difficulty: 1, timeLimitSeconds: 30, knowledgeKey: `${slug}-例題`, source: "custom", references: [],
-          ...(subject === "checkTestMath" ? { round: 1 } : {}),
+          ...(subject === "checkTestMath" || subject === "bestCheckShortAnswer" ? { round: 1 } : {}),
         }],
       }],
     } : {
@@ -1655,6 +1719,7 @@ export default function TrainingApp() {
           options: ["選択肢A", "選択肢B", "選択肢C", "選択肢D"], correctIndex: 0, explanation: "正答の理由を説明します。",
           topic: slug, subtopic: config.label, questionType: "knowledge", region: [], difficulty: 1, timeLimitSeconds: 20,
           materials: [], statisticsYear: null, source: "custom", references: [], knowledgeKey: `${slug}-例題`,
+          ...(subject === "bestCheckChoice" ? { round: 1 } : {}),
         }],
       }],
     };
@@ -1755,6 +1820,10 @@ export default function TrainingApp() {
     downloadBasicQuestionBankFor(CHECK_TEST_SUBJECT_IDS, checkTestQuestionCatalog, "aichi-jh-training-checktest-questions");
   }
 
+  function downloadBestCheckQuestionBank() {
+    downloadBasicQuestionBankFor(BEST_CHECK_SUBJECT_IDS, bestCheckQuestionCatalog, "aichi-jh-training-bestcheck-questions");
+  }
+
   async function resetHistory() {
     if (!isAdmin || !resetRange || !db) {
       setResetStatus("期間を正しく指定してください");
@@ -1828,7 +1897,8 @@ export default function TrainingApp() {
     ...attempts.map((attempt) => ({ ...attempt, trainingType: "aptitude" as const })),
     ...basicAttempts.map((attempt) => ({ ...attempt, trainingType: "basic" as const })),
     ...checkTestAttempts.map((attempt) => ({ ...attempt, trainingType: "checktest" as const })),
-  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 15), [attempts, basicAttempts, checkTestAttempts]);
+    ...bestCheckAttempts.map((attempt) => ({ ...attempt, trainingType: "bestcheck" as const })),
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 15), [attempts, basicAttempts, checkTestAttempts, bestCheckAttempts]);
   const sessionScore = sessionAnswers.filter(Boolean).length;
   const sessionAccuracy = session.length ? Math.round((sessionScore / session.length) * 100) : 0;
   const sessionRank = getSessionRank(sessionScore, session.length);
@@ -1869,6 +1939,9 @@ export default function TrainingApp() {
   const handleCheckTestActivityChange = useCallback((active: boolean) => setCheckTestTrainingActive(active), []);
   const handleCheckTestAttemptsChange = useCallback((rows: BasicAttempt[]) => setCheckTestAttempts(rows), []);
   const handleCheckTestQuestionCatalogChange = useCallback((rows: BasicQuestionEntry[]) => setCheckTestQuestionCatalog(rows), []);
+  const handleBestCheckActivityChange = useCallback((active: boolean) => setBestCheckTrainingActive(active), []);
+  const handleBestCheckAttemptsChange = useCallback((rows: BasicAttempt[]) => setBestCheckAttempts(rows), []);
+  const handleBestCheckQuestionCatalogChange = useCallback((rows: BasicQuestionEntry[]) => setBestCheckQuestionCatalog(rows), []);
 
   const rewardBasicAnswer = useCallback(async (isCorrect: boolean, timedOut: boolean): Promise<BasicAward> => {
     const xp = isCorrect ? 20 : timedOut ? 2 : 5;
@@ -2140,7 +2213,7 @@ export default function TrainingApp() {
   }
 
   return (
-    <main className={isExerciseActive ? "session-active" : basicTrainingActive || checkTestTrainingActive ? "basic-active" : ""}>
+    <main className={isExerciseActive ? "session-active" : basicTrainingActive || checkTestTrainingActive || bestCheckTrainingActive ? "basic-active" : ""}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="ページ上部へ">
           <span className="brand-mark"><BookOpenCheck size={20} /></span>
@@ -2150,6 +2223,7 @@ export default function TrainingApp() {
           <a href="#practice">適性検査</a>
           <a href="#basic-training">基礎トレ</a>
           <a href="#check-test-training">チェックテスト対策</a>
+          <a href="#best-check-training">国語ベストチェック</a>
           <a href="#progress">進捗</a>
         </nav>
         <div className={`sync ${syncState}`} title="保存状態">
@@ -2168,6 +2242,7 @@ export default function TrainingApp() {
             <button type="button" role="tab" aria-selected={heroTrack === "aptitude"} className={heroTrack === "aptitude" ? "active" : ""} onClick={() => setHeroTrack("aptitude")}>適性検査</button>
             <button type="button" role="tab" aria-selected={heroTrack === "basic"} className={heroTrack === "basic" ? "active" : ""} onClick={() => setHeroTrack("basic")}>中学受験 基礎トレ</button>
             <button type="button" role="tab" aria-selected={heroTrack === "checktest"} className={heroTrack === "checktest" ? "active" : ""} onClick={() => setHeroTrack("checktest")}>チェックテスト対策</button>
+            <button type="button" role="tab" aria-selected={heroTrack === "bestcheck"} className={heroTrack === "bestcheck" ? "active" : ""} onClick={() => setHeroTrack("bestcheck")}>国語ベストチェック</button>
           </div>
           <div className="hero-actions">
             {heroTrack === "aptitude" ? <>
@@ -2180,9 +2255,12 @@ export default function TrainingApp() {
               <button className="primary-button" onClick={() => requestBasicSession("weak")}><Sparkles size={18} /> 弱点から5問 <ArrowRight size={18} /></button>
               <button className="secondary-button" onClick={() => requestBasicSession("balanced")}>全科目から10問</button>
               <button className="secondary-button" onClick={openBasicSubjectPicker}>科目を選ぶ</button>
-            </> : <>
+            </> : heroTrack === "checktest" ? <>
               <button className="primary-button" onClick={openCheckTestSubjectPicker}><Sparkles size={18} /> 科目・回を選ぶ <ArrowRight size={18} /></button>
               <button className="secondary-button" onClick={() => requestCheckTestSession("weak")}>弱点から5問</button>
+            </> : <>
+              <button className="primary-button" onClick={openBestCheckSubjectPicker}><Sparkles size={18} /> 章を選ぶ <ArrowRight size={18} /></button>
+              <button className="secondary-button" onClick={() => requestBestCheckSession("weak")}>弱点から5問</button>
             </>}
           </div>
           <div className="hero-audio-settings">{audioSettings()}{!isAdmin && notificationSettings()}</div>
@@ -2431,6 +2509,32 @@ export default function TrainingApp() {
         onSyncStateChange={handleBasicSyncStateChange}
       />
 
+      <BasicTraining
+        enabled={Boolean(user && isAllowed)}
+        subjectIds={BEST_CHECK_SUBJECT_IDS}
+        sectionId="best-check-training"
+        kicker="KOKUGO BEST CHECK"
+        resultKicker="BEST CHECK COMPLETE"
+        heading="国語ベストチェック"
+        description="国語ベストチェックの章を選んで、書き取り・一問一答・選択問題を練習しよう。"
+        menuTitle="章を選んで始めましょう"
+        menuDescription="章（第1章〜第29章）を選んで練習できます。"
+        attemptsCollection="bestCheckAttempts"
+        storageKey="aichi_training_bestcheck_attempts_v1"
+        roundSubjects={[...BEST_CHECK_SUBJECT_IDS]}
+        roundOptions={BEST_CHECK_ROUNDS}
+        startRequest={bestCheckStartRequest}
+        questionRefreshToken={basicQuestionRefreshToken}
+        resetWindows={resetWindows}
+        onActivityChange={handleBestCheckActivityChange}
+        onAttemptsChange={handleBestCheckAttemptsChange}
+        onQuestionCatalogChange={handleBestCheckQuestionCatalogChange}
+        onReward={rewardBasicAnswer}
+        onComplete={rewardBasicCompletion}
+        onSound={playEffect}
+        onSyncStateChange={handleBasicSyncStateChange}
+      />
+
       <section id="progress" className="progress-section section-shell">
         <div className="section-title-row">
           <div><span className="section-kicker">ACHIEVEMENTS</span><h2>分野・科目別の成果</h2></div>
@@ -2514,6 +2618,32 @@ export default function TrainingApp() {
                 })}
               </div>
             </div>
+            <div className="achievement-group checktest-achievement-group">
+              <div className="achievement-group-title"><strong>国語ベストチェック</strong><span>{bestCheckSubjectStats.length}科目</span></div>
+              <div className="domain-achievement-grid basic-achievement-grid">
+                {bestCheckSubjectStats.map((row) => {
+                  const unattempted = Math.max(0, row.registered - row.attempted);
+                  return (
+                    <article className="achievement-card" key={row.subject}>
+                      <div className="achievement-heading"><strong>{row.label}</strong><span>{row.registered ? `${row.attempted} / ${row.registered}問に挑戦` : "準備中"}</span></div>
+                      <div className="achievement-bar" aria-label={`${row.label}：未挑戦${unattempted}問、練習中${row.practicing}問、できた${row.done}問、身についた${row.mastered}問`}>
+                        {row.registered > 0 && <>
+                          <span className="practicing" style={{ width: `${row.practicing / row.registered * 100}%` }} />
+                          <span className="done" style={{ width: `${row.done / row.registered * 100}%` }} />
+                          <span className="mastered" style={{ width: `${row.mastered / row.registered * 100}%` }} />
+                        </>}
+                      </div>
+                      <div className="achievement-counts">
+                        <span className="practicing"><small>練習中</small><strong>{row.practicing}</strong></span>
+                        <span className="done"><small>できた</small><strong>{row.done}</strong></span>
+                        <span className="mastered"><small>身についた</small><strong>{row.mastered}</strong></span>
+                      </div>
+                      {isAdmin && <p className="parent-detail">全{row.attempts}回答・正答率 {row.attempts ? `${row.accuracy}%` : "—"}</p>}
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
           </div>
           <div className="recent-panel">
             <div className="recent-title"><BarChart3 size={18} /><strong>最近の記録</strong></div>
@@ -2523,11 +2653,15 @@ export default function TrainingApp() {
                   ? questions.find((question) => question.id === attempt.questionId)?.title ?? attempt.domain
                   : attempt.trainingType === "checktest"
                   ? checkTestQuestionTitles.get(attempt.questionId) ?? "チェックテスト対策"
+                  : attempt.trainingType === "bestcheck"
+                  ? bestCheckQuestionTitles.get(attempt.questionId) ?? "ベストチェック国語"
                   : basicQuestionTitles.get(attempt.questionId) ?? "基礎トレ";
                 const category = attempt.trainingType === "aptitude"
                   ? `適性検査・${attempt.domain}`
                   : attempt.trainingType === "checktest"
                   ? `チェックテスト対策・${checkTestSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`
+                  : attempt.trainingType === "bestcheck"
+                  ? `ベストチェック国語・${bestCheckSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`
                   : `基礎トレ・${basicSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`;
                 return <div className="recent-row" key={`${attempt.trainingType}-${attempt.clientAttemptId}`}><span className={attempt.isCorrect ? "recent-ok" : "recent-ng"}>{attempt.isCorrect ? <Check size={14} /> : <X size={14} />}</span><div><strong>{title}</strong><small>{category}・{new Date(attempt.createdAt).toLocaleString("ja-JP", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })}</small></div></div>;
               }) : <p className="recent-empty">演習すると、ここに記録が並びます。</p>}
@@ -2715,7 +2849,7 @@ export default function TrainingApp() {
         {isAdmin && (
           <section className="question-import" aria-labelledby="question-import-title">
             <div className="question-manager">
-              <div><span className="section-kicker">QUESTION BANK</span><h3 id="question-import-title">問題を一括追加</h3><p>適性検査・基礎トレ・チェックテスト対策のJSONを自動判別して一括登録できます。現在の基礎トレは{basicQuestionCount}問、チェックテスト対策は{checkTestQuestionCatalog.length}問です。</p></div>
+              <div><span className="section-kicker">QUESTION BANK</span><h3 id="question-import-title">問題を一括追加</h3><p>適性検査・基礎トレ・チェックテスト対策・国語ベストチェックのJSONを自動判別して一括登録できます。現在の基礎トレは{basicQuestionCount}問、チェックテスト対策は{checkTestQuestionCatalog.length}問、国語ベストチェックは{bestCheckQuestionCatalog.length}問です。</p></div>
               <div className="question-manager-actions">
                 <button className="secondary-button" type="button" onClick={downloadImportTemplate}><FileJson size={17} /> 適性検査ひな形</button>
                 <select aria-label="基礎トレ・チェックテストひな形を選択" defaultValue="" onChange={(event) => { if (event.currentTarget.value) downloadBasicImportTemplate(event.currentTarget.value as BasicSubject); event.currentTarget.value = ""; }}>
@@ -2730,6 +2864,9 @@ export default function TrainingApp() {
                 </button>
                 <button className="secondary-button" type="button" disabled={!checkTestQuestionCatalog.length} onClick={downloadCheckTestQuestionBank}>
                   <Download size={17} /> チェックテスト対策 {checkTestQuestionCatalog.length}問をJSON出力
+                </button>
+                <button className="secondary-button" type="button" disabled={!bestCheckQuestionCatalog.length} onClick={downloadBestCheckQuestionBank}>
+                  <Download size={17} /> 国語ベストチェック {bestCheckQuestionCatalog.length}問をJSON出力
                 </button>
               </div>
             </div>
