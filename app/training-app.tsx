@@ -151,7 +151,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v39";
+const APP_VERSION = "v40";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -2325,7 +2325,7 @@ export default function TrainingApp() {
             <span><small>COIN</small><strong>{gameProgress.coins}</strong></span>
             <span className="wallet-collection">コレクション {ownedCollectibles.length}/{COLLECTIBLES.length}<ChevronRight size={16} /></span>
           </button>
-          <p className="sample-note">問題バンク：全{customQuestions.length + basicQuestionCount}問（適性検査 {customQuestions.length}問＋基礎トレ {basicQuestionCount}問）</p>
+          <p className="sample-note">問題バンク：全{customQuestions.length + basicQuestionCount + checkTestQuestionCatalog.length + bestCheckQuestionCatalog.length}問（適性検査 {customQuestions.length}問＋基礎トレ {basicQuestionCount}問＋チェックテスト対策 {checkTestQuestionCatalog.length}問＋国語ベストチェック {bestCheckQuestionCatalog.length}問）</p>
         </div>
       </section>
 
