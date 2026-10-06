@@ -616,7 +616,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                   </div>
                 )}
                 <div className="domain-picker-grid round-picker-grid">
-                  {roundOptions.map((round) => {
+                  {roundOptions.filter((round) => round <= Math.max(0, ...questionPool.filter((item) => item.subject === roundPickerSubject).map((item) => item.question.round ?? 0))).map((round) => {
                     const count = questionPool.filter((item) => item.subject === roundPickerSubject && item.question.round === round && (!roundPickerSection || getMathSection(item.question.id) === roundPickerSection)).length;
                     return <button key={round} type="button" disabled={!count} onClick={() => startSubjectSession(roundPickerSubject, round, roundPickerSection)}><span>第{round}回</span><small>{count ? `${count}問` : "準備中"}</small></button>;
                   })}

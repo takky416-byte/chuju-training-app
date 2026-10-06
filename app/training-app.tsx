@@ -151,7 +151,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v41";
+const APP_VERSION = "v42";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -171,7 +171,7 @@ const GACHA_MULTI_TOTAL = GACHA_MULTI_COUNT + GACHA_MULTI_BONUS;
 const GACHA_MULTI_COST = GACHA_COST * GACHA_MULTI_COUNT;
 const BASIC_SUBJECT_LABELS = Object.fromEntries(BASIC_SUBJECT_IDS.map((id) => [id, BASIC_SUBJECT_CONFIG[id].label])) as Record<BasicSubject, string>;
 const BASIC_TRAINING_SUBJECT_IDS = BASIC_SUBJECT_IDS.filter((id) => !(CHECK_TEST_SUBJECT_IDS as readonly string[]).includes(id) && !(BEST_CHECK_SUBJECT_IDS as readonly string[]).includes(id));
-const CHECK_TEST_ROUNDS = Array.from({ length: 13 }, (_, index) => index + 1);
+const CHECK_TEST_ROUNDS = Array.from({ length: 80 }, (_, index) => index + 1);
 const BEST_CHECK_ROUNDS = Array.from({ length: 29 }, (_, index) => index + 1);
 
 type DailyQuestGroupId = "kokugo" | "shakai" | "rika";
