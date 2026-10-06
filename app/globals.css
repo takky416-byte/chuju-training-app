@@ -451,13 +451,14 @@ button { color: inherit; }
 .reset-confirm .secondary-button, .reset-confirm .danger-button { min-height: 42px; padding: 8px 13px; font-size: 12px; }
 .reset-status { margin: 0; color: var(--teal); font-size: 12px; font-weight: 800; }
 
-.question-manager { display: flex; align-items: center; justify-content: space-between; gap: 30px; margin-top: 28px; padding: 26px 28px; background: var(--navy-dark); border-radius: 10px; }
+.question-manager { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 30px; margin-top: 28px; padding: 26px 28px; background: var(--navy-dark); border-radius: 10px; }
+.question-manager > div:first-child { flex: 1 1 260px; min-width: 220px; }
 .question-manager h3 { color: white; font-size: 24px; }
 .question-manager p { margin: 6px 0 0; color: #bdc7d5; font-size: 12px; }
 .question-manager .secondary-button { flex: 0 0 auto; color: white; border-color: #78899f; }
 .question-manager .secondary-button:hover { color: var(--navy); }
 .question-manager .secondary-button:disabled { color: #aab5c3; border-color: #66778c; }
-.question-manager-actions { display: flex; flex: 0 0 auto; gap: 10px; }
+.question-manager-actions { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 10px; }
 .question-manager-actions select { min-height: 44px; padding: 0 36px 0 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
 .question-import .question-manager { border-radius: 10px 10px 0 0; }
 .question-import-panel { display: grid; gap: 18px; padding: 24px 28px 28px; background: white; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; }
