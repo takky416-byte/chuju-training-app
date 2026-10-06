@@ -80,6 +80,12 @@ export type GeographyQuestion = {
   round?: number;
 };
 
+export type GuidedStep = {
+  expression: string;
+  answer: string;
+  acceptedAnswers: string[];
+};
+
 export type ShortAnswerQuestion = {
   id: string;
   title: string;
@@ -98,6 +104,7 @@ export type ShortAnswerQuestion = {
   round?: number;
   imageUrl?: string;
   steps?: string[];
+  guidedSteps?: GuidedStep[];
 };
 
 export type BasicQuestionSet<T> = {

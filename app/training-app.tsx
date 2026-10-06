@@ -150,7 +150,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v35";
+const APP_VERSION = "v36";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -594,7 +594,9 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
   if (!title) errors.push(`${label}（${id || "IDなし"}）: titleが空です`);
   if (!explanation) errors.push(`${label}（${id || "IDなし"}）: explanationが空です`);
   if (!Number.isInteger(difficulty) || Number(difficulty) < 1 || Number(difficulty) > 3) errors.push(`${label}（${id || "IDなし"}）: difficultyは1～3の整数にしてください`);
-  if (!Number.isInteger(timeLimitSeconds) || Number(timeLimitSeconds) < 10 || Number(timeLimitSeconds) > 45) errors.push(`${label}（${id || "IDなし"}）: timeLimitSecondsは10～45の整数にしてください`);
+  const hasGuidedSteps = Array.isArray(value.guidedSteps) && value.guidedSteps.length > 0;
+  const maxTimeLimit = hasGuidedSteps ? 240 : 45;
+  if (!Number.isInteger(timeLimitSeconds) || Number(timeLimitSeconds) < 10 || Number(timeLimitSeconds) > maxTimeLimit) errors.push(`${label}（${id || "IDなし"}）: timeLimitSecondsは10～${maxTimeLimit}の整数にしてください`);
   if (value.source !== "custom") errors.push(`${label}（${id || "IDなし"}）: sourceはcustomにしてください`);
 
   if (isWritingBasicSubject(subject)) {
@@ -613,6 +615,17 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
     if (value.round !== undefined && !Number.isInteger(value.round)) errors.push(`${label}（${id || "IDなし"}）: roundは整数にしてください`);
     if (value.imageUrl !== undefined && (typeof value.imageUrl !== "string" || !value.imageUrl.trim())) errors.push(`${label}（${id || "IDなし"}）: imageUrlは空でない文字列にしてください`);
     if (value.steps !== undefined && (!Array.isArray(value.steps) || strings("steps").some((item) => !item))) errors.push(`${label}（${id || "IDなし"}）: stepsは空欄のない文字列配列にしてください`);
+    if (value.guidedSteps !== undefined) {
+      if (!Array.isArray(value.guidedSteps) || !value.guidedSteps.length) {
+        errors.push(`${label}（${id || "IDなし"}）: guidedStepsは空でない配列にしてください`);
+      } else {
+        value.guidedSteps.forEach((step: unknown, stepIndex: number) => {
+          if (!isRecord(step) || typeof step.expression !== "string" || !step.expression.trim() || typeof step.answer !== "string" || !step.answer.trim() || !Array.isArray(step.acceptedAnswers)) {
+            errors.push(`${label}（${id || "IDなし"}）: guidedSteps[${stepIndex}]の形式が不正です`);
+          }
+        });
+      }
+    }
     if (errors.length) return { errors };
     return { question: { subject, setId, question: { ...value, id, title, explanation, source: "custom" } as ShortAnswerQuestion } satisfies BasicQuestionEntry, errors };
   }
