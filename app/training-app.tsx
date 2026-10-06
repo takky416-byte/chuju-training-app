@@ -151,7 +151,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v42";
+const APP_VERSION = "v43";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -2492,10 +2492,10 @@ export default function TrainingApp() {
         heading="チェックテスト対策"
         description="塾のチェックテストに合わせて、科目・回を選んで練習しよう。"
         menuTitle="科目を選んで始めましょう"
-        menuDescription="漢字・算数は回（第1回〜第13回）を選んで練習できます。"
+        menuDescription="科目ごとに回（章）を選んで練習できます。"
         attemptsCollection="checkTestAttempts"
         storageKey="aichi_training_checktest_attempts_v1"
-        roundSubjects={["checkTestKanji", "checkTestMath"]}
+        roundSubjects={["checkTestKanji", "checkTestMath", "checkTestSocial", "checkTestScience"]}
         roundOptions={CHECK_TEST_ROUNDS}
         startRequest={checkTestStartRequest}
         questionRefreshToken={basicQuestionRefreshToken}
