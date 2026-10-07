@@ -1,0 +1,8 @@
+{
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Running a Node.js script that batch-deletes a pre-reviewed, explicit list of Firestore document IDs from the basicQuestionBank collection in the aichi-jh-training-507310 project, where the ID list was already shown to and confirmed by the user in chat"
+    ]
+  }
+}
