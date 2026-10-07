@@ -110,6 +110,18 @@ function shuffle<T>(items: T[]) {
   return next;
 }
 
+// Many choice questions are authored with the correct answer always stored
+// first (options[0]). Shuffle each question's options (and remap correctIndex)
+// once per session so the answer position isn't predictable.
+function shuffleQuestionOptions(entry: ActiveQuestion): ActiveQuestion {
+  const question = entry.question as Partial<GeographyQuestion>;
+  if (!Array.isArray(question.options) || !Number.isInteger(question.correctIndex)) return entry;
+  const order = shuffle(question.options.map((_, optionIndex) => optionIndex));
+  const options = order.map((optionIndex) => question.options![optionIndex]);
+  const correctIndex = order.indexOf(question.correctIndex as number);
+  return { ...entry, question: { ...entry.question, options, correctIndex } } as ActiveQuestion;
+}
+
 function mergeAttempts(a: BasicAttempt[], b: BasicAttempt[]) {
   const merged = new Map<string, BasicAttempt>();
   [...a, ...b].forEach((attempt) => merged.set(attempt.clientAttemptId, attempt));
@@ -312,7 +324,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
 
   function beginSession(nextSession: ActiveQuestion[]) {
     if (!nextSession.length) return;
-    setSession(nextSession);
+    setSession(nextSession.map(shuffleQuestionOptions));
     setIndex(0);
     setAnswered(false);
     setRevealed(false);
