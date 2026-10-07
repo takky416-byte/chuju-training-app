@@ -82,6 +82,7 @@ export type GeographyQuestion = {
   references: string[];
   knowledgeKey: string;
   round?: number;
+  imageUrl?: string;
 };
 
 export type GuidedStep = {

@@ -49,6 +49,10 @@ function isShortAnswerEntry(entry: ActiveQuestion): entry is ShortAnswerActiveQu
   return isShortAnswerBasicSubject(entry.subject);
 }
 
+function isSelfScoredMathEntry(entry: ActiveQuestion): boolean {
+  return entry.subject === "checkTestMath";
+}
+
 function normalizeAnswerText(value: string) {
   return value.normalize("NFKC").trim().replace(/\s+/g, "");
 }
@@ -221,7 +225,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   }, [startRequest?.id]);
 
   useEffect(() => {
-    if (!active || answered || (isWritingEntry(active) && revealed)) return;
+    if (!active || answered || ((isWritingEntry(active) || isSelfScoredMathEntry(active)) && revealed)) return;
     const deadline = Date.now() + activeLimit * 1000;
     startedAtRef.current = Date.now();
     setSeconds(activeLimit);
@@ -231,7 +235,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
       if (next === 0) {
         window.clearInterval(timer);
         setTimedOut(true);
-        if (isWritingEntry(active)) {
+        if (isWritingEntry(active) || isSelfScoredMathEntry(active)) {
           setRevealed(true);
           onSound("timeout");
         } else if (isShortAnswerEntry(active) && active.question.guidedSteps?.length) {
@@ -526,6 +530,13 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     }
   }
 
+  async function scoreSelfGraded(isCorrect: boolean) {
+    if (!active || !isSelfScoredMathEntry(active) || answered) return;
+    setAnswered(true);
+    onSound(isCorrect ? "correct" : "wrong");
+    await saveAttempt(isCorrect, timedOut);
+  }
+
   async function scoreKanji(isCorrect: boolean) {
     if (!active || !isWritingEntry(active) || answered) return;
     setAnswered(true);
@@ -689,91 +700,141 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                     <img src={active.question.imageUrl} alt="問題の図" />
                   </div>
                 )}
-                {active.question.guidedSteps && active.question.guidedSteps.length > 0 ? (
+                {isSelfScoredMathEntry(active) ? (
+                  <div className="math-walkthrough">
+                    {active.question.steps && active.question.steps.length > 0 && (
+                      <div className="step-reveal">
+                        {active.question.steps.slice(0, revealedStepCount).map((step, stepIndex) => (
+                          <p className="step-reveal-line" key={stepIndex}>{step}</p>
+                        ))}
+                      </div>
+                    )}
+                    {!revealed && (
+                      <button
+                        type="button"
+                        className="step-reveal-button reveal-answer-button"
+                        onClick={() => {
+                          const steps = active.question.steps ?? [];
+                          if (revealedStepCount < steps.length) setRevealedStepCount((count) => count + 1);
+                          else setRevealed(true);
+                        }}
+                      >
+                        {active.question.steps && revealedStepCount < active.question.steps.length
+                          ? `次の途中式を見る（${revealedStepCount}/${active.question.steps.length}）`
+                          : "答えを見る"}
+                      </button>
+                    )}
+                    {revealed && (
+                    <div className="math-answer-panel">
+                      {timedOut && <small className="timeup-label">TIME UP</small>}
+                      <p className="math-final-answer">答え<strong>{active.question.answer}</strong></p>
+                      <p className="math-explanation">{active.question.explanation}</p>
+                      {!answered ? (
+                        <div className="self-score-row">
+                          <button type="button" className="self-score correct" onClick={() => void scoreSelfGraded(true)}><Check size={20} />わかった</button>
+                          <button type="button" className="self-score wrong" onClick={() => void scoreSelfGraded(false)}><X size={20} />もう一度</button>
+                        </div>
+                      ) : (
+                        <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>
+                      )}
+                    </div>
+                    )}
+                  </div>
+                ) : (
                   <>
-                    {!answered && (
-                      <div className="guided-step">
-                        <div className="guided-step-heading">ステップ {guidedIndex + 1} / {active.question.guidedSteps.length}</div>
-                        <p className="guided-step-expression">{active.question.guidedSteps[guidedIndex].expression} を計算しましょう</p>
+                    {active.question.guidedSteps && active.question.guidedSteps.length > 0 ? (
+                      <>
+                        {!answered && (
+                          <div className="guided-step">
+                            <div className="guided-step-heading">ステップ {guidedIndex + 1} / {active.question.guidedSteps.length}</div>
+                            <p className="guided-step-expression">{active.question.guidedSteps[guidedIndex].expression} を計算しましょう</p>
+                            <div className="short-answer-row">
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                className="short-answer-input"
+                                placeholder="答えを入力"
+                                value={guidedInput}
+                                disabled={guidedSubmitted}
+                                onChange={(event) => setGuidedInput(event.target.value)}
+                                onKeyDown={(event) => {
+                                  if (event.key !== "Enter") return;
+                                  if (!guidedSubmitted && guidedInput.trim()) submitGuidedStep();
+                                  else if (guidedSubmitted) advanceGuidedStep();
+                                }}
+                              />
+                              {!guidedSubmitted ? (
+                                <button className="primary-button" type="button" disabled={!guidedInput.trim()} onClick={submitGuidedStep}>こたえる</button>
+                              ) : (
+                                <button className="primary-button" type="button" onClick={advanceGuidedStep}>
+                                  {guidedIndex + 1 === active.question.guidedSteps.length ? "けっかを見る" : "次のステップ"}
+                                  <ChevronRight size={16} />
+                                </button>
+                              )}
+                            </div>
+                            {guidedSubmitted && (
+                              <div className={`basic-feedback ${guidedResults[guidedResults.length - 1] ? "good" : "retry"}`}>
+                                <div><strong>{guidedResults[guidedResults.length - 1] ? "正解！" : "ここを確認"}</strong></div>
+                                <p className="short-answer-correct">正解：{active.question.guidedSteps[guidedIndex].answer}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {active.question.steps && active.question.steps.length > 0 && (
+                          <div className="step-reveal">
+                            {active.question.steps.slice(0, revealedStepCount).map((step, stepIndex) => (
+                              <p className="step-reveal-line" key={stepIndex}>{step}</p>
+                            ))}
+                            {revealedStepCount < active.question.steps.length && (
+                              <button
+                                type="button"
+                                className="step-reveal-button"
+                                onClick={() => setRevealedStepCount((count) => count + 1)}
+                              >
+                                途中式を見る（{revealedStepCount}/{active.question.steps.length}）
+                              </button>
+                            )}
+                          </div>
+                        )}
                         <div className="short-answer-row">
                           <input
                             type="text"
                             inputMode="numeric"
                             className="short-answer-input"
                             placeholder="答えを入力"
-                            value={guidedInput}
-                            disabled={guidedSubmitted}
-                            onChange={(event) => setGuidedInput(event.target.value)}
-                            onKeyDown={(event) => {
-                              if (event.key !== "Enter") return;
-                              if (!guidedSubmitted && guidedInput.trim()) submitGuidedStep();
-                              else if (guidedSubmitted) advanceGuidedStep();
-                            }}
+                            value={shortAnswerInput}
+                            disabled={answered}
+                            onChange={(event) => setShortAnswerInput(event.target.value)}
+                            onKeyDown={(event) => { if (event.key === "Enter" && shortAnswerInput.trim() && !answered) void submitShortAnswer(); }}
                           />
-                          {!guidedSubmitted ? (
-                            <button className="primary-button" type="button" disabled={!guidedInput.trim()} onClick={submitGuidedStep}>こたえる</button>
-                          ) : (
-                            <button className="primary-button" type="button" onClick={advanceGuidedStep}>
-                              {guidedIndex + 1 === active.question.guidedSteps.length ? "けっかを見る" : "次のステップ"}
-                              <ChevronRight size={16} />
-                            </button>
-                          )}
+                          <button className="primary-button" type="button" disabled={!shortAnswerInput.trim() || answered} onClick={() => void submitShortAnswer()}>こたえる</button>
                         </div>
-                        {guidedSubmitted && (
-                          <div className={`basic-feedback ${guidedResults[guidedResults.length - 1] ? "good" : "retry"}`}>
-                            <div><strong>{guidedResults[guidedResults.length - 1] ? "正解！" : "ここを確認"}</strong></div>
-                            <p className="short-answer-correct">正解：{active.question.guidedSteps[guidedIndex].answer}</p>
-                          </div>
-                        )}
+                      </>
+                    )}
+                    {answered && (
+                      <div className={`basic-feedback ${(active.question.guidedSteps?.length ? guidedAllCorrect : shortAnswerCorrect) ? "good" : "retry"}`}>
+                        <div><strong>{timedOut ? "時間切れ" : (active.question.guidedSteps?.length ? guidedAllCorrect : shortAnswerCorrect) ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div>
+                        <p className="short-answer-correct">正解：{active.question.answer}</p>
+                        <p>{active.question.explanation}</p>
+                        <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>
                       </div>
                     )}
                   </>
-                ) : (
-                  <>
-                    {active.question.steps && active.question.steps.length > 0 && (
-                      <div className="step-reveal">
-                        {active.question.steps.slice(0, revealedStepCount).map((step, stepIndex) => (
-                          <p className="step-reveal-line" key={stepIndex}>{step}</p>
-                        ))}
-                        {revealedStepCount < active.question.steps.length && (
-                          <button
-                            type="button"
-                            className="step-reveal-button"
-                            onClick={() => setRevealedStepCount((count) => count + 1)}
-                          >
-                            途中式を見る（{revealedStepCount}/{active.question.steps.length}）
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    <div className="short-answer-row">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        className="short-answer-input"
-                        placeholder="答えを入力"
-                        value={shortAnswerInput}
-                        disabled={answered}
-                        onChange={(event) => setShortAnswerInput(event.target.value)}
-                        onKeyDown={(event) => { if (event.key === "Enter" && shortAnswerInput.trim() && !answered) void submitShortAnswer(); }}
-                      />
-                      <button className="primary-button" type="button" disabled={!shortAnswerInput.trim() || answered} onClick={() => void submitShortAnswer()}>こたえる</button>
-                    </div>
-                  </>
-                )}
-                {answered && (
-                  <div className={`basic-feedback ${(active.question.guidedSteps?.length ? guidedAllCorrect : shortAnswerCorrect) ? "good" : "retry"}`}>
-                    <div><strong>{timedOut ? "時間切れ" : (active.question.guidedSteps?.length ? guidedAllCorrect : shortAnswerCorrect) ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div>
-                    <p className="short-answer-correct">正解：{active.question.answer}</p>
-                    <p>{active.question.explanation}</p>
-                    <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>
-                  </div>
                 )}
               </>
             ) : (
               <>
                 {active.question.context && <div className="question-context">{active.question.context}</div>}
                 <p className="question-prompt">{active.question.prompt}</p>
+                {active.question.imageUrl && (
+                  <div className="question-diagram">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={active.question.imageUrl} alt="問題の図" />
+                  </div>
+                )}
                 <div className="options basic-options">{active.question.options.map((option, optionIndex) => {
                   const correct = answered && optionIndex === active.question.correctIndex;
                   const wrong = answered && optionIndex === selectedIndex && !correct;

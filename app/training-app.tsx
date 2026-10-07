@@ -598,7 +598,7 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
   if (!explanation) errors.push(`${label}（${id || "IDなし"}）: explanationが空です`);
   if (!Number.isInteger(difficulty) || Number(difficulty) < 1 || Number(difficulty) > 3) errors.push(`${label}（${id || "IDなし"}）: difficultyは1～3の整数にしてください`);
   const hasGuidedSteps = Array.isArray(value.guidedSteps) && value.guidedSteps.length > 0;
-  const maxTimeLimit = hasGuidedSteps ? 240 : 45;
+  const maxTimeLimit = hasGuidedSteps || subject === "checkTestMath" ? 240 : 45;
   if (!Number.isInteger(timeLimitSeconds) || Number(timeLimitSeconds) < 10 || Number(timeLimitSeconds) > maxTimeLimit) errors.push(`${label}（${id || "IDなし"}）: timeLimitSecondsは10～${maxTimeLimit}の整数にしてください`);
   if (value.source !== "custom") errors.push(`${label}（${id || "IDなし"}）: sourceはcustomにしてください`);
 
@@ -638,6 +638,7 @@ function validateImportedBasicQuestion(value: unknown, position: number, subject
   const options = strings("options");
   if (options.length < 2 || options.length > 8 || options.some((item) => !item)) errors.push(`${label}（${id || "IDなし"}）: optionsは空欄のない2～8項目にしてください`);
   if (!Number.isInteger(value.correctIndex) || Number(value.correctIndex) < 0 || Number(value.correctIndex) >= options.length) errors.push(`${label}（${id || "IDなし"}）: correctIndexは0～${Math.max(options.length - 1, 0)}の整数にしてください`);
+  if (value.imageUrl !== undefined && (typeof value.imageUrl !== "string" || !value.imageUrl.trim())) errors.push(`${label}（${id || "IDなし"}）: imageUrlは空でない文字列にしてください`);
   if (errors.length) return { errors };
   return { question: { subject: subject as ChoiceBasicSubject, setId, question: { ...value, id, title, explanation, options, source: "custom" } as GeographyQuestion } satisfies BasicQuestionEntry, errors };
 }

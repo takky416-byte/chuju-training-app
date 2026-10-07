@@ -247,7 +247,7 @@ button { color: inherit; }
 @keyframes timer-pulse { from { transform: scale(1); } to { transform: scale(1.035); } }
 .question-card h3 { margin: 0 0 20px; color: var(--navy-dark); font-size: 26px; }
 .question-context { margin-bottom: 22px; padding: 18px 20px; color: #344054; background: #f4f6f9; border-left: 3px solid #94a4b8; font-size: 17px; line-height: 1.7; white-space: pre-line; }
-.question-prompt { margin: 0 0 22px; color: var(--ink); font-size: 17px; font-weight: 800; }
+.question-prompt { margin: 0 0 22px; color: var(--ink); font-size: 17px; font-weight: 800; white-space: pre-line; }
 .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .option { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; width: 100%; min-height: 58px; padding: 10px 16px; text-align: left; background: white; border: 1px solid #cfd5de; border-radius: 8px; cursor: pointer; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
 .option:not(:disabled):hover { background: #f7fafb; border-color: var(--teal); transform: translateX(2px); }
@@ -590,6 +590,13 @@ button { color: inherit; }
 .guided-step-expression { margin: 0; color: var(--navy-dark); font-size: 19px; font-weight: 800; }
 .guided-step .short-answer-row { margin-top: 0; }
 .guided-step .basic-feedback { margin-top: 0; }
+.math-walkthrough .step-reveal-button { justify-self: stretch; text-align: center; }
+.math-answer-panel { display: grid; gap: 10px; margin-top: 15px; padding: 18px 20px; background: #f8f4fc; border: 1px solid #d8c9e7; border-radius: 10px; }
+.math-final-answer { margin: 0; color: #76558e; font-size: 12px; font-weight: 900; }
+.math-final-answer strong { margin-left: 8px; color: #4e2e6c; font-size: 22px; font-weight: 1000; }
+.math-explanation { margin: 0; color: var(--navy-dark); font-size: 14px; font-weight: 600; line-height: 1.7; white-space: pre-line; }
+.math-answer-panel .self-score-row { display: flex; gap: 10px; }
+.math-answer-panel .next-button { justify-self: start; }
 .short-answer-row { display: flex; gap: 10px; margin-top: 10px; }
 .short-answer-input { flex: 1 1 auto; min-width: 0; padding: 12px 14px; color: var(--navy-dark); font-size: 18px; font-weight: 800; background: white; border: 2px solid #aeb7c4; border-radius: 9px; }
 .short-answer-input:focus { border-color: var(--teal); outline: none; }
@@ -837,6 +844,9 @@ footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px
   .basic-active .step-reveal-button { padding: 7px 13px; font-size: 12px; }
   .basic-active .guided-step { padding: 10px 12px; gap: 6px; margin-bottom: 8px; }
   .basic-active .guided-step-expression { font-size: 16px; }
+  .basic-active .math-answer-panel { margin-top: 7px; padding: 12px; gap: 7px; }
+  .basic-active .math-final-answer strong { font-size: 19px; }
+  .basic-active .math-explanation { font-size: 12.5px; }
   .basic-active .short-answer-row { gap: 8px; }
   .basic-active .short-answer-input { min-height: 54px; padding: 10px 12px; font-size: 24px; }
   .basic-active .short-answer-row .primary-button { flex: 0 0 auto; min-height: 54px; padding: 10px 16px; font-size: 14px; }
