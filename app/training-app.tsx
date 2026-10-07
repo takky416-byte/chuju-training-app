@@ -36,6 +36,7 @@ import { getToken, onMessage } from "firebase/messaging";
 import { DOMAINS, type Domain, type Question } from "./questions";
 import { StudyAudioEngine, type AudioVolume, type BgmStyle, type SoundEffect } from "./audio-engine";
 import { BasicTraining, type BasicAttempt, type BasicAward, type BasicStartRequest } from "./basic-training";
+import { renderFractionText } from "./fraction-text";
 import {
   BASIC_QUESTION_POOL,
   BASIC_SUBJECT_CONFIG,
@@ -138,8 +139,8 @@ type QuestionProgress = {
 };
 type QuestionProgressMap = Record<string, QuestionProgress>;
 type CollectibleRarity = "common" | "rare" | "superRare";
-type CollectibleCategory = "名物・文化" | "名所・自然" | "ものづくり・交通" | "愛知の偉人";
-type GachaType = "local" | "industry" | "people";
+type CollectibleCategory = "名物・文化" | "名所・自然" | "ものづくり・交通" | "愛知の偉人" | "日本の偉人" | "海外の偉人";
+type GachaType = "local" | "industry" | "people" | "peopleJapan" | "peopleWorld";
 type Collectible = {
   id: string;
   name: string;
@@ -151,7 +152,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v43";
+const APP_VERSION = "v44";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -161,7 +162,7 @@ const GACHA_SETTINGS_KEY = "aichi_training_gacha_settings_v1";
 const QUESTION_PROGRESS_KEY = "aichi_training_question_progress_v1";
 const PUSH_TOKEN_KEY = "aichi_training_push_token_v1";
 const MASTERY_ORDER: MasteryState[] = ["practicing", "unattempted", "done", "mastered"];
-const EMPTY_GACHA_DRAWS: Record<GachaType, number> = { local: 0, industry: 0, people: 0 };
+const EMPTY_GACHA_DRAWS: Record<GachaType, number> = { local: 0, industry: 0, people: 0, peopleJapan: 0, peopleWorld: 0 };
 const EMPTY_GAME_PROGRESS: GameProgress = { totalXp: 0, bestScore: 0, bestAccuracy: 0, bestCombo: 0, coins: 0, inventory: [], collectionCounts: {}, gachaDraws: 0, gachaDrawsByType: EMPTY_GACHA_DRAWS, updatedAt: "", dailyQuestDay: "", dailyQuestClaimed: [] };
 const XP_PER_LEVEL = 300;
 const GACHA_COST = 20;
@@ -260,12 +261,52 @@ const COLLECTIBLES: Collectible[] = [
   { id: "ichikawa-fusae", name: "市川房枝", icon: "🗳️", rarity: "rare", category: "愛知の偉人", gachaType: "people", description: "一宮出身で女性参政権運動に尽くした人物" },
   { id: "honda-tadakatsu", name: "本多忠勝", icon: "🦌", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "三河に生まれ、徳川家康を支えた武将" },
   { id: "kawai-gyokudo", name: "川合玉堂", icon: "🖌️", rarity: "common", category: "愛知の偉人", gachaType: "people", description: "一宮に生まれ、日本の自然を描いた日本画家" },
+
+  { id: "shotoku-taishi", name: "聖徳太子", icon: "📜", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "法隆寺を建て、十七条の憲法を定めた飛鳥時代の皇族" },
+  { id: "himiko", name: "卑弥呼", icon: "🔮", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "邪馬台国を治めたとされる古代の女王" },
+  { id: "yoritomo", name: "源頼朝", icon: "⚔️", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "鎌倉幕府を開いた武士政権の創始者" },
+  { id: "yoshimune", name: "徳川吉宗", icon: "🌾", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "享保の改革を行った江戸幕府八代将軍" },
+  { id: "ito-hirobumi", name: "伊藤博文", icon: "🎩", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "大日本帝国憲法の制定に力をつくした初代内閣総理大臣" },
+  { id: "fukuzawa-yukichi", name: "福沢諭吉", icon: "📖", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "『学問のすゝめ』を著した教育者・思想家" },
+  { id: "shomu-tenno", name: "聖武天皇", icon: "🗿", rarity: "superRare", category: "日本の偉人", gachaType: "peopleJapan", description: "東大寺の大仏をつくらせた奈良時代の天皇" },
+  { id: "sakamoto-ryoma", name: "坂本龍馬", icon: "🌊", rarity: "rare", category: "日本の偉人", gachaType: "peopleJapan", description: "薩長同盟に力をつくした幕末の志士" },
+  { id: "murasaki-shikibu", name: "紫式部", icon: "🖋️", rarity: "rare", category: "日本の偉人", gachaType: "peopleJapan", description: "『源氏物語』を書いた平安時代の女性作家" },
+  { id: "kitasato-shibasaburo", name: "北里柴三郎", icon: "🧫", rarity: "rare", category: "日本の偉人", gachaType: "peopleJapan", description: "破傷風の治療法を発見した細菌学者" },
+  { id: "ashikaga-yoshimitsu", name: "足利義満", icon: "🏯", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "金閣を建てた室町幕府三代将軍" },
+  { id: "taira-kiyomori", name: "平清盛", icon: "⚓", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "日宋貿易を進めた平安時代末期の武将" },
+  { id: "sei-shonagon", name: "清少納言", icon: "📝", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "『枕草子』を書いた平安時代の女性作家" },
+  { id: "chikamatsu-monzaemon", name: "近松門左衛門", icon: "🎭", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "人形浄瑠璃の台本を数多く書いた作者" },
+  { id: "sugita-genpaku", name: "杉田玄白", icon: "💉", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "『解体新書』を翻訳した蘭学者" },
+  { id: "noguchi-hideyo", name: "野口英世", icon: "🔬", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "黄熱病の研究に力をつくした細菌学者" },
+  { id: "hiratsuka-raicho", name: "平塚らいてう", icon: "✒️", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "女性の地位向上をめざした思想家" },
+  { id: "shibusawa-eiichi", name: "渋沢栄一", icon: "🏦", rarity: "common", category: "日本の偉人", gachaType: "peopleJapan", description: "多くの会社の設立にかかわった実業家" },
+
+  { id: "shakespeare", name: "シェイクスピア", icon: "🎭", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "多くの戯曲や詩を残したイギリスの劇作家" },
+  { id: "edison", name: "エジソン", icon: "💡", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "電球や蓄音機などを発明したアメリカの発明家" },
+  { id: "einstein", name: "アインシュタイン", icon: "🧠", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "相対性理論を発表したドイツ生まれの物理学者" },
+  { id: "napoleon", name: "ナポレオン", icon: "👑", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "ヨーロッパの広い範囲を支配したフランスの皇帝" },
+  { id: "columbus", name: "コロンブス", icon: "⛵", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "大西洋を渡りアメリカ大陸に到達した航海者" },
+  { id: "davinci", name: "レオナルド・ダ・ヴィンチ", icon: "🎨", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "『モナ・リザ』を描いたイタリアの芸術家・科学者" },
+  { id: "qin-shihuang", name: "始皇帝", icon: "🐉", rarity: "superRare", category: "海外の偉人", gachaType: "peopleWorld", description: "中国を初めて統一し万里の長城を築かせた皇帝" },
+  { id: "newton", name: "ニュートン", icon: "🍎", rarity: "rare", category: "海外の偉人", gachaType: "peopleWorld", description: "万有引力の法則を発見したイギリスの科学者" },
+  { id: "gandhi", name: "ガンディー", icon: "🕊️", rarity: "rare", category: "海外の偉人", gachaType: "peopleWorld", description: "非暴力・不服従を唱えたインドの指導者" },
+  { id: "marie-curie", name: "キュリー夫人", icon: "⚗️", rarity: "rare", category: "海外の偉人", gachaType: "peopleWorld", description: "放射性物質の研究でノーベル賞を2度受賞した科学者" },
+  { id: "lincoln", name: "リンカン", icon: "🎩", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "奴隷解放を進めたアメリカ合衆国の大統領" },
+  { id: "beethoven", name: "ベートーヴェン", icon: "🎼", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "『運命』などの交響曲を作曲したドイツの音楽家" },
+  { id: "marco-polo", name: "マルコ・ポーロ", icon: "🐫", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "『東方見聞録』を残したイタリアの旅行家" },
+  { id: "wright-brothers", name: "ライト兄弟", icon: "✈️", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "世界で初めて飛行機での飛行に成功したアメリカの兄弟" },
+  { id: "washington", name: "ワシントン", icon: "⭐", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "アメリカ合衆国の初代大統領" },
+  { id: "confucius", name: "孔子", icon: "📚", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "仁と礼を説いた中国古代の思想家" },
+  { id: "armstrong", name: "アームストロング", icon: "🚀", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "人類で初めて月面に降り立った宇宙飛行士" },
+  { id: "nightingale", name: "ナイチンゲール", icon: "🏥", rarity: "common", category: "海外の偉人", gachaType: "peopleWorld", description: "近代看護の基礎を築いたイギリスの看護師" },
 ];
 
 const GACHA_TYPES: Array<{ id: GachaType; label: string; description: string }> = [
   { id: "local", label: "ご当地ガチャ", description: "名物・文化・名所" },
   { id: "industry", label: "ものづくりガチャ", description: "産業・技術・交通" },
   { id: "people", label: "人物ガチャ", description: "愛知にゆかりの人物" },
+  { id: "peopleJapan", label: "日本の偉人ガチャ", description: "日本にゆかりの人物" },
+  { id: "peopleWorld", label: "海外の偉人ガチャ", description: "世界の国々の人物" },
 ];
 
 const HERO_MESSAGES = [
@@ -322,6 +363,8 @@ function normalizeGameProgress(value: unknown): GameProgress {
     local: Math.max(0, Math.round(Number(rawDraws.local) || legacyDraws)),
     industry: Math.max(0, Math.round(Number(rawDraws.industry) || 0)),
     people: Math.max(0, Math.round(Number(rawDraws.people) || 0)),
+    peopleJapan: Math.max(0, Math.round(Number(rawDraws.peopleJapan) || 0)),
+    peopleWorld: Math.max(0, Math.round(Number(rawDraws.peopleWorld) || 0)),
   };
   return {
     totalXp: Math.max(0, Math.round(Number(row.totalXp) || 0)),
@@ -356,6 +399,8 @@ function mergeGameProgress(a: GameProgress, b: GameProgress): GameProgress {
       local: Math.max(a.gachaDrawsByType.local, b.gachaDrawsByType.local),
       industry: Math.max(a.gachaDrawsByType.industry, b.gachaDrawsByType.industry),
       people: Math.max(a.gachaDrawsByType.people, b.gachaDrawsByType.people),
+      peopleJapan: Math.max(a.gachaDrawsByType.peopleJapan, b.gachaDrawsByType.peopleJapan),
+      peopleWorld: Math.max(a.gachaDrawsByType.peopleWorld, b.gachaDrawsByType.peopleWorld),
     },
     updatedAt: newer.updatedAt,
     dailyQuestDay: newer.dailyQuestDay,
@@ -2427,8 +2472,8 @@ export default function TrainingApp() {
                 </div>
               </div>
               <div className={`question-time-track ${secondsRemaining <= 5 ? "danger" : secondsRemaining <= 10 ? "warning" : ""}`} aria-hidden="true"><span style={{ width: `${(secondsRemaining / activeTimeLimit) * 100}%` }} /></div>
-              {activeQuestion.context && <div className="question-context">{formatEnumeratedText(activeQuestion.context)}</div>}
-              <p className="question-prompt">{formatEnumeratedText(activeQuestion.prompt)}</p>
+              {activeQuestion.context && <div className="question-context">{renderFractionText(formatEnumeratedText(activeQuestion.context))}</div>}
+              <p className="question-prompt">{renderFractionText(formatEnumeratedText(activeQuestion.prompt))}</p>
               <div className="options" role="group" aria-label="選択肢">
                 {activeQuestion.options.map((option, index) => {
                   const answered = selectedIndex !== null;
@@ -2437,7 +2482,7 @@ export default function TrainingApp() {
                   return (
                     <button key={option} className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} onClick={() => answerQuestion(index)} disabled={answered}>
                       <span className="option-letter">{String.fromCharCode(65 + index)}</span>
-                      <span>{option}</span>
+                      <span>{renderFractionText(option)}</span>
                       {correct && <Check size={20} />}{wrong && <X size={20} />}
                     </button>
                   );
@@ -2451,7 +2496,7 @@ export default function TrainingApp() {
                 <>
                   {selectedIndex === activeQuestion.correctIndex ? <Check size={24} /> : <CircleAlert size={24} />}
                   <h4>{selectedIndex === -1 ? "時間切れ" : selectedIndex === activeQuestion.correctIndex ? "正解！" : "ここを見直そう"}</h4>
-                  <p>{activeQuestion.explanation}</p>
+                  <p>{renderFractionText(activeQuestion.explanation)}</p>
                   <button className="next-button" onClick={goNext}>{questionIndex === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>
                 </>
               )}
@@ -2683,8 +2728,9 @@ export default function TrainingApp() {
           )}
           <div className="gacha-type-tabs" aria-label="ガチャを選ぶ">
             {GACHA_TYPES.map((type) => {
-              const owned = COLLECTIBLES.filter((item) => item.gachaType === type.id && gameProgress.inventory.includes(item.id)).length;
-              return <button key={type.id} type="button" className={gachaType === type.id ? "active" : ""} onClick={() => { setGachaType(type.id); setCollectionGachaType(type.id); setGachaResult(null); }}><strong>{type.label}</strong><span>{type.description}</span><small>{owned} / 18</small></button>;
+              const typeItems = COLLECTIBLES.filter((item) => item.gachaType === type.id);
+              const owned = typeItems.filter((item) => gameProgress.inventory.includes(item.id)).length;
+              return <button key={type.id} type="button" className={gachaType === type.id ? "active" : ""} onClick={() => { setGachaType(type.id); setCollectionGachaType(type.id); setGachaResult(null); }}><strong>{type.label}</strong><span>{type.description}</span><small>{owned} / {typeItems.length}</small></button>;
             })}
           </div>
           <div className="gacha-layout">

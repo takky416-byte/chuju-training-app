@@ -248,6 +248,10 @@ button { color: inherit; }
 .question-card h3 { margin: 0 0 20px; color: var(--navy-dark); font-size: 26px; }
 .question-context { margin-bottom: 22px; padding: 18px 20px; color: #344054; background: #f4f6f9; border-left: 3px solid #94a4b8; font-size: 17px; line-height: 1.7; white-space: pre-line; }
 .question-prompt { margin: 0 0 22px; color: var(--ink); font-size: 17px; font-weight: 800; white-space: pre-line; }
+.frac-mixed { display: inline-flex; align-items: center; gap: 0.12em; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 0.12em; font-size: 0.78em; line-height: 1.05; }
+.frac-num, .frac-den { padding: 0 0.2em; min-width: 1em; text-align: center; }
+.frac-num { border-bottom: 1.5px solid currentColor; }
 .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .option { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; width: 100%; min-height: 58px; padding: 10px 16px; text-align: left; background: white; border: 1px solid #cfd5de; border-radius: 8px; cursor: pointer; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
 .option:not(:disabled):hover { background: #f7fafb; border-color: var(--teal); transform: translateX(2px); }
@@ -617,7 +621,7 @@ button { color: inherit; }
 .basic-result-panel h3 { margin: 8px 0; color: var(--navy-dark); font-size: 25px; }
 .basic-result-panel p { margin: 0 0 22px; color: var(--muted); }
 
-.gacha-type-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 17px 0 14px; }
+.gacha-type-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 17px 0 14px; }
 .gacha-type-tabs button { position: relative; display: grid; gap: 2px; padding: 11px 13px; color: #566376; text-align: left; background: white; border: 1px solid #cfd5de; border-radius: 8px; cursor: pointer; }
 .gacha-type-tabs button.active { color: var(--navy-dark); background: #eef6f4; border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); }
 .gacha-type-tabs strong { font-size: 13px; }

@@ -20,6 +20,7 @@ import {
 } from "./basic-questions";
 import { db, functions, LEARNER_RECORD_ID } from "./firebase";
 import type { SoundEffect } from "./audio-engine";
+import { renderFractionText } from "./fraction-text";
 
 export type BasicAward = { xp: number; coins: number; label: string };
 export type BasicStartRequest = { id: string; mode: "weak" | "balanced" | "subject"; subject?: BasicSubject; round?: number };
@@ -676,7 +677,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                 ) : (
                   <div className="kanji-answer-panel">
                     {timedOut && <small className="timeup-label">TIME UP</small>}
-                    <span>答え</span><strong>{active.question.answer}</strong>
+                    <span>答え</span><strong>{renderFractionText(active.question.answer)}</strong>
                     <div className="kanji-ai-readout">
                       {aiState === "loading" && <span className="kanji-ai-badge loading">AI判定中…</span>}
                       {aiState === "error" && <span className="kanji-ai-badge neutral">AI判定に失敗しました</span>}
@@ -685,15 +686,15 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                         : <span className="kanji-ai-badge neutral">文字を読み取れませんでした</span>)}
                       {aiState === "done" && aiResult?.text && <small className="kanji-ai-text">読み取った文字：{aiResult.text}</small>}
                     </div>
-                    <p>{active.question.explanation}</p>
+                    <p>{renderFractionText(active.question.explanation)}</p>
                     {!answered ? <div><button type="button" className="self-score correct" onClick={() => void scoreKanji(true)}><Check size={20} />できた</button><button type="button" className="self-score wrong" onClick={() => void scoreKanji(false)}><X size={20} />まちがえた</button></div> : <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>}
                   </div>
                 )}
               </>
             ) : isShortAnswerEntry(active) ? (
               <>
-                {active.question.context && <div className="question-context">{active.question.context}</div>}
-                <p className="question-prompt">{active.question.prompt}</p>
+                {active.question.context && <div className="question-context">{renderFractionText(active.question.context)}</div>}
+                <p className="question-prompt">{renderFractionText(active.question.prompt)}</p>
                 {active.question.imageUrl && (
                   <div className="question-diagram">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -705,7 +706,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                     {active.question.steps && active.question.steps.length > 0 && (
                       <div className="step-reveal">
                         {active.question.steps.slice(0, revealedStepCount).map((step, stepIndex) => (
-                          <p className="step-reveal-line" key={stepIndex}>{step}</p>
+                          <p className="step-reveal-line" key={stepIndex}>{renderFractionText(step)}</p>
                         ))}
                       </div>
                     )}
@@ -727,8 +728,8 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                     {revealed && (
                     <div className="math-answer-panel">
                       {timedOut && <small className="timeup-label">TIME UP</small>}
-                      <p className="math-final-answer">答え<strong>{active.question.answer}</strong></p>
-                      <p className="math-explanation">{active.question.explanation}</p>
+                      <p className="math-final-answer">答え<strong>{renderFractionText(active.question.answer)}</strong></p>
+                      <p className="math-explanation">{renderFractionText(active.question.explanation)}</p>
                       {!answered ? (
                         <div className="self-score-row">
                           <button type="button" className="self-score correct" onClick={() => void scoreSelfGraded(true)}><Check size={20} />わかった</button>
@@ -747,7 +748,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                         {!answered && (
                           <div className="guided-step">
                             <div className="guided-step-heading">ステップ {guidedIndex + 1} / {active.question.guidedSteps.length}</div>
-                            <p className="guided-step-expression">{active.question.guidedSteps[guidedIndex].expression} を計算しましょう</p>
+                            <p className="guided-step-expression">{renderFractionText(active.question.guidedSteps[guidedIndex].expression)} を計算しましょう</p>
                             <div className="short-answer-row">
                               <input
                                 type="text"
@@ -775,7 +776,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                             {guidedSubmitted && (
                               <div className={`basic-feedback ${guidedResults[guidedResults.length - 1] ? "good" : "retry"}`}>
                                 <div><strong>{guidedResults[guidedResults.length - 1] ? "正解！" : "ここを確認"}</strong></div>
-                                <p className="short-answer-correct">正解：{active.question.guidedSteps[guidedIndex].answer}</p>
+                                <p className="short-answer-correct">正解：{renderFractionText(active.question.guidedSteps[guidedIndex].answer)}</p>
                               </div>
                             )}
                           </div>
@@ -786,7 +787,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                         {active.question.steps && active.question.steps.length > 0 && (
                           <div className="step-reveal">
                             {active.question.steps.slice(0, revealedStepCount).map((step, stepIndex) => (
-                              <p className="step-reveal-line" key={stepIndex}>{step}</p>
+                              <p className="step-reveal-line" key={stepIndex}>{renderFractionText(step)}</p>
                             ))}
                             {revealedStepCount < active.question.steps.length && (
                               <button
@@ -817,8 +818,8 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                     {answered && (
                       <div className={`basic-feedback ${(active.question.guidedSteps?.length ? guidedAllCorrect : shortAnswerCorrect) ? "good" : "retry"}`}>
                         <div><strong>{timedOut ? "時間切れ" : (active.question.guidedSteps?.length ? guidedAllCorrect : shortAnswerCorrect) ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div>
-                        <p className="short-answer-correct">正解：{active.question.answer}</p>
-                        <p>{active.question.explanation}</p>
+                        <p className="short-answer-correct">正解：{renderFractionText(active.question.answer)}</p>
+                        <p>{renderFractionText(active.question.explanation)}</p>
                         <button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button>
                       </div>
                     )}
@@ -827,8 +828,8 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
               </>
             ) : (
               <>
-                {active.question.context && <div className="question-context">{active.question.context}</div>}
-                <p className="question-prompt">{active.question.prompt}</p>
+                {active.question.context && <div className="question-context">{renderFractionText(active.question.context)}</div>}
+                <p className="question-prompt">{renderFractionText(active.question.prompt)}</p>
                 {active.question.imageUrl && (
                   <div className="question-diagram">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -838,9 +839,9 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                 <div className="options basic-options">{active.question.options.map((option, optionIndex) => {
                   const correct = answered && optionIndex === active.question.correctIndex;
                   const wrong = answered && optionIndex === selectedIndex && !correct;
-                  return <button key={option} type="button" className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} disabled={answered} onClick={() => void answerChoice(optionIndex)}><span className="option-letter">{String.fromCharCode(65 + optionIndex)}</span><span>{option}</span>{correct && <Check size={20} />}{wrong && <X size={20} />}</button>;
+                  return <button key={option} type="button" className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} disabled={answered} onClick={() => void answerChoice(optionIndex)}><span className="option-letter">{String.fromCharCode(65 + optionIndex)}</span><span>{renderFractionText(option)}</span>{correct && <Check size={20} />}{wrong && <X size={20} />}</button>;
                 })}</div>
-                {answered && <div className={`basic-feedback ${selectedIndex === active.question.correctIndex ? "good" : "retry"}`}><div><strong>{selectedIndex === -1 ? "時間切れ" : selectedIndex === active.question.correctIndex ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div><p>{active.question.explanation}</p><button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button></div>}
+                {answered && <div className={`basic-feedback ${selectedIndex === active.question.correctIndex ? "good" : "retry"}`}><div><strong>{selectedIndex === -1 ? "時間切れ" : selectedIndex === active.question.correctIndex ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div><p>{renderFractionText(active.question.explanation)}</p><button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button></div>}
               </>
             )}
             {isWritingEntry(active) && answered && award && <div className="basic-award">{award.label}・+{award.xp} XP・+{award.coins} COIN</div>}
