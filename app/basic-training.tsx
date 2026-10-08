@@ -55,7 +55,7 @@ function isSelfScoredMathEntry(entry: ActiveQuestion): boolean {
 }
 
 function normalizeAnswerText(value: string) {
-  return value.normalize("NFKC").trim().replace(/\s+/g, "");
+  return value.normalize("NFKC").trim().toLowerCase().replace(/\s+/g, "").replace(/,/g, "");
 }
 
 const MATH_SECTION_LABELS: Record<string, string> = {
@@ -179,6 +179,8 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
   const strokesRef = useRef<Array<Array<{ x: number; y: number }>>>([]);
   const currentStrokeRef = useRef<Array<{ x: number; y: number }>>([]);
   const startedAtRef = useRef(Date.now());
+  const attemptsRef = useRef(attempts);
+  useEffect(() => { attemptsRef.current = attempts; }, [attempts]);
 
   const active = session[index];
   const activeLimit = active ? clampTime(active.question.timeLimitSeconds) : 20;
@@ -478,7 +480,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
       timedOut: wasTimedOut,
       createdAt: new Date().toISOString(),
     };
-    const next = mergeAttempts([attempt], attempts);
+    const next = mergeAttempts([attempt], attemptsRef.current);
     setAttempts(next);
     setAnswers((current) => [...current, isCorrect]);
     localStorage.setItem(storageKey, JSON.stringify(next));

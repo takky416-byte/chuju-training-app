@@ -156,7 +156,7 @@ export function normalizeStoredBasicQuestion(value: unknown): BasicQuestionEntry
     if (typeof question.prompt !== "string" || typeof question.answer !== "string") return null;
     return { subject: subject as ShortAnswerBasicSubject, setId, question: question as ShortAnswerQuestion };
   }
-  if (!Array.isArray(question.options) || question.options.length < 2 || !Number.isInteger(question.correctIndex)) return null;
+  if (!Array.isArray(question.options) || question.options.length < 2 || !Number.isInteger(question.correctIndex) || (question.correctIndex as number) < 0 || (question.correctIndex as number) >= question.options.length) return null;
   return { subject: subject as ChoiceBasicSubject, setId, question: question as GeographyQuestion };
 }
 

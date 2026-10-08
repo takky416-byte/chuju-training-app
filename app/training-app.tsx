@@ -152,7 +152,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v47";
+const APP_VERSION = "v48";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -419,7 +419,9 @@ function drawCollectible(drawNumber: number, gachaType: GachaType) {
     ? (roll < 16.7 ? "superRare" : "rare")
     : (roll < 5 ? "superRare" : roll < 30 ? "rare" : "common");
   const pool = COLLECTIBLES.filter((item) => item.gachaType === gachaType && item.rarity === rarity);
-  return pool[Math.floor(Math.random() * pool.length)];
+  const fallbackPool = COLLECTIBLES.filter((item) => item.gachaType === gachaType);
+  const effectivePool = pool.length > 0 ? pool : fallbackPool;
+  return effectivePool[Math.floor(Math.random() * effectivePool.length)];
 }
 
 function bestRarity(results: GachaDrawResult[]): CollectibleRarity {
@@ -814,6 +816,12 @@ export default function TrainingApp() {
   const questionStartedAt = useRef(Date.now());
   const audioEngine = useRef<StudyAudioEngine | null>(null);
   const effectsEnabledRef = useRef(true);
+  const attemptsRef = useRef(attempts);
+  const questionProgressRef = useRef(questionProgress);
+  const gameProgressRef = useRef(gameProgress);
+  useEffect(() => { attemptsRef.current = attempts; }, [attempts]);
+  useEffect(() => { questionProgressRef.current = questionProgress; }, [questionProgress]);
+  useEffect(() => { gameProgressRef.current = gameProgress; }, [gameProgress]);
 
   const questions = customQuestions;
   const activeQuestion = session[questionIndex];
@@ -1427,8 +1435,8 @@ export default function TrainingApp() {
       questionTitle: activeQuestion.title,
       correctAnswer: activeQuestion.options[activeQuestion.correctIndex] ?? "",
     };
-    const nextAttempts = mergeAttempts([attempt], attempts);
-    const previousQuestionProgress = questionProgress[activeQuestion.id];
+    const nextAttempts = mergeAttempts([attempt], attemptsRef.current);
+    const previousQuestionProgress = questionProgressRef.current[activeQuestion.id];
     const nextQuestionProgressRow: QuestionProgress = {
       questionId: activeQuestion.id,
       domain: activeQuestion.domain,
@@ -1437,10 +1445,10 @@ export default function TrainingApp() {
       latestResults: [isCorrect, ...(previousQuestionProgress?.latestResults ?? [])].slice(0, 2),
       updatedAt: attempt.createdAt,
     };
-    const nextQuestionProgress = { ...questionProgress, [activeQuestion.id]: nextQuestionProgressRow };
+    const nextQuestionProgress = { ...questionProgressRef.current, [activeQuestion.id]: nextQuestionProgressRow };
     const nextCoinProgress: GameProgress = {
-      ...gameProgress,
-      coins: gameProgress.coins + earnedCoins,
+      ...gameProgressRef.current,
+      coins: gameProgressRef.current.coins + earnedCoins,
       updatedAt: new Date().toISOString(),
     };
     setAttempts(nextAttempts);
