@@ -851,7 +851,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
                 <div className="options basic-options">{active.question.options.map((option, optionIndex) => {
                   const correct = answered && optionIndex === active.question.correctIndex;
                   const wrong = answered && optionIndex === selectedIndex && !correct;
-                  return <button key={option} type="button" className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} disabled={answered} onClick={() => void answerChoice(optionIndex)}><span className="option-letter">{String.fromCharCode(65 + optionIndex)}</span><span>{renderFractionText(option)}</span>{correct && <Check size={20} />}{wrong && <X size={20} />}</button>;
+                  return <button key={optionIndex} type="button" className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} disabled={answered} onClick={() => void answerChoice(optionIndex)}><span className="option-letter">{String.fromCharCode(65 + optionIndex)}</span><span>{renderFractionText(option)}</span>{correct && <Check size={20} />}{wrong && <X size={20} />}</button>;
                 })}</div>
                 {answered && <div className={`basic-feedback ${selectedIndex === active.question.correctIndex ? "good" : "retry"}`}><div><strong>{selectedIndex === -1 ? "時間切れ" : selectedIndex === active.question.correctIndex ? "正解！" : "ここを確認"}</strong>{award && <span>+{award.xp} XP・+{award.coins} COIN</span>}</div><p>{renderFractionText(active.question.explanation)}</p><button className="next-button" type="button" onClick={() => void nextQuestion()}>{index === session.length - 1 ? "結果を見る" : "次の問題"}<ChevronRight size={18} /></button></div>}
               </>

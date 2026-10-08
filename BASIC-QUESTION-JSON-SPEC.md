@@ -101,7 +101,7 @@
 }
 ```
 
-必須項目は `id`、`title`、`prompt`、`options`（空欄のない4項目）、`correctIndex`（0～3）、`explanation`、`topic`、`subtopic`、`difficulty`、`timeLimitSeconds`、`knowledgeKey`、`source` です。`context` は空文字でも構いません。
+必須項目は `id`、`title`、`prompt`、`options`（空欄のない2～8項目）、`correctIndex`（0～options.length-1）、`explanation`、`topic`、`subtopic`、`difficulty`、`timeLimitSeconds`、`knowledgeKey`、`source` です。`context` は空文字でも構いません。
 
 ## その他の選択式7科目
 

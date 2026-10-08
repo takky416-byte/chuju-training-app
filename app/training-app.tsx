@@ -152,7 +152,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v45";
+const APP_VERSION = "v46";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -2480,7 +2480,7 @@ export default function TrainingApp() {
                   const correct = answered && index === activeQuestion.correctIndex;
                   const wrong = answered && index === selectedIndex && !correct;
                   return (
-                    <button key={option} className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} onClick={() => answerQuestion(index)} disabled={answered}>
+                    <button key={index} className={`option ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`} onClick={() => answerQuestion(index)} disabled={answered}>
                       <span className="option-letter">{String.fromCharCode(65 + index)}</span>
                       <span>{renderFractionText(option)}</span>
                       {correct && <Check size={20} />}{wrong && <X size={20} />}
