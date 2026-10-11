@@ -30,7 +30,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
+import { getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut, type User } from "firebase/auth";
 import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, setDoc, where, writeBatch } from "firebase/firestore";
 import { getToken, onMessage } from "firebase/messaging";
 import { DOMAINS, type Domain, type Question } from "./questions";
@@ -152,7 +152,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v48";
+const APP_VERSION = "v49";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -915,6 +915,13 @@ export default function TrainingApp() {
   }, []);
 
   useEffect(() => {
+    if (!auth) return;
+    getRedirectResult(auth).catch(() => {
+      setAuthError("Googleログインを完了できませんでした。もう一度お試しください。");
+    });
+  }, []);
+
+  useEffect(() => {
     if (!user || !isAllowed) return;
     const localResetWindows = mergeResetWindows(readLocal<ResetWindow[]>(RESET_WINDOWS_KEY, []));
     const localAttempts = readLocal<unknown[]>(ATTEMPTS_KEY, [])
@@ -1013,7 +1020,22 @@ export default function TrainingApp() {
     setAuthError("");
     try {
       await signInWithPopup(auth!, googleProvider);
-    } catch {
+    } catch (error) {
+      const code = (error as { code?: string } | null)?.code ?? "";
+      const shouldFallBackToRedirect = [
+        "auth/popup-blocked",
+        "auth/popup-closed-by-user",
+        "auth/cancelled-popup-request",
+        "auth/operation-not-supported-in-this-environment",
+      ].includes(code);
+      if (shouldFallBackToRedirect) {
+        try {
+          await signInWithRedirect(auth!, googleProvider);
+          return;
+        } catch {
+          // fall through to the generic error message below
+        }
+      }
       setAuthError("Googleログインを完了できませんでした。もう一度お試しください。");
     }
   }
