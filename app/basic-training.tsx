@@ -609,6 +609,31 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
     ? guidedResults.length === active.question.guidedSteps.length && guidedResults.every(Boolean)
     : false;
 
+  const roundPicker = roundPickerSubject && roundOptions ? (
+    <div id={`${sectionId}-round-picker`} className="round-picker">
+      <div className="round-picker-heading"><strong>{BASIC_SUBJECT_LABELS[roundPickerSubject]}：回を選ぶ</strong><button type="button" className="round-picker-back" onClick={() => setRoundPickerSubject(null)}>戻る</button></div>
+      {roundPickerSubject === "checkTestMath" && (
+        <div className="section-picker">
+          <button type="button" className={!roundPickerSection ? "active" : ""} onClick={() => setRoundPickerSection(null)}>全部</button>
+          {Object.keys(MATH_SECTION_LABELS).map((section) => (
+            <button key={section} type="button" className={roundPickerSection === section ? "active" : ""} onClick={() => setRoundPickerSection(section)}>{section}</button>
+          ))}
+        </div>
+      )}
+      <div className="domain-picker-grid round-picker-grid">
+        {roundOptions.filter((round) => round <= Math.max(0, ...questionPool.filter((item) => item.subject === roundPickerSubject).map((item) => item.question.round ?? 0))).map((round) => {
+          const count = questionPool.filter((item) => item.subject === roundPickerSubject && item.question.round === round && (!roundPickerSection || getMathSection(item.question.id) === roundPickerSection)).length;
+          return <button key={round} type="button" disabled={!count} onClick={() => startSubjectSession(roundPickerSubject, round, roundPickerSection)}><span>第{round}回</span><small>{count ? `${count}問` : "準備中"}</small></button>;
+        })}
+      </div>
+    </div>
+  ) : null;
+
+  useEffect(() => {
+    if (!roundPickerSubject) return;
+    document.getElementById(`${sectionId}-round-picker`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [roundPickerSubject, sectionId]);
+
   return (
     <section id={sectionId} className="basic-training section-shell">
       <div className="section-title-row basic-title-row">
@@ -630,25 +655,7 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
             <div className="domain-picker-grid">
               {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{row.subject === "kanji" || row.subject === "checkTestKanji" ? <PencilLine size={16} /> : row.subject === "geography" ? <MapIcon size={16} /> : <BookOpenCheck size={16} />} {BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? (roundSubjects?.includes(row.subject) ? "回を選んで練習" : `${row.attempted}/${row.total}問挑戦・正答率${row.accuracy}%`) : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
             </div>
-            {roundPickerSubject && roundOptions && (
-              <div className="round-picker">
-                <div className="round-picker-heading"><strong>{BASIC_SUBJECT_LABELS[roundPickerSubject]}：回を選ぶ</strong><button type="button" className="round-picker-back" onClick={() => setRoundPickerSubject(null)}>戻る</button></div>
-                {roundPickerSubject === "checkTestMath" && (
-                  <div className="section-picker">
-                    <button type="button" className={!roundPickerSection ? "active" : ""} onClick={() => setRoundPickerSection(null)}>全部</button>
-                    {Object.keys(MATH_SECTION_LABELS).map((section) => (
-                      <button key={section} type="button" className={roundPickerSection === section ? "active" : ""} onClick={() => setRoundPickerSection(section)}>{section}</button>
-                    ))}
-                  </div>
-                )}
-                <div className="domain-picker-grid round-picker-grid">
-                  {roundOptions.filter((round) => round <= Math.max(0, ...questionPool.filter((item) => item.subject === roundPickerSubject).map((item) => item.question.round ?? 0))).map((round) => {
-                    const count = questionPool.filter((item) => item.subject === roundPickerSubject && item.question.round === round && (!roundPickerSection || getMathSection(item.question.id) === roundPickerSection)).length;
-                    return <button key={round} type="button" disabled={!count} onClick={() => startSubjectSession(roundPickerSubject, round, roundPickerSection)}><span>第{round}回</span><small>{count ? `${count}問` : "準備中"}</small></button>;
-                  })}
-                </div>
-              </div>
-            )}
+            {roundPicker}
           </div>
         </div>
       ) : finished ? (
@@ -661,8 +668,9 @@ export function BasicTraining({ enabled, subjectIds, sectionId, kicker, resultKi
           <div className="domain-picker result-domain-picker basic-subject-picker">
             <div><strong>次は科目を選んで5問</strong><small>直近の誤答と未挑戦を優先します</small></div>
             <div className="domain-picker-grid">
-              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? `${row.total}問登録` : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
+              {subjectStats.map((row) => <button key={row.subject} type="button" disabled={!row.total} onClick={() => startSubjectSession(row.subject)}><span>{BASIC_SUBJECT_LABELS[row.subject]}</span><small>{row.total ? (roundSubjects?.includes(row.subject) ? "回を選んで練習" : `${row.total}問登録`) : "問題準備中"}{neglectedSubjects.has(row.subject) && <em className="subject-recommend">・おすすめ</em>}</small></button>)}
             </div>
+            {roundPicker}
           </div>
         </div>
       ) : active ? (
