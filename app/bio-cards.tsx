@@ -301,11 +301,12 @@ function matchesFilter(entry: DeckEntry, filter: FilterId, known: Set<string>) {
 /* ---------- main component ---------- */
 type Props = {
   enabled: boolean;
+  startRequest?: { id: string; mode: "test" | "study" } | null;
   onComplete: (correct: number, total: number) => Promise<number> | number;
   onSound: (effect: SoundEffect) => void;
 };
 
-export function BioCards({ enabled, onComplete, onSound }: Props) {
+export function BioCards({ enabled, startRequest, onComplete, onSound }: Props) {
   const [tab, setTab] = useState<"study" | "test">("test");
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const progressLoaded = useRef(false);
@@ -425,6 +426,22 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
     const label = { all: "ランダム", plant: "植物", animal: "動物", plankton: "プランクトン・化石", weak: "苦手・未習得から", family: "" }[testFilter];
     startSheet(chosen.map((card) => cardEntry(card, pickItems(card))), `生物カード 確認テスト(${label})`);
   }
+
+  const handledRequest = useRef<string | null>(null);
+  useEffect(() => {
+    if (!startRequest || handledRequest.current === startRequest.id) return;
+    handledRequest.current = startRequest.id;
+    if (startRequest.mode === "study") {
+      setTab("study");
+      setDeck([]);
+      setPos(0);
+      return;
+    }
+    setTab("test");
+    setTestFilter("all");
+    startSheet(shuffle(CARDS).slice(0, 5).map((card) => cardEntry(card, pickItems(card))), "生物カード 確認テスト(ランダム)");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startRequest]);
 
   const totalBlanks = sheet.reduce((sum, entry) => sum + entry.items.length, 0);
 

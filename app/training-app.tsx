@@ -81,7 +81,7 @@ type Attempt = {
 
 type SyncState = "loading" | "synced" | "local";
 type SessionMode = "weak" | "balanced";
-type TrainingTrack = "aptitude" | "basic" | "checktest" | "bestcheck";
+type TrainingTrack = "aptitude" | "basic" | "checktest" | "bestcheck" | "biocard";
 type MasteryState = "unattempted" | "practicing" | "done" | "mastered";
 type ResetPreset = "today" | "7days" | "30days" | "custom" | "all";
 type ResetWindow = { start: string; end: string; createdAt: string };
@@ -772,6 +772,7 @@ export default function TrainingApp() {
   const [bestCheckAttempts, setBestCheckAttempts] = useState<BasicAttempt[]>([]);
   const [bestCheckQuestionCatalog, setBestCheckQuestionCatalog] = useState<BasicQuestionEntry[]>([]);
   const [bestCheckStartRequest, setBestCheckStartRequest] = useState<BasicStartRequest | null>(null);
+  const [bioCardRequest, setBioCardRequest] = useState<{ id: string; mode: "test" | "study" } | null>(null);
   const [heroTrack, setHeroTrack] = useState<TrainingTrack>("aptitude");
   const [importFiles, setImportFiles] = useState<ImportPreview[]>([]);
   const [importMode, setImportMode] = useState<ImportMode>("skip");
@@ -1403,6 +1404,11 @@ export default function TrainingApp() {
   function requestCheckTestSession(mode: BasicStartRequest["mode"], subject?: BasicSubject, round?: number) {
     setCheckTestStartRequest({ id: crypto.randomUUID(), mode, subject, round });
     setTimeout(() => document.getElementById("check-test-training")?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
+  }
+
+  function requestBioCard(mode: "test" | "study") {
+    setBioCardRequest({ id: crypto.randomUUID(), mode });
+    setTimeout(() => document.getElementById("bio-card-training")?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
   }
 
   function openCheckTestSubjectPicker() {
@@ -2321,6 +2327,7 @@ export default function TrainingApp() {
             <button type="button" role="tab" aria-selected={heroTrack === "basic"} className={heroTrack === "basic" ? "active" : ""} onClick={() => setHeroTrack("basic")}>中学受験 基礎トレ</button>
             <button type="button" role="tab" aria-selected={heroTrack === "checktest"} className={heroTrack === "checktest" ? "active" : ""} onClick={() => setHeroTrack("checktest")}>チェックテスト対策</button>
             <button type="button" role="tab" aria-selected={heroTrack === "bestcheck"} className={heroTrack === "bestcheck" ? "active" : ""} onClick={() => setHeroTrack("bestcheck")}>国語ベストチェック</button>
+            <button type="button" role="tab" aria-selected={heroTrack === "biocard"} className={heroTrack === "biocard" ? "active" : ""} onClick={() => setHeroTrack("biocard")}>生物カード</button>
           </div>
           <div className="hero-actions">
             {heroTrack === "aptitude" ? <>
@@ -2336,6 +2343,9 @@ export default function TrainingApp() {
             </> : heroTrack === "checktest" ? <>
               <button className="primary-button" onClick={openCheckTestSubjectPicker}><Sparkles size={18} /> 科目・回を選ぶ <ArrowRight size={18} /></button>
               <button className="secondary-button" onClick={() => requestCheckTestSession("weak")}>弱点から5問</button>
+            </> : heroTrack === "biocard" ? <>
+              <button className="primary-button" onClick={() => requestBioCard("test")}><Sparkles size={18} /> 確認テスト5枚 <ArrowRight size={18} /></button>
+              <button className="secondary-button" onClick={() => requestBioCard("study")}>カードをめくる</button>
             </> : <>
               <button className="primary-button" onClick={openBestCheckSubjectPicker}><Sparkles size={18} /> 章を選ぶ <ArrowRight size={18} /></button>
               <button className="secondary-button" onClick={() => requestBestCheckSession("weak")}>弱点から5問</button>
@@ -2589,6 +2599,7 @@ export default function TrainingApp() {
 
       <BioCards
         enabled={Boolean(user && isAllowed)}
+        startRequest={bioCardRequest}
         onComplete={rewardBasicCompletion}
         onSound={playEffect}
       />
