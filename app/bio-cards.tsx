@@ -24,14 +24,11 @@ type BioCard = {
   backCaption?: string;
 };
 type BioFamily = { id: number; mark: string; title: string; lines: string[]; flower: Flower; flowerCaption?: string; quiz: string[] };
-type BioRound = { id: number; title: string; items: Array<{ no: number; qs: string[] }> };
-type BioData = { cards: BioCard[]; families: BioFamily[]; rounds: BioRound[] };
+type BioData = { cards: BioCard[]; families: BioFamily[] };
 
 const DATA = rawData as unknown as BioData;
 const CARDS = DATA.cards;
 const FAMILIES = DATA.families;
-const ROUNDS = DATA.rounds;
-const CARD_BY_NO = new Map(CARDS.map((card) => [card.no, card]));
 
 /* ---------- markup: [[answer]] / [[answer|alt;alt]] / [[answer#choice,choice]] ---------- */
 type Blank = { answer: string; alts: string[]; choices?: string[] };
@@ -196,27 +193,19 @@ function familyEntry(fam: BioFamily): SheetEntry {
   return { key: `f${fam.id}`, title: `${fam.mark} ${fam.title}`, famMark: `${fam.mark}\n★${fam.title}`, items };
 }
 
-function roundSheet(round: BioRound): SheetEntry[] {
-  return round.items.flatMap((entry) => {
-    const card = CARD_BY_NO.get(entry.no);
-    if (!card) return [];
-    return [cardEntry(card, entry.qs.map((q, i) => toItem(`r${round.id}-${entry.no}-${i}`, q)))];
-  });
-}
-
 const cardImage = (no: number) => `/checktest-biocard/card-${String(no).padStart(2, "0")}.jpg`;
 const cardKey = (card: BioCard) => `c${card.no}`;
 const famKey = (fam: BioFamily) => `f${fam.id}`;
 
 /* ---------- progress (known flags, missed counts) ---------- */
-type Progress = { known: string[]; missed: Record<string, number>; best: Record<string, number> };
+type Progress = { known: string[]; missed: Record<string, number> };
 const STORAGE_KEY = "aichi_training_biocard_v1";
-const EMPTY_PROGRESS: Progress = { known: [], missed: {}, best: {} };
+const EMPTY_PROGRESS: Progress = { known: [], missed: {} };
 
 function loadProgress(): Progress {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-    if (parsed && Array.isArray(parsed.known)) return { known: parsed.known, missed: parsed.missed ?? {}, best: parsed.best ?? {} };
+    if (parsed && Array.isArray(parsed.known)) return { known: parsed.known, missed: parsed.missed ?? {} };
   } catch {
     /* ignore */
   }
@@ -226,9 +215,7 @@ function loadProgress(): Progress {
 function mergeProgress(a: Progress, b: Progress): Progress {
   const missed: Record<string, number> = { ...a.missed };
   Object.entries(b.missed ?? {}).forEach(([k, v]) => { missed[k] = Math.max(missed[k] ?? 0, v); });
-  const best: Record<string, number> = { ...a.best };
-  Object.entries(b.best ?? {}).forEach(([k, v]) => { best[k] = Math.max(best[k] ?? 0, v); });
-  return { known: [...new Set([...a.known, ...(b.known ?? [])])], missed, best };
+  return { known: [...new Set([...a.known, ...(b.known ?? [])])], missed };
 }
 
 /* ---------- small presentational pieces ---------- */
@@ -319,7 +306,7 @@ type Props = {
 };
 
 export function BioCards({ enabled, onComplete, onSound }: Props) {
-  const [tab, setTab] = useState<"study" | "test">("study");
+  const [tab, setTab] = useState<"study" | "test">("test");
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const progressLoaded = useRef(false);
 
@@ -333,7 +320,6 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
   // test state
   const [sheet, setSheet] = useState<SheetEntry[]>([]);
   const [sheetTitle, setSheetTitle] = useState("");
-  const [sheetRound, setSheetRound] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
   const [bonus, setBonus] = useState<number | null>(null);
@@ -354,7 +340,7 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
       .then((snap) => {
         if (cancelled || !snap.exists()) return;
         const remote = snap.data() as Partial<Progress>;
-        setProgress((current) => mergeProgress(current, { known: remote.known ?? [], missed: remote.missed ?? {}, best: remote.best ?? {} }));
+        setProgress((current) => mergeProgress(current, { known: remote.known ?? [], missed: remote.missed ?? {} }));
       })
       .catch(() => undefined);
     return () => { cancelled = true; };
@@ -411,10 +397,9 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
   }, []);
 
   /* ----- test ----- */
-  function startSheet(entries: SheetEntry[], title: string, round: number | null) {
+  function startSheet(entries: SheetEntry[], title: string) {
     setSheet(entries);
     setSheetTitle(title);
-    setSheetRound(round);
     setAnswers({});
     setChecked(false);
     setBonus(null);
@@ -423,7 +408,7 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
 
   function startRandom() {
     if (testFilter === "family") {
-      startSheet(shuffle(FAMILIES).slice(0, 5).map(familyEntry), "付録(科)の確認テスト", null);
+      startSheet(shuffle(FAMILIES).slice(0, 5).map(familyEntry), "付録(科)の確認テスト");
       return;
     }
     let pool = CARDS.filter((card) => {
@@ -438,7 +423,7 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
     }
     const chosen = shuffle(pool).slice(0, 5);
     const label = { all: "ランダム", plant: "植物", animal: "動物", plankton: "プランクトン・化石", weak: "苦手・未習得から", family: "" }[testFilter];
-    startSheet(chosen.map((card) => cardEntry(card, pickItems(card))), `生物カード 確認テスト(${label})`, null);
+    startSheet(chosen.map((card) => cardEntry(card, pickItems(card))), `生物カード 確認テスト(${label})`);
   }
 
   const totalBlanks = sheet.reduce((sum, entry) => sum + entry.items.length, 0);
@@ -470,9 +455,7 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
         if (wrong) { missed[entry.key] = (missed[entry.key] ?? 0) + 1; knownSet.delete(entry.key); }
         else if (missed[entry.key]) missed[entry.key] = Math.max(0, missed[entry.key] - 1);
       });
-      const best = { ...current.best };
-      if (sheetRound !== null) best[`round${sheetRound}`] = Math.max(best[`round${sheetRound}`] ?? 0, correctCount);
-      return { known: [...knownSet], missed, best };
+      return { known: [...knownSet], missed };
     });
     try {
       const earned = await onComplete(correctCount, totalBlanks);
@@ -524,18 +507,16 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
     );
   }
 
-  const roundTitle = ROUNDS[0];
-
   return (
     <section id="bio-card-training" className="basic-training section-shell bio-section">
       <div className="section-title-row basic-title-row">
         <div><span className="section-kicker">BIOLOGY CARD</span><h2>生物カード</h2></div>
-        <p>塾の生物カードを画面で。表(イラスト)から名前を思い出して、うらで答え合わせ。確認テストは本番と同じ形式です。</p>
+        <p>塾の生物カードの確認テスト対策。イラストを見て生物名と説明の空欄をうめよう。カードをめくって覚え直すこともできます。</p>
       </div>
 
       <div className="bio-tabs" role="tablist">
-        <button type="button" role="tab" aria-selected={tab === "study"} className={tab === "study" ? "active" : ""} onClick={() => setTab("study")}><Layers size={16} /> カードで覚える</button>
         <button type="button" role="tab" aria-selected={tab === "test"} className={tab === "test" ? "active" : ""} onClick={() => setTab("test")}><ClipboardCheck size={16} /> 確認テスト</button>
+        <button type="button" role="tab" aria-selected={tab === "study"} className={tab === "study" ? "active" : ""} onClick={() => setTab("study")}><Layers size={16} /> カードをめくる</button>
         <span className="bio-count">覚えた {knownCount}/{ALL_DECK.length}</span>
       </div>
 
@@ -616,13 +597,6 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
 
       {tab === "test" && !sheet.length && (
         <div className="bio-panel bio-test-menu">
-          <div className="bio-test-choice real">
-            <div>
-              <strong>{roundTitle.title}</strong>
-              <p>塾で実際に出された確認テスト(タンポポ・ジャガイモ・ヒガンバナ・アブラナ・イネ／20点満点)をそのまま再現しています。{progress.best.round7 !== undefined && <em>ベスト {progress.best.round7}/20</em>}</p>
-            </div>
-            <button type="button" className="primary-button" onClick={() => startSheet(roundSheet(roundTitle), roundTitle.title, roundTitle.id)}>第{roundTitle.id}回に挑戦</button>
-          </div>
           <div className="bio-test-choice">
             <div>
               <strong>ランダムで5枚</strong>
@@ -668,7 +642,7 @@ export function BioCards({ enabled, onComplete, onSound }: Props) {
                   setTab("study"); setSheet([]); startDeck(entries);
                 }}>まちがえたカードを見直す({wrongEntries.length}枚)</button>}
                 <button type="button" className="secondary-button" onClick={() => { setSheet([]); }}>メニューへ</button>
-                {sheetRound === null && <button type="button" className="secondary-button" onClick={startRandom}><Shuffle size={16} /> つぎの問題</button>}
+                <button type="button" className="secondary-button" onClick={startRandom}><Shuffle size={16} /> つぎの問題</button>
               </>
             )}
           </div>

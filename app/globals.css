@@ -934,7 +934,6 @@ footer { display: flex; justify-content: space-between; gap: 24px; padding: 24px
 
 .bio-test-menu { display: grid; gap: 14px; }
 .bio-test-choice { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px; background: #fafbfc; border: 1px solid var(--line); border-radius: 10px; }
-.bio-test-choice.real { background: var(--amber-pale); border-color: #ecd29a; }
 .bio-test-choice p { margin: 4px 0 10px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .bio-test-choice p em { margin-left: 8px; color: var(--teal); font-style: normal; font-weight: 800; }
 .bio-test-choice > button { flex: none; }
