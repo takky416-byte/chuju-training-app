@@ -35,6 +35,7 @@ import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, set
 import { getToken, onMessage } from "firebase/messaging";
 import { DOMAINS, type Domain, type Question } from "./questions";
 import { StudyAudioEngine, type AudioVolume, type BgmStyle, type SoundEffect } from "./audio-engine";
+import { BioCards } from "./bio-cards";
 import { BasicTraining, type BasicAttempt, type BasicAward, type BasicStartRequest } from "./basic-training";
 import { renderFractionText } from "./fraction-text";
 import {
@@ -152,7 +153,7 @@ type Collectible = {
 };
 type GachaDrawResult = { item: Collectible; count: number; isNew: boolean };
 
-const APP_VERSION = "v50";
+const APP_VERSION = "v51";
 const ATTEMPTS_KEY = "aichi_training_attempts_v1";
 const QUESTIONS_KEY = "aichi_training_custom_questions_v1";
 const RESET_WINDOWS_KEY = "aichi_training_reset_windows_v1";
@@ -2299,6 +2300,7 @@ export default function TrainingApp() {
           <a href="#practice">適性検査</a>
           <a href="#basic-training">基礎トレ</a>
           <a href="#check-test-training">チェックテスト対策</a>
+          <a href="#bio-card-training">生物カード</a>
           <a href="#best-check-training">国語ベストチェック</a>
           <a href="#progress">進捗</a>
         </nav>
@@ -2583,6 +2585,12 @@ export default function TrainingApp() {
         onComplete={rewardBasicCompletion}
         onSound={playEffect}
         onSyncStateChange={handleBasicSyncStateChange}
+      />
+
+      <BioCards
+        enabled={Boolean(user && isAllowed)}
+        onComplete={rewardBasicCompletion}
+        onSound={playEffect}
       />
 
       <BasicTraining
