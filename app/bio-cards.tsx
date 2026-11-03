@@ -187,7 +187,7 @@ export function getBioQuestionIds(): string[] {
     derivedItems(card).forEach((item) => ids.push(`bio:${item.id}`));
   });
   FAMILIES.forEach((fam) => fam.quiz.forEach((_, i) => ids.push(`bio:f${fam.id}-q-${i}`)));
-  return ids;
+  return [...new Set(ids)];
 }
 
 function blankedText(item: QuizItem) {

@@ -2446,7 +2446,7 @@ export default function TrainingApp() {
             <span><small>COIN</small><strong>{gameProgress.coins}</strong></span>
             <span className="wallet-collection">コレクション {ownedCollectibles.length}/{COLLECTIBLES.length}<ChevronRight size={16} /></span>
           </button>
-          <p className="sample-note">問題バンク：全{customQuestions.length + basicQuestionCount + checkTestQuestionCatalog.length + bestCheckQuestionCatalog.length}問（適性検査 {customQuestions.length}問＋基礎トレ {basicQuestionCount}問＋チェックテスト対策 {checkTestQuestionCatalog.length}問＋国語ベストチェック {bestCheckQuestionCatalog.length}問）</p>
+          <p className="sample-note">問題バンク：全{customQuestions.length + basicQuestionCount + checkTestQuestionCatalog.length + bestCheckQuestionCatalog.length + bioCardStats.registered}問（適性検査 {customQuestions.length}問＋基礎トレ {basicQuestionCount}問＋チェックテスト対策 {checkTestQuestionCatalog.length}問＋国語ベストチェック {bestCheckQuestionCatalog.length}問＋生物カード {bioCardStats.registered}問）</p>
         </div>
       </section>
 
@@ -2999,7 +2999,7 @@ export default function TrainingApp() {
         {isAdmin && (
           <section className="question-import" aria-labelledby="question-import-title">
             <div className="question-manager">
-              <div><span className="section-kicker">QUESTION BANK</span><h3 id="question-import-title">問題を一括追加</h3><p>適性検査・基礎トレ・チェックテスト対策・国語ベストチェックのJSONを自動判別して一括登録できます。現在の基礎トレは{basicQuestionCount}問、チェックテスト対策は{checkTestQuestionCatalog.length}問、国語ベストチェックは{bestCheckQuestionCatalog.length}問です。</p></div>
+              <div><span className="section-kicker">QUESTION BANK</span><h3 id="question-import-title">問題を一括追加</h3><p>適性検査・基礎トレ・チェックテスト対策・国語ベストチェックのJSONを自動判別して一括登録できます。現在の基礎トレは{basicQuestionCount}問、チェックテスト対策は{checkTestQuestionCatalog.length}問、国語ベストチェックは{bestCheckQuestionCatalog.length}問です。生物カードの{bioCardStats.registered}問はアプリに内蔵されていて、ここからの追加は不要です。</p></div>
               <div className="question-manager-actions">
                 <button className="secondary-button" type="button" onClick={downloadImportTemplate}><FileJson size={17} /> 適性検査ひな形</button>
                 <select aria-label="基礎トレ・チェックテストひな形を選択" defaultValue="" onChange={(event) => { if (event.currentTarget.value) downloadBasicImportTemplate(event.currentTarget.value as BasicSubject); event.currentTarget.value = ""; }}>
