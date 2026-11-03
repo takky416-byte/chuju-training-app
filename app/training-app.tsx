@@ -1238,7 +1238,8 @@ export default function TrainingApp() {
     const todayStart = localDay().toISOString();
     const todayAttempts = attempts.filter((attempt) => attempt.createdAt >= todayStart);
     const todayBasicAttempts = basicAttempts.filter((attempt) => attempt.createdAt >= todayStart);
-    const todayAllAttempts = [...todayAttempts, ...todayBasicAttempts];
+    const todayCheckAttempts = [...allCheckTestAttempts, ...bestCheckAttempts].filter((attempt) => attempt.createdAt >= todayStart);
+    const todayAllAttempts = [...todayAttempts, ...todayBasicAttempts, ...todayCheckAttempts];
     const correct = todayAllAttempts.filter((attempt) => attempt.isCorrect).length;
     const beforeToday = attempts.filter((attempt) => attempt.createdAt < todayStart);
     const beforeTodayBasic = basicAttempts.filter((attempt) => attempt.createdAt < todayStart);
@@ -1267,7 +1268,7 @@ export default function TrainingApp() {
       newlyDone,
       newlyMastered,
     };
-  }, [attempts, basicAttempts, basicQuestionCatalog, basicQuestionStates, questionStates, questions]);
+  }, [allCheckTestAttempts, attempts, basicAttempts, basicQuestionCatalog, basicQuestionStates, bestCheckAttempts, questionStates, questions]);
 
   const dailyQuestProgress = useMemo(() => {
     const todayStart = localDay().toISOString();
