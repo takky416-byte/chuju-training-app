@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ClipboardCheck, Layers, RotateCcw, Search, Shuffle, Star, X } from "lucide-react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import type { BasicAttempt } from "./basic-training";
 import rawData from "./data/bio-cards.json";
 import { db, LEARNER_RECORD_ID } from "./firebase";
 import type { SoundEffect } from "./audio-engine";
@@ -174,10 +175,39 @@ function pickItems(card: BioCard, count = 3): QuizItem[] {
   return unique.slice(0, count);
 }
 
+/* ---------- attempts (saved with the check-test records so reports and reminders count them) ---------- */
+export const BIO_SUBJECT_ID = "bioCard";
+const ATTEMPTS_KEY = "aichi_training_bioattempts_v1";
+
+export function getBioQuestionIds(): string[] {
+  const ids: string[] = [];
+  CARDS.forEach((card) => {
+    ids.push(`bio:${card.no}-name`);
+    card.quiz.forEach((_, i) => ids.push(`bio:${card.no}-q-${i}`));
+    derivedItems(card).forEach((item) => ids.push(`bio:${item.id}`));
+  });
+  FAMILIES.forEach((fam) => fam.quiz.forEach((_, i) => ids.push(`bio:f${fam.id}-q-${i}`)));
+  return ids;
+}
+
+function blankedText(item: QuizItem) {
+  return item.segs.map((seg) => (typeof seg === "string" ? seg : "(　)")).join("").trim();
+}
+
+function loadLocalAttempts(): BasicAttempt[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) ?? "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 /* ---------- test sheet model ---------- */
 type SheetEntry = {
   key: string;
   title: string;
+  label: string;
   imageSrc?: string;
   famMark?: string;
   items: QuizItem[];
@@ -185,12 +215,12 @@ type SheetEntry = {
 
 function cardEntry(card: BioCard, items: QuizItem[]): SheetEntry {
   const nameItem: QuizItem = { id: `${card.no}-name`, segs: ["生物名 ", nameBlank(card)], plain: card.name };
-  return { key: `c${card.no}`, title: `カード${card.no}`, imageSrc: cardImage(card.no), items: [nameItem, ...items] };
+  return { key: `c${card.no}`, title: `カード${card.no}`, label: card.name, imageSrc: cardImage(card.no), items: [nameItem, ...items] };
 }
 
 function familyEntry(fam: BioFamily): SheetEntry {
   const items = shuffle(fam.quiz.map((q, i) => toItem(`f${fam.id}-q-${i}`, q))).slice(0, 3);
-  return { key: `f${fam.id}`, title: `${fam.mark} ${fam.title}`, famMark: `${fam.mark}\n★${fam.title}`, items };
+  return { key: `f${fam.id}`, title: `${fam.mark} ${fam.title}`, label: fam.title, famMark: `${fam.mark}\n★${fam.title}`, items };
 }
 
 const cardImage = (no: number) => `/checktest-biocard/card-${String(no).padStart(2, "0")}.jpg`;
@@ -304,9 +334,11 @@ type Props = {
   startRequest?: { id: string; mode: "test" | "study" } | null;
   onComplete: (correct: number, total: number) => Promise<number> | number;
   onSound: (effect: SoundEffect) => void;
+  onAttemptsChange?: (rows: BasicAttempt[]) => void;
+  onSyncStateChange?: (state: "synced" | "local") => void;
 };
 
-export function BioCards({ enabled, startRequest, onComplete, onSound }: Props) {
+export function BioCards({ enabled, startRequest, onComplete, onSound, onAttemptsChange, onSyncStateChange }: Props) {
   const [tab, setTab] = useState<"study" | "test">("test");
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const progressLoaded = useRef(false);
@@ -326,6 +358,14 @@ export function BioCards({ enabled, startRequest, onComplete, onSound }: Props) 
   const [bonus, setBonus] = useState<number | null>(null);
   const [testFilter, setTestFilter] = useState<"all" | "plant" | "animal" | "plankton" | "weak" | "family">("all");
   const sheetRef = useRef<HTMLDivElement | null>(null);
+
+  const [attempts, setAttempts] = useState<BasicAttempt[]>([]);
+  useEffect(() => {
+    const local = loadLocalAttempts();
+    setAttempts(local);
+    onAttemptsChange?.(local);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const local = loadProgress();
@@ -464,6 +504,36 @@ export function BioCards({ enabled, startRequest, onComplete, onSound }: Props) 
     if (checked || !sheet.length) return;
     setChecked(true);
     onSound(correctCount === totalBlanks ? "combo" : "finish");
+    const createdAt = new Date().toISOString();
+    const newAttempts: BasicAttempt[] = [];
+    sheet.forEach((entry) => entry.items.forEach((item) => {
+      const blank = blankOf(item);
+      if (!blank) return;
+      newAttempts.push({
+        clientAttemptId: crypto.randomUUID(),
+        questionId: `bio:${item.id}`,
+        questionTitle: `${entry.label}：${blankedText(item)}`,
+        correctAnswer: blank.answer,
+        subject: BIO_SUBJECT_ID as BasicAttempt["subject"],
+        setId: "bio-card",
+        isCorrect: Boolean(results[item.id]),
+        durationSeconds: 0,
+        createdAt,
+      });
+    }));
+    const nextAttempts = [...newAttempts, ...attempts];
+    setAttempts(nextAttempts);
+    onAttemptsChange?.(nextAttempts);
+    try {
+      localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(nextAttempts));
+    } catch {
+      /* ignore */
+    }
+    if (enabled && db) {
+      Promise.all(newAttempts.map((attempt) => setDoc(doc(db!, "learners", LEARNER_RECORD_ID, "checkTestAttempts", attempt.clientAttemptId), attempt)))
+        .then(() => onSyncStateChange?.("synced"))
+        .catch(() => onSyncStateChange?.("local"));
+    }
     setProgress((current) => {
       const missed = { ...current.missed };
       const knownSet = new Set(current.known);

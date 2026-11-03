@@ -35,7 +35,7 @@ import { collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, set
 import { getToken, onMessage } from "firebase/messaging";
 import { DOMAINS, type Domain, type Question } from "./questions";
 import { StudyAudioEngine, type AudioVolume, type BgmStyle, type SoundEffect } from "./audio-engine";
-import { BioCards } from "./bio-cards";
+import { BioCards, BIO_SUBJECT_ID, getBioQuestionIds } from "./bio-cards";
 import { BasicTraining, type BasicAttempt, type BasicAward, type BasicStartRequest } from "./basic-training";
 import { renderFractionText } from "./fraction-text";
 import {
@@ -766,6 +766,7 @@ export default function TrainingApp() {
   const [basicStartRequest, setBasicStartRequest] = useState<BasicStartRequest | null>(null);
   const [checkTestTrainingActive, setCheckTestTrainingActive] = useState(false);
   const [checkTestAttempts, setCheckTestAttempts] = useState<BasicAttempt[]>([]);
+  const [bioAttempts, setBioAttempts] = useState<BasicAttempt[]>([]);
   const [checkTestQuestionCatalog, setCheckTestQuestionCatalog] = useState<BasicQuestionEntry[]>([]);
   const [checkTestStartRequest, setCheckTestStartRequest] = useState<BasicStartRequest | null>(null);
   const [bestCheckTrainingActive, setBestCheckTrainingActive] = useState(false);
@@ -1065,6 +1066,36 @@ export default function TrainingApp() {
     basicQuestionCatalog.map((entry) => [entry.question.id, getMasteryState(basicAttemptsByQuestion.get(entry.question.id) ?? [])]),
   ), [basicAttemptsByQuestion, basicQuestionCatalog]);
 
+  // 生物カードの記録はチェックテスト対策のコレクションに保存される。
+  // 再読み込み前はこの端末の記録(bioAttempts)にしかないので、重複を除いて合わせる。
+  const allCheckTestAttempts = useMemo(() => {
+    const merged = new Map<string, BasicAttempt>();
+    [...checkTestAttempts, ...bioAttempts.filter((attempt) => !isResetAttempt(attempt as unknown as Attempt, resetWindows))].forEach((attempt) => merged.set(attempt.clientAttemptId, attempt));
+    return [...merged.values()];
+  }, [bioAttempts, checkTestAttempts, resetWindows]);
+
+  const bioCardStats = useMemo(() => {
+    const ids = getBioQuestionIds();
+    const rows = allCheckTestAttempts.filter((attempt) => (attempt.subject as string) === BIO_SUBJECT_ID);
+    const byQuestion = new Map<string, BasicAttempt[]>();
+    rows.forEach((attempt) => byQuestion.set(attempt.questionId, [...(byQuestion.get(attempt.questionId) ?? []), attempt]));
+    const states = ids.map((id) => getMasteryState(byQuestion.get(id) ?? []));
+    const practicing = states.filter((state) => state === "practicing").length;
+    const done = states.filter((state) => state === "done").length;
+    const mastered = states.filter((state) => state === "mastered").length;
+    const correct = rows.filter((attempt) => attempt.isCorrect).length;
+    return {
+      registered: ids.length,
+      attempted: practicing + done + mastered,
+      practicing,
+      done,
+      mastered,
+      attempts: rows.length,
+      correct,
+      accuracy: rows.length ? Math.round(correct / rows.length * 100) : 0,
+    };
+  }, [allCheckTestAttempts]);
+
   const checkTestAttemptsByQuestion = useMemo(() => {
     const rows = new Map<string, BasicAttempt[]>();
     checkTestAttempts.forEach((attempt) => rows.set(attempt.questionId, [...(rows.get(attempt.questionId) ?? []), attempt]));
@@ -1242,7 +1273,7 @@ export default function TrainingApp() {
     const todayStart = localDay().toISOString();
     const todayBasic = basicAttempts.filter((attempt) => attempt.createdAt >= todayStart);
     const todayAptitudeCount = attempts.filter((attempt) => attempt.createdAt >= todayStart).length;
-    const todayCheckTestCount = checkTestAttempts.filter((attempt) => attempt.createdAt >= todayStart).length;
+    const todayCheckTestCount = allCheckTestAttempts.filter((attempt) => attempt.createdAt >= todayStart).length;
     const subjectCount = (subject: BasicSubject) => todayBasic.filter((attempt) => attempt.subject === subject).length;
     const groups = Object.fromEntries((Object.keys(DAILY_QUEST_SUBJECT_GROUPS) as DailyQuestGroupId[]).map((groupId) => {
       const rows = DAILY_QUEST_SUBJECT_GROUPS[groupId].map((subject) => ({
@@ -1261,7 +1292,7 @@ export default function TrainingApp() {
     };
     const allDone = DAILY_QUEST_IDS.every((id) => quests[id].done);
     return { quests, allDone };
-  }, [attempts, basicAttempts, checkTestAttempts]);
+  }, [allCheckTestAttempts, attempts, basicAttempts]);
 
   useEffect(() => {
     if (!db || syncState === "loading") return;
@@ -1979,9 +2010,9 @@ export default function TrainingApp() {
   const recent = useMemo(() => [
     ...attempts.map((attempt) => ({ ...attempt, trainingType: "aptitude" as const })),
     ...basicAttempts.map((attempt) => ({ ...attempt, trainingType: "basic" as const })),
-    ...checkTestAttempts.map((attempt) => ({ ...attempt, trainingType: "checktest" as const })),
+    ...allCheckTestAttempts.map((attempt) => ({ ...attempt, trainingType: "checktest" as const })),
     ...bestCheckAttempts.map((attempt) => ({ ...attempt, trainingType: "bestcheck" as const })),
-  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 15), [attempts, basicAttempts, checkTestAttempts, bestCheckAttempts]);
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 15), [attempts, basicAttempts, allCheckTestAttempts, bestCheckAttempts]);
   const sessionScore = sessionAnswers.filter(Boolean).length;
   const sessionAccuracy = session.length ? Math.round((sessionScore / session.length) * 100) : 0;
   const sessionRank = getSessionRank(sessionScore, session.length);
@@ -2021,6 +2052,7 @@ export default function TrainingApp() {
   const handleBasicQuestionCatalogChange = useCallback((rows: BasicQuestionEntry[]) => setBasicQuestionCatalog(rows), []);
   const handleCheckTestActivityChange = useCallback((active: boolean) => setCheckTestTrainingActive(active), []);
   const handleCheckTestAttemptsChange = useCallback((rows: BasicAttempt[]) => setCheckTestAttempts(rows), []);
+  const handleBioAttemptsChange = useCallback((rows: BasicAttempt[]) => setBioAttempts(rows), []);
   const handleCheckTestQuestionCatalogChange = useCallback((rows: BasicQuestionEntry[]) => setCheckTestQuestionCatalog(rows), []);
   const handleBestCheckActivityChange = useCallback((active: boolean) => setBestCheckTrainingActive(active), []);
   const handleBestCheckAttemptsChange = useCallback((rows: BasicAttempt[]) => setBestCheckAttempts(rows), []);
@@ -2600,6 +2632,8 @@ export default function TrainingApp() {
       <BioCards
         enabled={Boolean(user && isAllowed)}
         startRequest={bioCardRequest}
+        onAttemptsChange={handleBioAttemptsChange}
+        onSyncStateChange={handleBasicSyncStateChange}
         onComplete={rewardBasicCompletion}
         onSound={playEffect}
       />
@@ -2714,6 +2748,25 @@ export default function TrainingApp() {
               </div>
             </div>
             <div className="achievement-group checktest-achievement-group">
+              <div className="achievement-group-title"><strong>生物カード</strong><span>{bioCardStats.registered}問</span></div>
+              <div className="domain-achievement-grid basic-achievement-grid">
+                <article className="achievement-card">
+                  <div className="achievement-heading"><strong>確認テスト</strong><span>{`${bioCardStats.attempted} / ${bioCardStats.registered}問に挑戦`}</span></div>
+                  <div className="achievement-bar" aria-label={`生物カード：未挑戦${Math.max(0, bioCardStats.registered - bioCardStats.attempted)}問、練習中${bioCardStats.practicing}問、できた${bioCardStats.done}問、身についた${bioCardStats.mastered}問`}>
+                    <span className="practicing" style={{ width: `${bioCardStats.practicing / bioCardStats.registered * 100}%` }} />
+                    <span className="done" style={{ width: `${bioCardStats.done / bioCardStats.registered * 100}%` }} />
+                    <span className="mastered" style={{ width: `${bioCardStats.mastered / bioCardStats.registered * 100}%` }} />
+                  </div>
+                  <div className="achievement-counts">
+                    <span className="practicing"><small>練習中</small><strong>{bioCardStats.practicing}</strong></span>
+                    <span className="done"><small>できた</small><strong>{bioCardStats.done}</strong></span>
+                    <span className="mastered"><small>身についた</small><strong>{bioCardStats.mastered}</strong></span>
+                  </div>
+                  {isAdmin && <p className="parent-detail">全{bioCardStats.attempts}回答・正答率 {bioCardStats.attempts ? `${bioCardStats.accuracy}%` : "—"}</p>}
+                </article>
+              </div>
+            </div>
+            <div className="achievement-group checktest-achievement-group">
               <div className="achievement-group-title"><strong>国語ベストチェック</strong><span>{bestCheckSubjectStats.length}科目</span></div>
               <div className="domain-achievement-grid basic-achievement-grid">
                 {bestCheckSubjectStats.map((row) => {
@@ -2747,14 +2800,14 @@ export default function TrainingApp() {
                 const title = attempt.trainingType === "aptitude"
                   ? questions.find((question) => question.id === attempt.questionId)?.title ?? attempt.domain
                   : attempt.trainingType === "checktest"
-                  ? checkTestQuestionTitles.get(attempt.questionId) ?? "チェックテスト対策"
+                  ? checkTestQuestionTitles.get(attempt.questionId) ?? ("questionTitle" in attempt && attempt.questionTitle ? attempt.questionTitle : "チェックテスト対策")
                   : attempt.trainingType === "bestcheck"
                   ? bestCheckQuestionTitles.get(attempt.questionId) ?? "ベストチェック国語"
                   : basicQuestionTitles.get(attempt.questionId) ?? "基礎トレ";
                 const category = attempt.trainingType === "aptitude"
                   ? `適性検査・${attempt.domain}`
                   : attempt.trainingType === "checktest"
-                  ? `チェックテスト対策・${checkTestSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`
+                  ? `チェックテスト対策・${(attempt.subject as string) === BIO_SUBJECT_ID ? "生物カード" : checkTestSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`
                   : attempt.trainingType === "bestcheck"
                   ? `ベストチェック国語・${bestCheckSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`
                   : `基礎トレ・${basicSubjects.find((subject) => subject.id === attempt.subject)?.label ?? attempt.subject}`;

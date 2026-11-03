@@ -37,6 +37,7 @@ const CHECK_TEST_SUBJECT_LABELS = {
   checkTestScience: "理科",
   checkTestSocial: "社会",
   checkTestMath: "算数",
+  bioCard: "生物カード",
 };
 const BEST_CHECK_SUBJECT_LABELS = {
   bestCheckWriting: "書き取り",
